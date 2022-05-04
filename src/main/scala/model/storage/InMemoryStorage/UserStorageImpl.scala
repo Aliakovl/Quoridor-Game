@@ -1,5 +1,6 @@
 package model.storage.InMemoryStorage
 
+import model.GameException.UserNotFoundException
 import model.User
 import model.storage.UserStorage
 
@@ -18,7 +19,7 @@ class UserStorageImpl extends UserStorage {
   override def find(id: UUID): Future[User] = {
     userStore.get(id) match {
       case Some(user) => Future.successful(user)
-      case None => Future.failed(new IllegalArgumentException)
+      case None => Future.failed(UserNotFoundException(id))
     }
   }
 

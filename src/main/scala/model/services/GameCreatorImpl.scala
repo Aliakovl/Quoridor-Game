@@ -1,7 +1,7 @@
 package model.services
 import model.game.geometry.Board.initPosition
-import model.game.geometry.Side
-import model.{ProtoGame, User}
+import model.game.geometry.Board
+import model.{GameException, ProtoGame, User}
 import model.game.{Game, GameState, Player}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 
@@ -26,7 +26,7 @@ class GameCreatorImpl(protoGameStorage: ProtoGameStorage,
     for {
       protoGame <- protoGameStorage.find(gameId)
       users = protoGame.users
-      players = createPlayers(users)
+      players <- Future.fromTry(createPlayers(users).toTry)
       firstTurnPlayer = players.head
       state = GameState(players.toSet, Set.empty)
       game <- gameStorage.insert(protoGame.gameId, firstTurnPlayer.id, state)
@@ -34,11 +34,13 @@ class GameCreatorImpl(protoGameStorage: ProtoGameStorage,
   }
 
 
-  private def createPlayers(users: Seq[User]): Seq[Player] = {
-    val n = users.size
-    users.zip(Side.allSides).map{
-      case (User(id), target) => Player(id, initPosition(target.opposite), 21 / n, target)
-    }
+  private def createPlayers(users: Seq[User]): Either[GameException, Seq[Player]] = {
+    for {
+      order <- Board.playersOrder(users.size)
+      players = users.zip(order).map{
+        case (User(id), target) => Player(id, Board.initPosition(target.opposite), 21 / users.size, target)
+      }
+    } yield players
   }
 
 }

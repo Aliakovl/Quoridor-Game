@@ -1,5 +1,7 @@
 package model.game.geometry
 
+import model.GameException
+import model.GameException.{NotEnoughPlayersException, PlayersNumberLimit}
 import model.game.geometry.Direction._
 import model.game.geometry.Side._
 
@@ -19,13 +21,13 @@ object Board {
     }
   }
 
-  def playersOrder(playersNumber: Int): List[Side] = {
+  def playersOrder(playersNumber: Int): Either[GameException, List[Side]] = {
     playersNumber match {
-      case n if n < 2 => throw new IllegalArgumentException
-      case 2          => List(North, South)
-      case 3          => List(North, West, South)
-      case 4          => List(North, West, South, East)
-      case _          => throw new IllegalArgumentException
+      case n if n < 2 => Left(NotEnoughPlayersException)
+      case 2          => Right(List(North, South))
+      case 3          => Right(List(North, West, South))
+      case 4          => Right(List(North, West, South, East))
+      case _          => Left(PlayersNumberLimit)
     }
   }
 
@@ -89,26 +91,24 @@ object Board {
   }
 
 
-  def existsPath(from: PawnPosition, to: Side, walls: Set[WallPosition]): Boolean = {
-    var res = false
-    val q = mutable.Queue.empty[PawnPosition]
+  def existsPath(from: PawnPosition, target: Side, walls: Set[WallPosition]): Boolean = {
+    val queue = mutable.Queue.empty[PawnPosition]
     val used = mutable.Set.empty[PawnPosition]
-    q.enqueue(from)
+    queue.enqueue(from)
     used.add(from)
-    while (q.nonEmpty) {
-      val v = q.dequeue()
-      if (isPawnOnEdge(v, to)) {
-        res = true
+    while (queue.nonEmpty) {
+      val position = queue.dequeue()
+      if (isPawnOnEdge(position, target)) {
+        return true
       }
-      for (w <- adjacentPositions(v, walls)) {
-        if (!used.contains(w)) {
-          used(w) = true
-          q.enqueue(w)
+      for (adjacentPosition <- adjacentPositions(position, walls)) {
+        if (!used.contains(adjacentPosition)) {
+          used.add(adjacentPosition)
+          queue.enqueue(adjacentPosition)
         }
       }
     }
-
-    res
+    false
   }
 
 }

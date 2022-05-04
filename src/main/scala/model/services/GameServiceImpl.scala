@@ -1,5 +1,7 @@
 package model.services
 
+import model.GameException
+import model.GameException.{GameInterloperException, WrongPlayersTurnException}
 import model.game.geometry.Board
 import model.game.{Game, Move}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
@@ -14,23 +16,28 @@ class GameServiceImpl(protoGameStorage: ProtoGameStorage,
     for {
       user <- userStorage.find(userId)
       // TODO: CHECK AUTHORIZATION
+
       game <- gameStorage.find(gameId)
-      // TODO: CHECK PLAYERS QUEUE
-      newGame <- move.makeOn(game) match {
-        case Some(newState) =>
-          val nextPlayerId: UUID = nextPlayer(game)
-          gameStorage.insert(gameId, nextPlayerId, newState)
-        case None => throw new IllegalArgumentException
-      }
+
+      either = for {
+        _ <- Either.cond(game.state.players.exists(_.id == userId), (), GameInterloperException(userId, gameId))
+        _ <- Either.cond(game.activePlayer.id == userId, (), WrongPlayersTurnException(gameId))
+        newState <- move.makeAt(game)
+        nextPlayerId <- nextPlayer(game)
+      } yield (nextPlayerId, newState)
+
+      (nextPlayerId, newState) <- Future.fromTry(either.toTry)
+      newGame <- gameStorage.insert(gameId, nextPlayerId, newState)
     } yield newGame
   }
 
-  def nextPlayer(game: Game): UUID = {
+  def nextPlayer(game: Game): Either[GameException, UUID] = {
     val players = game.state.players
     val player = game.activePlayer
-    val order = Board.playersOrder(players.size)
-    val side = offsetMap(order)(player.target)
-    players.find(_.target == side).get.id
+    for {
+      order <- Board.playersOrder(players.size)
+      side = offsetMap(order)(player.target)
+    } yield players.find(_.target == side).get.id
   }
 
   def offsetMap[T](list: List[T]): Map[T, T] = {

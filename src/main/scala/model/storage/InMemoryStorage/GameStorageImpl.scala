@@ -1,5 +1,6 @@
 package model.storage.InMemoryStorage
 
+import model.GameException.{GameNotFoundException, UserNotFoundException}
 import model.game.{Game, GameState}
 import model.storage.GameStorage
 
@@ -10,7 +11,7 @@ import scala.concurrent.Future
 class GameStorageImpl extends GameStorage {
   override def insert(id: UUID, activePlayerId: UUID, state: GameState): Future[Game] = {
     state.players.find(_.id == activePlayerId) match {
-      case None => Future.failed(new IllegalArgumentException)
+      case None => Future.failed(UserNotFoundException(activePlayerId))
       case Some(player) =>
         val newId = UUID.randomUUID()
         val newGame = Game(newId, player, state)
@@ -22,7 +23,7 @@ class GameStorageImpl extends GameStorage {
   override def find(id: UUID): Future[Game] = {
     gameStore.get(id) match {
       case Some((game, _)) => Future.successful(game)
-      case None => Future.failed(new IllegalArgumentException)
+      case None => Future.failed(GameNotFoundException(id))
     }
   }
 

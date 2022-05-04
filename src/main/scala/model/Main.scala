@@ -28,10 +28,10 @@ object Main {
       game <- gameCreator.startGame(pgn.gameId)
       _ = println(game)
       move1 = PawnMove(PawnPosition(7, 4))
-      game1 <- gameService.makeMove(game.id, user_1.id, move1)
+      game1 <- gameService.makeMove(game.id, user_2.id, move1)
       _ = println(game1)
       move2 = PlaceWall(WallPosition(Horizontal, 6, 3))
-      game2 <- gameService.makeMove(game1.id, user_2.id, move2)
+      game2 <- gameService.makeMove(game1.id, user_1.id, move2)
     } yield game2
 
     println(Await.result(future, 1.second))

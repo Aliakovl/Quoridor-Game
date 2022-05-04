@@ -1,5 +1,6 @@
 package model.storage.InMemoryStorage
 
+import model.GameException.GameNotFoundException
 import model.{ProtoGame, User}
 import model.storage.ProtoGameStorage
 
@@ -19,13 +20,13 @@ class ProtoGameStorageImpl extends ProtoGameStorage {
   override def find(id: UUID): Future[ProtoGame] = {
     protoGameStore.get(id) match {
       case Some(pg) => Future.successful(pg)
-      case None => Future.failed(new IllegalArgumentException)
+      case None => Future.failed(GameNotFoundException(id))
     }
   }
 
   override def update(id: UUID, userId: UUID): Future[ProtoGame] = {
     protoGameStore.get(id) match {
-      case None => Future.failed(new IllegalArgumentException)
+      case None => Future.failed(GameNotFoundException(id))
       case Some(pg) =>
         val users = User(userId) +: pg.users
         val newPg = pg.copy(users = users)
