@@ -1,14 +1,15 @@
 package model.storage
 
-import model.{ProtoGame, User}
+import model.ProtoGame
+import model.game.geometry.Side
 
 import java.util.UUID
-import scala.concurrent.Future
 
-trait ProtoGameStorage {
-  def find(gameId: UUID): Future[ProtoGame]
 
-  def insert(userId: UUID): Future[ProtoGame]
+trait ProtoGameStorage[F[_]] {
+  def find(gameId: UUID): F[ProtoGame]
 
-  def update(gameId: UUID, userId: UUID): Future[ProtoGame]
+  def insert(userId: UUID): F[ProtoGame]
+
+  def update(gameId: UUID, userId: UUID, target: Side): F[ProtoGame]
 }

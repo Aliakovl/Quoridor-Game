@@ -1,7 +1,7 @@
 package model.game.geometry
 
 import model.GameException
-import model.GameException.{NotEnoughPlayersException, PlayersNumberLimit}
+import model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
 import model.game.geometry.Direction._
 import model.game.geometry.Side._
 
@@ -27,7 +27,7 @@ object Board {
       case 2          => Right(List(North, South))
       case 3          => Right(List(North, West, South))
       case 4          => Right(List(North, West, South, East))
-      case _          => Left(PlayersNumberLimit)
+      case _          => Left(PlayersNumberLimitException)
     }
   }
 

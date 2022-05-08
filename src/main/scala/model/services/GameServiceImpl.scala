@@ -1,43 +1,43 @@
 package model.services
 
+import cats.effect.Async
+import cats.implicits._
 import model.GameException
 import model.GameException.{GameInterloperException, WrongPlayersTurnException}
 import model.game.geometry.Board
-import model.game.{Game, Move}
+import model.game.{Game, Move, Player}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
 
-class GameServiceImpl(protoGameStorage: ProtoGameStorage,
-                      gameStorage: GameStorage,
-                      userStorage: UserStorage)(implicit ec: ExecutionContext) extends GameService {
-  override def makeMove(gameId: UUID, userId: UUID, move: Move): Future[Game] = {
+class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
+                      gameStorage: GameStorage[F],
+                      userStorage: UserStorage[F])(implicit F: Async[F]) extends GameService[F] {
+  override def makeMove(gameId: UUID, userId: UUID, move: Move): F[Game] = {
     for {
       user <- userStorage.find(userId)
-      // TODO: CHECK AUTHORIZATION
-
       game <- gameStorage.find(gameId)
 
       either = for {
         _ <- Either.cond(game.state.players.exists(_.id == userId), (), GameInterloperException(userId, gameId))
         _ <- Either.cond(game.activePlayer.id == userId, (), WrongPlayersTurnException(gameId))
         newState <- move.makeAt(game)
-        nextPlayerId <- nextPlayer(game)
-      } yield (nextPlayerId, newState)
+        nextPlayer <- nextPlayer(game)
+      } yield (nextPlayer, newState)
 
-      (nextPlayerId, newState) <- Future.fromTry(either.toTry)
-      newGame <- gameStorage.insert(gameId, nextPlayerId, newState)
+      f <- F.fromTry(either.toTry)
+      (nextPlayer, newState) = f
+      newGame <- gameStorage.insert(gameId, nextPlayer, newState)
     } yield newGame
   }
 
-  def nextPlayer(game: Game): Either[GameException, UUID] = {
+  def nextPlayer(game: Game): Either[GameException, Player] = {
     val players = game.state.players
     val player = game.activePlayer
     for {
       order <- Board.playersOrder(players.size)
       side = offsetMap(order)(player.target)
-    } yield players.find(_.target == side).get.id
+    } yield players.find(_.target == side).get
   }
 
   def offsetMap[T](list: List[T]): Map[T, T] = {

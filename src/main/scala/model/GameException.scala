@@ -21,8 +21,14 @@ object GameException {
   case object NotEnoughPlayersException
     extends GameException("Not enough players to start game")
 
-  case object PlayersNumberLimit
+  case object PlayersNumberLimitException
     extends GameException("The number of players has reached the limit")
+
+  case class LoginOccupiedException(login: String)
+    extends GameException(s"User with login $login already exists")
+
+  case class SamePlayerException(userId: UUID, gameId: UUID)
+    extends GameException(s"User with id=$userId already belong to the game with id=$gameId")
 }
 
 

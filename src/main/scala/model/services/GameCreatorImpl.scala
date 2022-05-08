@@ -1,46 +1,50 @@
 package model.services
-import model.game.geometry.Board.initPosition
-import model.game.geometry.Board
-import model.{GameException, ProtoGame, User}
+
+import cats.effect.Async
+import cats.implicits._
+import model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
+import model.game.geometry.{Board, Side}
+import model.game.geometry.Side._
+import model.{ProtoGame, ProtoPlayer}
 import model.game.{Game, GameState, Player}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
 
-class GameCreatorImpl(protoGameStorage: ProtoGameStorage,
-                      gameStorage: GameStorage,
-                      userStorage: UserStorage)(implicit ec: ExecutionContext) extends GameCreator {
-  override def createGame(userId: UUID): Future[ProtoGame] = {
+
+class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
+                                gameStorage: GameStorage[F],
+                                userStorage: UserStorage[F])(implicit F: Async[F]) extends GameCreator[F] {
+
+  override def createGame(userId: UUID): F[ProtoGame] = {
     protoGameStorage.insert(userId)
   }
 
-  override def joinPlayer(gameId: UUID, userId: UUID): Future[ProtoGame] = {
+  override def joinPlayer(gameId: UUID, userId: UUID): F[ProtoGame] = {
     for {
-      _ <- userStorage.find(userId)
-      game <- protoGameStorage.update(gameId, userId)
-    } yield game
+      protoGame <- protoGameStorage.find(gameId)
+      playersNumber = protoGame.users.size
+      _ <- if (playersNumber > 3) F.raiseError(PlayersNumberLimitException) else F.unit
+      target = sides(protoGame.users.size)
+      pg <- protoGameStorage.update(gameId, userId, target)
+    } yield pg
   }
 
-  override def startGame(gameId: UUID): Future[Game] = {
+  override def startGame(gameId: UUID): F[Game] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
       users = protoGame.users
-      players <- Future.fromTry(createPlayers(users).toTry)
+      playersNumber = users.size
+      _ <- if (playersNumber < 2) F.raiseError(NotEnoughPlayersException) else F.unit
+      players = users.map{ case ProtoPlayer(id, login, target) =>
+        Player(id, login, Board.initPosition(target.opposite), 21 / playersNumber, target)
+      }
       firstTurnPlayer = players.head
       state = GameState(players.toSet, Set.empty)
-      game <- gameStorage.insert(protoGame.gameId, firstTurnPlayer.id, state)
+      game <- gameStorage.create(gameId, firstTurnPlayer, state)
     } yield game
   }
 
-
-  private def createPlayers(users: Seq[User]): Either[GameException, Seq[Player]] = {
-    for {
-      order <- Board.playersOrder(users.size)
-      players = users.zip(order).map{
-        case (User(id), target) => Player(id, Board.initPosition(target.opposite), 21 / users.size, target)
-      }
-    } yield players
-  }
+  val sides: Seq[Side] = List(North, South, West, East)
 
 }

@@ -4,12 +4,12 @@ import model.{ProtoGame, User}
 import model.game.Game
 
 import java.util.UUID
-import scala.concurrent.Future
 
-trait GameCreator {
-  def createGame(userId: UUID): Future[ProtoGame]
 
-  def joinPlayer(gameId: UUID, playerId: UUID): Future[ProtoGame]
+trait GameCreator[F[_]] {
+  def createGame(userId: UUID): F[ProtoGame]
 
-  def startGame(gameId: UUID): Future[Game]
+  def joinPlayer(gameId: UUID, playerId: UUID): F[ProtoGame]
+
+  def startGame(gameId: UUID): F[Game]
 }
