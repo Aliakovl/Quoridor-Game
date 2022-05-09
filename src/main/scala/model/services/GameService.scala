@@ -1,10 +1,10 @@
 package model.services
 
+import model.User
 import model.game.{Game, Move}
-
-import java.util.UUID
+import utils.Typed.ID
 
 
 trait GameService[F[_]] {
-  def makeMove(gameId: UUID, userId: UUID, move: Move): F[Game]
+  def makeMove(gameId: ID[Game], userId: ID[User], move: Move): F[Game]
 }

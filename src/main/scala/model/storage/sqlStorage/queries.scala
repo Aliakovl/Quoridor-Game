@@ -1,20 +1,25 @@
 package model.storage.sqlStorage
 
-import doobie.Update
-import doobie.ConnectionIO
+import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
 import model.GameException.{GameNotFoundException, LoginOccupiedException, SamePlayerException, UserNotFoundException}
 import model.game.geometry.Side.North
 import model.game.geometry.{Orientation, PawnPosition, Side, WallPosition}
-import model.game.Player
+import model.game.{Game, Player}
 import model.{ProtoGame, ProtoPlayer, User}
+import utils.Typed.Implicits._
+import utils.Typed.ID
+
 import java.util.UUID
 
 
 object queries {
-  def findUserById(userId: UUID): ConnectionIO[User] = {
+
+  implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.typed[T])(_.unType)
+
+  def findUserById(userId: ID[User]): ConnectionIO[User] = {
     sql"""
     SELECT * FROM "user"
     WHERE id = $userId
@@ -28,7 +33,7 @@ object queries {
   }
 
   def registerUser(login: String): ConnectionIO[User] = {
-    lazy val userId = UUID.randomUUID()
+    lazy val userId = UUID.randomUUID().typed[User]
     sql"""
     INSERT INTO "user" (id, login)
     VALUES ($userId, $login)
@@ -43,7 +48,7 @@ object queries {
       }
   }
 
-  def findProtoGameById(gameId: UUID): ConnectionIO[ProtoGame] = {
+  def findProtoGameByGameId(gameId: ID[Game]): ConnectionIO[ProtoGame] = {
     sql"""
     SELECT "user".id, login, target
     FROM game
@@ -59,7 +64,7 @@ object queries {
       }
   }
 
-  def createProtoGameByUser(gameId: UUID, userId: UUID): ConnectionIO[Unit] = {
+  def createProtoGameByUser(gameId: ID[Game], userId: ID[User]): ConnectionIO[Unit] = {
     val target = North
     sql"""
     INSERT INTO game (id)
@@ -72,7 +77,7 @@ object queries {
       .map(_ => ())
   }
 
-  def addUserIntoProtoGame(gameId: UUID, userId: UUID, target: Side): ConnectionIO[Unit] = {
+  def addUserIntoProtoGame(gameId: ID[Game], userId: ID[User], target: Side): ConnectionIO[Unit] = {
     sql"""
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
@@ -85,7 +90,7 @@ object queries {
       .map(_ => ())
   }
 
-  def findPlayersByGameId(gameId: UUID): ConnectionIO[Set[Player]] = {
+  def findPlayersByGameId(gameId: ID[Game]): ConnectionIO[Set[Player]] = {
     sql"""
     SELECT
     pp.user_id,
@@ -103,7 +108,7 @@ object queries {
     """.query[Player].to[Set]
   }
 
-  def findWallsByGameId(gameId: UUID): ConnectionIO[Set[WallPosition]] = {
+  def findWallsByGameId(gameId: ID[Game]): ConnectionIO[Set[WallPosition]] = {
     sql"""
     SELECT
     orient,
@@ -114,7 +119,7 @@ object queries {
     """.query[WallPosition].to[Set]
   }
 
-  def activePlayerByGameId(gameId: UUID): ConnectionIO[Player] = {
+  def activePlayerByGameId(gameId: ID[Game]): ConnectionIO[Player] = {
     sql"""
     SELECT
     active_player,
@@ -133,14 +138,14 @@ object queries {
     """.query[Player].unique
   }
 
-  def previousGameId(gameId: UUID): ConnectionIO[UUID] = {
+  def previousGameId(gameId: ID[Game]): ConnectionIO[ID[Game]] = {
     sql"""
     SELECT
     previous_state
     FROM game_state
     WHERE id = $gameId
     """
-      .query[UUID]
+      .query[ID[Game]]
       .option
       .map {
         case Some(v) => v
@@ -148,13 +153,12 @@ object queries {
       }
   }
 
-  def protoGameId(gameId: UUID): ConnectionIO[UUID] = {
-    println(gameId)
+  def findProtoGameIdByGameId(gameId: ID[Game]): ConnectionIO[ID[Game]] = {
     sql"""
     SELECT game_id FROM game_state
     WHERE id = $gameId
     """
-      .query[UUID]
+      .query[ID[Game]]
       .option
       .map {
         case Some(v) => v
@@ -162,37 +166,67 @@ object queries {
       }
   }
 
-  def recordNextState(gameId: UUID, previousGameId: UUID, protoGameId: UUID, activePlayerId: UUID): ConnectionIO[Unit] = {
+  def recordNextState(gameId: ID[Game], previousGameId: ID[Game], protoGameId: ID[Game], activePlayerId: ID[User]): ConnectionIO[Unit] = {
     sql"""
     INSERT INTO game_state (id, game_id, previous_state, active_player)
     VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId);
     """.update.run.map(_ => ())
   }
 
-  def recordPlayers(gameId: UUID, players: Set[Player]): ConnectionIO[Unit] = {
-
+  def recordPlayers(gameId: ID[Game], players: Set[Player]): ConnectionIO[Unit] = {
     val sql = """
         INSERT INTO pawn_position (game_state_id, user_id, wallsamount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
         """
-    type PP = (UUID, UUID, Int, Int, Int)
+    type PP = (ID[Game], ID[User], Int, Int, Int)
 
     Update[PP](sql).updateMany(players.map{ case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
       (gameId, id, wallsAmount, row, column)
     }.toList).map(_ => ())
   }
 
-  def recordWalls(gameId: UUID, wallPositions: Set[WallPosition]): ConnectionIO[Unit] = {
+  def recordWalls(gameId: ID[Game], wallPositions: Set[WallPosition]): ConnectionIO[Unit] = {
     val sql = """
         INSERT INTO wall_position (game_state_id, orient, "row", "column")
         VALUES (?, ?, ?, ?)
         """
 
-    type PP = (UUID, Orientation, Int, Int)
+    type PP = (ID[Game], Orientation, Int, Int)
 
     Update[PP](sql).updateMany(wallPositions.map{ case WallPosition(orientation, row, column) =>
       (gameId, orientation, row, column)
     }.toList).map(_ => ())
+  }
+
+  def findGameLeavesByUserId(userId: ID[User]): ConnectionIO[Set[ID[Game]]] = {
+    sql"""
+    SELECT
+    g.id
+    FROM game_state g
+    LEFT JOIN game_state p
+    ON g.id = p.previous_state
+    JOIN player
+    ON g.game_id = player.game_id
+    WHERE p.id IS NULL
+    AND player.user_id = $userId
+    """.query[ID[Game]].to[Set]
+  }
+
+  def findGameBranchEndedOnGameId(gameId: ID[Game]): ConnectionIO[Set[ID[Game]]] = {
+    sql"""
+    WITH RECURSIVE game_branch AS (
+    SELECT gs.id, gs.previous_state
+    FROM game_state gs
+    WHERE gs.id = $gameId
+    UNION ALL
+    SELECT gs.id, gs.previous_state FROM game_state gs
+    JOIN game_branch
+    ON gs.id = game_branch.previous_state
+    WHERE NOT game_branch.id = game_branch.previous_state
+    )
+
+    SELECT id FROM game_branch
+    """.query[ID[Game]].to[Set]
   }
 
 }

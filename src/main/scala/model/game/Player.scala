@@ -1,7 +1,8 @@
 package model.game
 
+import model.User
 import model.game.geometry.{PawnPosition, Side}
+import utils.Typed.ID
 
-import java.util.UUID
 
-case class Player(id: UUID, login: String, pawnPosition: PawnPosition, wallsAmount: Int, target: Side)
+case class Player(id: ID[User], login: String, pawnPosition: PawnPosition, wallsAmount: Int, target: Side)

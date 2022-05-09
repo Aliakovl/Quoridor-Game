@@ -1,5 +1,5 @@
 package model
 
-import java.util.UUID
+import utils.Typed.ID
 
-case class User(id: UUID, login: String)
+case class User(id: ID[User], login: String)

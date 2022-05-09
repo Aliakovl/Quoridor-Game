@@ -2,14 +2,13 @@ package model.services
 
 import model.{ProtoGame, User}
 import model.game.Game
-
-import java.util.UUID
+import utils.Typed.ID
 
 
 trait GameCreator[F[_]] {
-  def createGame(userId: UUID): F[ProtoGame]
+  def createGame(userId: ID[User]): F[ProtoGame]
 
-  def joinPlayer(gameId: UUID, playerId: UUID): F[ProtoGame]
+  def joinPlayer(gameId: ID[Game], playerId: ID[User]): F[ProtoGame]
 
-  def startGame(gameId: UUID): F[Game]
+  def startGame(gameId: ID[Game]): F[Game]
 }

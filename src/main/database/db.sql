@@ -23,7 +23,7 @@ CREATE TABLE player (
     game_id UUID REFERENCES game,
     user_id UUID REFERENCES "user",
     target side NOT NULL,
-    PRIMARY KEY (game_id, user_id) --???
+    PRIMARY KEY (game_id, user_id)
 );
 
 CREATE TABLE game_state (
@@ -31,7 +31,7 @@ CREATE TABLE game_state (
     game_id UUID REFERENCES game,
     previous_state UUID REFERENCES game_state,
     active_player UUID REFERENCES "user",
-    FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id) --???
+    FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id)
 );
 
 CREATE TABLE pawn_position (

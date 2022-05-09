@@ -1,14 +1,13 @@
 package model.storage
 
 import model.game.{Game, GameState, Player}
-
-import java.util.UUID
+import utils.Typed.ID
 
 
 trait GameStorage[F[_]] {
-  def find(id: UUID): F[Game]
+  def find(id: ID[Game]): F[Game]
 
-  def insert(previousGameId: UUID, activePlayer: Player, state: GameState): F[Game]
+  def insert(previousGameId: ID[Game], activePlayer: Player, state: GameState): F[Game]
 
-  def create(protoGameId: UUID, activePlayer: Player, state: GameState): F[Game]
+  def create(protoGameId: ID[Game], activePlayer: Player, state: GameState): F[Game]
 }

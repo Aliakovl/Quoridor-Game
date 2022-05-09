@@ -2,10 +2,10 @@ package model.game
 
 import model.game.geometry.Direction._
 import model.game.geometry._
+import utils.Typed.ID
 
-import java.util.UUID
 
-case class Game(id: UUID,
+case class Game(id: ID[Game],
                 activePlayer: Player,
                 state: GameState) {
   lazy val enemyPlayers: Set[Player] = state.players - activePlayer

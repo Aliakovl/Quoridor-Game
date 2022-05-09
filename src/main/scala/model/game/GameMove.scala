@@ -36,7 +36,9 @@ case class PlaceWall(wallPosition: WallPosition) extends Move with MoveValidator
     for {
       _ <- validate(game)
       walls = game.state.walls + wallPosition
-      state = game.state.copy(walls = walls)
+      player = game.activePlayer.copy(wallsAmount = game.activePlayer.wallsAmount - 1)
+      players = game.state.players.filterNot(_.id == player.id) + player
+      state = game.state.copy(players = players, walls = walls)
     } yield state
   }
 
@@ -50,6 +52,7 @@ case class PlaceWall(wallPosition: WallPosition) extends Move with MoveValidator
     }.fold(true)(_ && _)
 
     for {
+      _ <- Either.cond(game.activePlayer.wallsAmount > 0, (), NotEnoughWall(game.activePlayer.id))
       _ <- Either.cond(Board.isWallOnBoard(wallPosition), (), WallOutOfBoardException)
       _ <- Either.cond(!anyIntersections, (), WallImpositionException)
       _ <- Either.cond(noBlocks, (), WallBlocksPawls)

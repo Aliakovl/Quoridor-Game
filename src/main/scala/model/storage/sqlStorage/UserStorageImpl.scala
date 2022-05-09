@@ -5,11 +5,11 @@ import doobie.implicits._
 import doobie.util.transactor.Transactor
 import model.User
 import model.storage.UserStorage
-import java.util.UUID
+import utils.Typed.ID
 
 
 class UserStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends UserStorage[F] {
-  override def find(id: UUID): F[User] = {
+  override def find(id: ID[User]): F[User] = {
     queries.findUserById(id).transact(xa)
   }
 

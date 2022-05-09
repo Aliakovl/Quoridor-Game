@@ -5,32 +5,31 @@ import cats.implicits._
 import model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
 import model.game.geometry.{Board, Side}
 import model.game.geometry.Side._
-import model.{ProtoGame, ProtoPlayer}
+import model.{ProtoGame, ProtoPlayer, User}
 import model.game.{Game, GameState, Player}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
-
-import java.util.UUID
+import utils.Typed.ID
 
 
 class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
                                 gameStorage: GameStorage[F],
                                 userStorage: UserStorage[F])(implicit F: Async[F]) extends GameCreator[F] {
 
-  override def createGame(userId: UUID): F[ProtoGame] = {
+  override def createGame(userId: ID[User]): F[ProtoGame] = {
     protoGameStorage.insert(userId)
   }
 
-  override def joinPlayer(gameId: UUID, userId: UUID): F[ProtoGame] = {
+  override def joinPlayer(gameId: ID[Game], userId: ID[User]): F[ProtoGame] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
       playersNumber = protoGame.users.size
       _ <- if (playersNumber > 3) F.raiseError(PlayersNumberLimitException) else F.unit
-      target = sides(protoGame.users.size)
+      target = allSides(protoGame.users.size)
       pg <- protoGameStorage.update(gameId, userId, target)
     } yield pg
   }
 
-  override def startGame(gameId: UUID): F[Game] = {
+  override def startGame(gameId: ID[Game]): F[Game] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
       users = protoGame.users
@@ -44,7 +43,4 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
       game <- gameStorage.create(gameId, firstTurnPlayer, state)
     } yield game
   }
-
-  val sides: Seq[Side] = List(North, South, West, East)
-
 }
