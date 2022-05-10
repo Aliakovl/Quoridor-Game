@@ -6,17 +6,14 @@ import utils.Typed.ID
 
 
 case class Game(id: ID[Game],
-                activePlayer: Player,
                 state: GameState) {
-  lazy val enemyPlayers: Set[Player] = state.players - activePlayer
-
   lazy val possibleSteps: List[PawnPosition] = {
     List(
       possibleStep(_, ToNorth),
       possibleStep(_, ToSouth),
       possibleStep(_, ToWest),
       possibleStep(_, ToEast)
-    ).flatMap(f => f(activePlayer))
+    ).flatMap(f => f(state.players.activePlayer))
   }
 
   private def possibleStep(player: Player, direction: Direction): List[PawnPosition] = {
@@ -25,7 +22,7 @@ case class Game(id: ID[Game],
     Board.adjacentPosition(pawnPosition, walls, direction) match {
       case None => List.empty
       case Some(position) =>
-        enemyPlayers.find(_.pawnPosition == position) match {
+        state.players.enemies.find(_.pawnPosition == position) match {
           case None => List(position)
           case Some(enemy) =>
             Board.adjacentPosition(enemy.pawnPosition, walls, direction) match {

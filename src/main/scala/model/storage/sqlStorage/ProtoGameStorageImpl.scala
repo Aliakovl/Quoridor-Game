@@ -1,5 +1,6 @@
 package model.storage.sqlStorage
 
+import cats.data.NonEmptyList
 import cats.effect.Async
 import doobie.implicits._
 import doobie.util.transactor.Transactor
@@ -10,6 +11,7 @@ import model.game.geometry.Side.North
 import model.storage.ProtoGameStorage
 import utils.Typed.ID
 import utils.Typed.Implicits._
+
 import java.util.UUID
 
 
@@ -27,7 +29,7 @@ class ProtoGameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends Prot
       protoPlayer = user match {
         case User(id, login) => ProtoPlayer(id, login, target)
       }
-    } yield ProtoGame(gameId, Seq(protoPlayer))
+    } yield ProtoGame(gameId, NonEmptyList.one(protoPlayer))
 
     query.transact(xa)
   }

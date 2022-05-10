@@ -47,7 +47,7 @@ object Main {
       game1 <- gameService.makeMove(game.id, user_1.id, move1)
       _ = println(game1)
       move2 = PlaceWall(WallPosition(Horizontal, 6, 7))
-      game2 <- gameService.makeMove(game1.id, user_3.id, move2)
+      game2 <- gameService.makeMove(game1.id, user_4.id, move2)
     } yield game2
 
     println(io.unsafeRunSync())

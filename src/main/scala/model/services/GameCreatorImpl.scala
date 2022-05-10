@@ -1,12 +1,13 @@
 package model.services
 
+import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits._
 import model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
-import model.game.geometry.{Board, Side}
+import model.game.geometry.Board
 import model.game.geometry.Side._
 import model.{ProtoGame, ProtoPlayer, User}
-import model.game.{Game, GameState, Player}
+import model.game.{Game, GameState, Player, Players}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import utils.Typed.ID
 
@@ -39,8 +40,8 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
         Player(id, login, Board.initPosition(target.opposite), 21 / playersNumber, target)
       }
       firstTurnPlayer = players.head
-      state = GameState(players.toSet, Set.empty)
-      game <- gameStorage.create(gameId, firstTurnPlayer, state)
+      state = GameState(Players(firstTurnPlayer, NonEmptyList.fromListUnsafe(players.tail)), Set.empty) // TODO: UNSAFE
+      game <- gameStorage.create(gameId, state)
     } yield game
   }
 }

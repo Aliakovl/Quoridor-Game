@@ -23,7 +23,8 @@ CREATE TABLE player (
     game_id UUID REFERENCES game,
     user_id UUID REFERENCES "user",
     target side NOT NULL,
-    PRIMARY KEY (game_id, user_id)
+    PRIMARY KEY (game_id, user_id),
+    UNIQUE (game_id, target)
 );
 
 CREATE TABLE game_state (

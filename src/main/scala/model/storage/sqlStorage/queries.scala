@@ -1,5 +1,6 @@
 package model.storage.sqlStorage
 
+import cats.data.NonEmptyList
 import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
@@ -57,10 +58,10 @@ object queries {
     WHERE game.id = $gameId
     """
       .query[ProtoPlayer]
-      .to[Seq]
+      .to[List]
       .map {
         case Seq() => throw GameNotFoundException(gameId)
-        case protoPlayer => ProtoGame(gameId, protoPlayer)
+        case protoPlayer => ProtoGame(gameId, NonEmptyList.fromListUnsafe(protoPlayer))
       }
   }
 
@@ -90,7 +91,7 @@ object queries {
       .map(_ => ())
   }
 
-  def findPlayersByGameId(gameId: ID[Game]): ConnectionIO[Set[Player]] = {
+  def findPlayersByGameId(gameId: ID[Game]): ConnectionIO[List[Player]] = {
     sql"""
     SELECT
     pp.user_id,
@@ -105,7 +106,9 @@ object queries {
     JOIN player p ON p.game_id = gs.game_id
     AND p.user_id = pp.user_id
     WHERE pp.game_state_id = $gameId
-    """.query[Player].to[Set]
+    """
+      .query[Player]
+      .to[List]
   }
 
   def findWallsByGameId(gameId: ID[Game]): ConnectionIO[Set[WallPosition]] = {
@@ -119,7 +122,7 @@ object queries {
     """.query[WallPosition].to[Set]
   }
 
-  def activePlayerByGameId(gameId: ID[Game]): ConnectionIO[Player] = {
+  def findActivePlayerByGameId(gameId: ID[Game]): ConnectionIO[Player] = {
     sql"""
     SELECT
     active_player,
@@ -136,6 +139,28 @@ object queries {
     AND p.user_id = active_player
     WHERE game_state.id = $gameId
     """.query[Player].unique
+  }
+
+  def findEnemiesByGameId(gameId: ID[Game]): ConnectionIO[NonEmptyList[Player]] = {
+    sql"""
+    SELECT
+    pp.user_id,
+    login,
+    "row",
+    "column",
+    wallsAmount,
+    target
+    FROM pawn_position pp
+    JOIN "user" u ON pp.user_id = u.id
+    JOIN game_state gs ON gs.id = pp.game_state_id
+    JOIN player p ON p.game_id = gs.game_id
+    AND p.user_id = pp.user_id
+    WHERE pp.game_state_id = $gameId
+    AND NOT pp.user_id = gs.active_player
+    """.query[Player].to[List].map{
+      case List() => throw GameNotFoundException(gameId)
+      case x :: xs => NonEmptyList(x, xs)
+    }
   }
 
   def previousGameId(gameId: ID[Game]): ConnectionIO[ID[Game]] = {
@@ -173,7 +198,7 @@ object queries {
     """.update.run.map(_ => ())
   }
 
-  def recordPlayers(gameId: ID[Game], players: Set[Player]): ConnectionIO[Unit] = {
+  def recordPlayers(gameId: ID[Game], players: List[Player]): ConnectionIO[Unit] = {
     val sql = """
         INSERT INTO pawn_position (game_state_id, user_id, wallsamount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
@@ -182,7 +207,7 @@ object queries {
 
     Update[PP](sql).updateMany(players.map{ case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
       (gameId, id, wallsAmount, row, column)
-    }.toList).map(_ => ())
+    }).map(_ => ())
   }
 
   def recordWalls(gameId: ID[Game], wallPositions: Set[WallPosition]): ConnectionIO[Unit] = {

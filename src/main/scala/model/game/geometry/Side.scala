@@ -2,16 +2,18 @@ package model.game.geometry
 
 import doobie.Meta
 import doobie.postgres.implicits.pgEnumStringOpt
-import model.game.geometry.Side._
+import Side._
 
 
-sealed trait Side extends Opposite[Side] { self =>
+sealed trait Side extends Opposite[Side] with Ordered[Side] { self =>
   override def opposite: Side = self match {
     case North => South
     case South => North
     case West => East
     case East => West
   }
+
+  override def compare(that: Side): Int = Ordering.by[Side, Int](x => order(x)).compare(this, that)
 }
 
 object Side {
@@ -32,6 +34,15 @@ object Side {
       case "south" => South
       case "west" => West
       case "east" => East
+    }
+  }
+
+  private def order(side: Side): Int = {
+    side match {
+      case North => 0
+      case East  => 1
+      case South => 2
+      case West  => 3
     }
   }
 }

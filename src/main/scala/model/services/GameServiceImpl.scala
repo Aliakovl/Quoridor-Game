@@ -19,31 +19,13 @@ class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
       game <- gameStorage.find(gameId)
 
       either = for {
-        _ <- Either.cond(game.state.players.exists(_.id == userId), (), GameInterloperException(userId, gameId)) //TODO
-        _ <- Either.cond(game.activePlayer.id == userId, (), WrongPlayersTurnException(gameId))
+        _ <- Either.cond(game.state.players.toList.exists(_.id == userId), (), GameInterloperException(userId, gameId))
+        _ <- Either.cond(game.state.players.activePlayer.id == userId, (), WrongPlayersTurnException(gameId))
         newState <- move.makeAt(game)
-        nextPlayer <- nextPlayer(game)
-      } yield (nextPlayer, newState)
+      } yield newState
 
-      f <- F.fromTry(either.toTry)
-      (nextPlayer, newState) = f
-      newGame <- gameStorage.insert(gameId, nextPlayer, newState)
+      newState <- F.fromTry(either.toTry)
+      newGame <- gameStorage.insert(gameId, newState)
     } yield newGame
-  }
-
-  def nextPlayer(game: Game): Either[GameException, Player] = {
-    val players = game.state.players
-    val player = game.activePlayer
-    for {
-      order <- Board.playersOrder(players.size)
-      side = offsetMap(order)(player.target)
-    } yield players.find(_.target == side).get
-  }
-
-  def offsetMap[T](list: List[T]): Map[T, T] = {
-    list match {
-      case x :: xs => list.zip(xs :+ x).toMap
-      case _ => Map.empty
-    }
   }
 }
