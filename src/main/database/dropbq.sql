@@ -6,9 +6,9 @@ drop table game_state;
 
 drop table player;
 
-drop table "user";
-
 drop table game;
+
+drop table "user";
 
 drop type side;
 

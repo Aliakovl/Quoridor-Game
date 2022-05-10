@@ -21,16 +21,6 @@ object Board {
     }
   }
 
-  def playersOrder(playersNumber: Int): Either[GameException, List[Side]] = {
-    playersNumber match {
-      case n if n < 2 => Left(NotEnoughPlayersException)
-      case 2          => Right(List(North, South))
-      case 3          => Right(List(North, West, South))
-      case 4          => Right(List(North, West, South, East))
-      case _          => Left(PlayersNumberLimitException)
-    }
-  }
-
   def initPosition(side: Side): PawnPosition = {
     side match {
       case North => PawnPosition(0, halfWidth)

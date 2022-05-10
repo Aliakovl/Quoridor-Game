@@ -74,7 +74,8 @@ object Main {
       );
 
       CREATE TABLE game (
-          id UUID PRIMARY KEY
+          id UUID PRIMARY KEY,
+          creator UUID REFERENCES "user"
       );
 
       CREATE TABLE player (
@@ -119,9 +120,9 @@ object Main {
 
       drop table player;
 
-      drop table "user";
-
       drop table game;
+
+      drop table "user";
 
       drop type side;
 

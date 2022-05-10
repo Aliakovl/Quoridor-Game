@@ -4,7 +4,7 @@ import cats.effect.Async
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import model.User
-import model.game.{Game, GameState, Player, Players}
+import model.game.{Game, GameState, Players}
 import model.storage.GameStorage
 import utils.Typed.ID
 import utils.Typed.Implicits._

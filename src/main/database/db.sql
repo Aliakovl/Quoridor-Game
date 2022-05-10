@@ -16,7 +16,8 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE game (
-    id UUID PRIMARY KEY
+    id UUID PRIMARY KEY,
+    creator UUID REFERENCES "user"
 );
 
 CREATE TABLE player (

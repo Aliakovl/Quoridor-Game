@@ -24,7 +24,7 @@ class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
         newState <- move.makeAt(game)
       } yield newState
 
-      newState <- F.fromTry(either.toTry)
+      newState <- F.fromEither(either)
       newGame <- gameStorage.insert(gameId, newState)
     } yield newGame
   }

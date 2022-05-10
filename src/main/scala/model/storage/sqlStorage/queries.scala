@@ -9,7 +9,7 @@ import model.GameException.{GameNotFoundException, LoginOccupiedException, SameP
 import model.game.geometry.Side.North
 import model.game.geometry.{Orientation, PawnPosition, Side, WallPosition}
 import model.game.{Game, Player}
-import model.{ProtoGame, ProtoPlayer, User}
+import model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import utils.Typed.Implicits._
 import utils.Typed.ID
 
@@ -56,20 +56,21 @@ object queries {
     JOIN player ON player.game_id = game.id
     JOIN "user" ON player.user_id = "user".id
     WHERE game.id = $gameId
+    ORDER BY user_id = game.creator DESC
     """
       .query[ProtoPlayer]
       .to[List]
       .map {
-        case Seq() => throw GameNotFoundException(gameId)
-        case protoPlayer => ProtoGame(gameId, NonEmptyList.fromListUnsafe(protoPlayer))
+        case Nil => throw GameNotFoundException(gameId)
+        case creator :: guests => ProtoGame(gameId, ProtoPlayers(creator, guests))
       }
   }
 
   def createProtoGameByUser(gameId: ID[Game], userId: ID[User]): ConnectionIO[Unit] = {
     val target = North
     sql"""
-    INSERT INTO game (id)
-    VALUES ($gameId);
+    INSERT INTO game (id, creator)
+    VALUES ($gameId, $userId);
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
     """

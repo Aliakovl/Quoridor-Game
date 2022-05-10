@@ -1,6 +1,6 @@
 package model.storage
 
-import model.game.{Game, GameState, Player}
+import model.game.{Game, GameState}
 import utils.Typed.ID
 
 
