@@ -4,7 +4,7 @@ import cats.effect.Async
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import model.User
-import model.game.{Game, GameState, Players}
+import model.game.{Game, State, Players}
 import model.storage.GameStorage
 import utils.Typed.ID
 import utils.Typed.Implicits._
@@ -19,12 +19,12 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
       activePlayer <- queries.findActivePlayerByGameId(gameId)
       enemies <- queries.findEnemiesByGameId(gameId)
       walls <- queries.findWallsByGameId(gameId)
-    } yield Game(gameId, GameState(Players(activePlayer, enemies), walls))
+    } yield Game(gameId, State(Players(activePlayer, enemies), walls))
 
     query.transact(xa)
   }
 
-  override def insert(previousGameId: ID[Game], state: GameState): F[Game] = {
+  override def insert(previousGameId: ID[Game], state: State): F[Game] = {
     lazy val activePlayer = state.players.activePlayer
     lazy val gameId = UUID.randomUUID().typed[Game]
     val query = for {
@@ -37,7 +37,7 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     query.transact(xa)
   }
 
-  override def create(protoGameId: ID[Game], state: GameState): F[Game] = {
+  override def create(protoGameId: ID[Game], state: State): F[Game] = {
     lazy val activePlayer = state.players.activePlayer
     val gameId = protoGameId
     val query = for {

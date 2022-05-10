@@ -16,12 +16,12 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
 
   lazy val toPlayers: Either[GameException, Players] = {
     guests match {
-      case Nil => Left(throw NotEnoughPlayersException)
+      case Nil => Left(NotEnoughPlayersException)
       case head :: tail =>
         val n = tail.size
         val toPlayerFun = toPlayer(n) _
         if (n > 3) {
-          Left(throw PlayersNumberLimitException)
+          Left(PlayersNumberLimitException)
         } else {
           Right(
             Players(

@@ -5,7 +5,7 @@ import cats.implicits._
 import model.GameException.PlayersNumberLimitException
 import model.game.geometry.Side._
 import model.{ProtoGame, User}
-import model.game.{Game, GameState}
+import model.game.{Game, State}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import utils.Typed.ID
 
@@ -32,7 +32,7 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
     for {
       protoGame <- protoGameStorage.find(gameId)
       players <- F.fromEither(protoGame.protoPlayers.toPlayers)
-      state = GameState(players, Set.empty)
+      state = State(players, Set.empty)
       game <- gameStorage.create(gameId, state)
     } yield game
   }

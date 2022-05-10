@@ -21,7 +21,7 @@ class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
       either = for {
         _ <- Either.cond(game.state.players.toList.exists(_.id == userId), (), GameInterloperException(userId, gameId))
         _ <- Either.cond(game.state.players.activePlayer.id == userId, (), WrongPlayersTurnException(gameId))
-        newState <- move.makeAt(game)
+        newState <- move.makeAt(game.state)
       } yield newState
 
       newState <- F.fromEither(either)
