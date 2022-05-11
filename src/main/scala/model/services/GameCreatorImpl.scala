@@ -21,7 +21,7 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
   override def joinPlayer(gameId: ID[Game], userId: ID[User]): F[ProtoGame] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
-      playersNumber = protoGame.protoPlayers.guests.size + 1
+      playersNumber = protoGame.players.guests.size + 1
       _ <- if (playersNumber > 3) F.raiseError(PlayersNumberLimitException) else F.unit
       target = allSides(playersNumber)
       pg <- protoGameStorage.update(gameId, userId, target)
@@ -31,7 +31,7 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
   override def startGame(gameId: ID[Game]): F[Game] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
-      players <- F.fromEither(protoGame.protoPlayers.toPlayers)
+      players <- F.fromEither(protoGame.players.toPlayers)
       state = State(players, Set.empty)
       game <- gameStorage.create(gameId, state)
     } yield game
