@@ -2,10 +2,12 @@ package model.game.geometry
 
 import doobie.Meta
 import doobie.postgres.implicits.pgEnumStringOpt
-import Side._
+import enumeratum.{CirceEnum, Enum, EnumEntry}
 
 
-sealed trait Side extends Opposite[Side] with Ordered[Side] { self =>
+sealed trait Side extends Opposite[Side] with Ordered[Side] with EnumEntry { self =>
+  import Side._
+
   override def opposite: Side = self match {
     case North => South
     case South => North
@@ -16,7 +18,7 @@ sealed trait Side extends Opposite[Side] with Ordered[Side] { self =>
   override def compare(that: Side): Int = Ordering.by[Side, Int](x => order(x)).compare(this, that)
 }
 
-object Side {
+object Side extends Enum [Side] with CirceEnum[Side] {
   case object North extends Side
   case object South extends Side
   case object West extends Side
@@ -45,4 +47,6 @@ object Side {
       case West  => 3
     }
   }
+
+  override def values: IndexedSeq[Side] = findValues
 }

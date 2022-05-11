@@ -3,7 +3,6 @@ package model.storage.sqlStorage
 import cats.effect.Async
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import model.User
 import model.game.{Game, State, Players}
 import model.storage.GameStorage
 import utils.Typed.ID
@@ -29,7 +28,7 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     lazy val gameId = UUID.randomUUID().typed[Game]
     val query = for {
       protoGameId <- queries.findProtoGameIdByGameId(previousGameId)
-      _ <- queries.recordNextState(gameId, previousGameId, protoGameId, activePlayer.id.typed[User])
+      _ <- queries.recordNextState(gameId, previousGameId, protoGameId, activePlayer.id)
       _ <- queries.recordPlayers(gameId, state.players.toList)
       _ <- queries.recordWalls(gameId, state.walls)
     } yield Game(gameId, state)
@@ -41,7 +40,7 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     lazy val activePlayer = state.players.activePlayer
     val gameId = protoGameId
     val query = for {
-      _ <- queries.recordNextState(gameId, protoGameId, protoGameId, activePlayer.id.typed[User])
+      _ <- queries.recordNextState(gameId, protoGameId, protoGameId, activePlayer.id)
       _ <- queries.recordPlayers(gameId, state.players.toList)
       _ <- queries.recordWalls(gameId, state.walls)
     } yield Game(gameId, state)

@@ -2,10 +2,10 @@ package model.app
 
 import cats.effect.{ExitCode, IO, IOApp}
 import doobie.Transactor
-import model.api.UserApi
-import model.services.{UserService, UserServiceImpl}
-import model.storage.UserStorage
-import model.storage.sqlStorage.UserStorageImpl
+import model.api._
+import model.services._
+import model.storage._
+import model.storage.sqlStorage._
 import com.comcast.ip4s.IpLiteralSyntax
 import org.http4s.ember.server.EmberServerBuilder
 import sttp.tapir.server.http4s._
@@ -36,7 +36,21 @@ object QuridorGame{
   private val userStorage: UserStorage[IO] = new UserStorageImpl[IO]
   private val userService: UserService[IO] = new UserServiceImpl(userStorage)
 
-  private val userApi = new UserApi(userService)
+  private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO]
+  private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO]
 
-  val routes = Http4sServerInterpreter[IO]().toRoutes(userApi.api)
+  private val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](
+    protoGameStorage, gameStorage, userStorage
+  )
+
+  private val gameService: GameService[IO] = new GameServiceImpl[IO](
+    protoGameStorage, gameStorage, userStorage
+  )
+
+  private val userApi = new UserApi(userService)
+  private val gameApi = new GameApi(userService, gameCreator, gameService)
+
+  val api =  userApi.api ::: gameApi.api
+
+  val routes = Http4sServerInterpreter[IO]().toRoutes(api)
 }

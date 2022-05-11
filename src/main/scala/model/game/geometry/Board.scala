@@ -1,7 +1,5 @@
 package model.game.geometry
 
-import model.GameException
-import model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
 import model.game.geometry.Direction._
 import model.game.geometry.Side._
 

@@ -1,6 +1,9 @@
 package utils
 
+import io.circe.{Decoder, Encoder}
+import sttp.tapir.Schema
 import java.util.UUID
+
 
 trait Typed[+A, +B] {
   def unType: A
@@ -25,4 +28,10 @@ object Typed {
   }
 
   type ID[T] = Typed[UUID, T]
+
+  import utils.Typed.Implicits._
+
+  implicit def jsonDecoder[B]: Decoder[ID[B]] = Decoder.decodeUUID.map(_.typed[B])
+  implicit def jsonEncoder[B]: Encoder[ID[B]] = Encoder.encodeUUID.contramap(_.unType)
+  implicit def schemaID[B]: Schema[ID[B]] = Schema.schemaForUUID.as
 }

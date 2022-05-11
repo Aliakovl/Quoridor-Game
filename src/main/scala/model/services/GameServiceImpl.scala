@@ -2,10 +2,9 @@ package model.services
 
 import cats.effect.Async
 import cats.implicits._
-import model.{GameException, User}
+import model.User
 import model.GameException.{GameInterloperException, WrongPlayersTurnException}
-import model.game.geometry.Board
-import model.game.{Game, Move, Player}
+import model.game.{Game, Move}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import utils.Typed.ID
 

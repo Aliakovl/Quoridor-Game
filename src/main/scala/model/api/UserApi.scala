@@ -13,9 +13,9 @@ case class Login(login: String)
 
 class UserApi(userService: UserService[IO]) extends TapirApi {
 
-  private val userApiEndpoint = endpoint.in("api")
+  private val ep = endpoint.in("api")
 
-  private val createUser = userApiEndpoint.post
+  private val createUser = ep.post
     .in("register")
     .in(jsonBody[Login])
     .errorOut(jsonBody[ExceptionResponse])

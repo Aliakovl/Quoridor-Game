@@ -19,6 +19,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
   "org.http4s" %% "http4s-dsl" % http4sVersion,
+  "com.beachape" %% "enumeratum" % "1.7.0",
+  "com.beachape" %% "enumeratum-circe" % "1.7.0",
   "org.http4s" %% "http4s-ember-server" % http4sVersion,
   "org.http4s" %% "http4s-ember-client" % http4sVersion,
   "dev.zio" %% "zio" % "1.0.14"
