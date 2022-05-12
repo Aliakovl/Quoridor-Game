@@ -13,7 +13,7 @@ case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
         buf.addOne(el)
         val newEl = t.foldLeft(h){ (head, elem) =>
           val s = buf.head
-          if (rightOrdered(head, elem, s)) {
+          if (evenPermutation(head, elem, s)) {
             buf.addOne(elem)
             head
           } else {
@@ -25,11 +25,11 @@ case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
     }
   }
 
-  private def rightOrdered[TT >: T](x: TT, y: TT, z: TT)(implicit ord: Ordering[TT]): Boolean = {
-    ggg(x, y, z) || ggg(y, z, x) || ggg(z, x, y)
+  private def evenPermutation[TT >: T](x: TT, y: TT, z: TT)(implicit ord: Ordering[TT]): Boolean = {
+    evenOrder(x, y, z) || evenOrder(y, z, x) || evenOrder(z, x, y)
   }
 
-  private def ggg[TT >: T](x: TT, y: TT, z: TT)(implicit ord: Ordering[TT]): Boolean = {
+  private def evenOrder[TT >: T](x: TT, y: TT, z: TT)(implicit ord: Ordering[TT]): Boolean = {
     x <= y && y <= z
   }
 }

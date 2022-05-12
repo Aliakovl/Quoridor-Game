@@ -31,6 +31,9 @@ object GameException {
 
   case class SamePlayerException(userId: ID[User], gameId: ID[Game])
     extends GameException(s"User with id=$userId already belong to the game with id=$gameId")
+
+  case class NotGameCreator(userId: ID[User], gameId: ID[Game])
+    extends GameException(s"User with id=$userId did not create the game with id=$gameId")
 }
 
 

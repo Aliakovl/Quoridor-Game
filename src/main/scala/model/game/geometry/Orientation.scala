@@ -2,17 +2,19 @@ package model.game.geometry
 
 import doobie.Meta
 import doobie.postgres.implicits.pgEnumStringOpt
-import model.game.geometry.Orientation._
+import enumeratum.{CirceEnum, Enum, EnumEntry}
 
 
-sealed trait Orientation extends Opposite[Orientation] { self =>
+sealed trait Orientation extends Opposite[Orientation] with EnumEntry { self =>
+  import model.game.geometry.Orientation._
+
   override def opposite: Orientation = self match {
-    case Orientation.Horizontal => Vertical
-    case Orientation.Vertical => Horizontal
+    case Horizontal => Vertical
+    case Vertical => Horizontal
   }
 }
 
-object Orientation {
+object Orientation extends Enum[Orientation] with CirceEnum[Orientation] {
   case object Horizontal extends Orientation
   case object Vertical extends Orientation
 
@@ -26,4 +28,6 @@ object Orientation {
       case "vertical" => Vertical
     }
   }
+
+  override def values: IndexedSeq[Orientation] = findValues
 }

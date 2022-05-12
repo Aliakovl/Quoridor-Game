@@ -10,5 +10,5 @@ trait GameCreator[F[_]] {
 
   def joinPlayer(gameId: ID[Game], playerId: ID[User]): F[ProtoGame]
 
-  def startGame(gameId: ID[Game]): F[Game]
+  def startGame(gameId: ID[Game], userId: ID[User]): F[Game]
 }

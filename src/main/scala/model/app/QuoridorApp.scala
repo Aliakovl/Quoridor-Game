@@ -10,9 +10,21 @@ import com.comcast.ip4s.IpLiteralSyntax
 import org.http4s.ember.server.EmberServerBuilder
 import sttp.tapir.server.http4s._
 import org.http4s.implicits._
+import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
+import sttp.tapir.openapi.circe.yaml.RichOpenAPI
+import sttp.tapir.swagger.SwaggerUI
 
 
 object QuoridorApp extends IOApp {
+  val openApi = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[IO](
+    QuridorGame.api,
+    "Quoridor game server",
+    "0.0.1"
+  )
+
+  val swagger = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](openApi.toYaml))
+
+
   override def run(args: List[String]): IO[ExitCode] = EmberServerBuilder
     .default[IO]
     .withHost(ipv4"0.0.0.0")

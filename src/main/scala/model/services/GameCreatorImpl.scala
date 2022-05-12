@@ -2,7 +2,7 @@ package model.services
 
 import cats.effect.Async
 import cats.implicits._
-import model.GameException.PlayersNumberLimitException
+import model.GameException.{NotGameCreator, PlayersNumberLimitException}
 import model.game.geometry.Side._
 import model.{ProtoGame, User}
 import model.game.{Game, State}
@@ -28,9 +28,10 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
     } yield pg
   }
 
-  override def startGame(gameId: ID[Game]): F[Game] = {
+  override def startGame(gameId: ID[Game], userId: ID[User]): F[Game] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
+      _ <- F.fromEither(Either.cond(protoGame.players.creator.id == userId, (), NotGameCreator(userId, gameId)))
       players <- F.fromEither(protoGame.players.toPlayers)
       state = State(players, Set.empty)
       game <- gameStorage.create(gameId, state)

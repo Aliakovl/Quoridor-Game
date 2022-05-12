@@ -18,7 +18,7 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
     guests match {
       case Nil => Left(NotEnoughPlayersException)
       case head :: tail =>
-        val n = tail.size
+        val n = tail.size + 2
         val toPlayerFun = toPlayer(n) _
         if (n > 3) {
           Left(PlayersNumberLimitException)

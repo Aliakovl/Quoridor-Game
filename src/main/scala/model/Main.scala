@@ -41,7 +41,7 @@ object Main {
       _ <- gameCreator.joinPlayer(pg.id, user_2.id)
       _ <- gameCreator.joinPlayer(pg.id, user_3.id)
       _ <- gameCreator.joinPlayer(pg.id, user_4.id)
-      game <- gameCreator.startGame(pg.id)
+      game <- gameCreator.startGame(pg.id, user_1.id)
       _ = println(game)
       move1 = PawnMove(PawnPosition(7, 4))
       game1 <- gameService.makeMove(game.id, user_1.id, move1)
