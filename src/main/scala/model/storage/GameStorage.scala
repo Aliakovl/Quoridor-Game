@@ -1,7 +1,7 @@
 package model.storage
 
-import model.User
-import model.game.{Game, Player, State}
+import model.{GamePreView, User}
+import model.game.{Game, State}
 import utils.Typed.ID
 
 
@@ -15,4 +15,6 @@ trait GameStorage[F[_]] {
   def exists(gameId: ID[Game]): F[Boolean]
 
   def gameHistory(gameId: ID[Game]): F[List[ID[Game]]]
+
+  def findParticipants(gameId: ID[Game]): F[GamePreView]
 }

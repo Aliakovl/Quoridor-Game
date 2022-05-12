@@ -228,7 +228,7 @@ object queries {
     }.toList).map(_ => ())
   }
 
-  def findGameLeavesByUserId(userId: ID[User]): ConnectionIO[Set[ID[Game]]] = {
+  def findGameLeavesByUserId(userId: ID[User]): ConnectionIO[List[ID[Game]]] = {
     sql"""
     SELECT
     g.id
@@ -239,7 +239,7 @@ object queries {
     ON g.game_id = player.game_id
     WHERE p.id IS NULL
     AND player.user_id = $userId
-    """.query[ID[Game]].to[Set]
+    """.query[ID[Game]].to[List]
   }
 
   def findGameBranchEndedOnGameId(gameId: ID[Game]): ConnectionIO[List[ID[Game]]] = {
@@ -276,5 +276,21 @@ object queries {
     ON "user".id = winner
     WHERE game_state.id = $gameId
     """.query[User].option
+  }
+
+  def findUsersByGameId(gameId: ID[Game]): ConnectionIO[List[User]] = {
+    sql"""
+    SELECT
+    "user".id,
+    "user".login
+    FROM player
+    JOIN "user"
+    ON player.user_id = "user".id
+    JOIN game_state gs
+    ON player.game_id = gs.game_id
+    JOIN game g
+    ON gs.game_id = g.id
+    WHERE gs.id = $gameId
+    """.query[User].to[List]
   }
 }

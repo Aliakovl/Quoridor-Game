@@ -3,7 +3,7 @@ package model.storage.sqlStorage
 import cats.effect.Async
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import model.User
+import model.{GamePreView, User}
 import model.game.{Game, Players, State}
 import model.storage.GameStorage
 import utils.Typed.ID
@@ -59,5 +59,14 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     queries.findGameBranchEndedOnGameId(gameId)
       .map(_.reverse)
       .transact(xa)
+  }
+
+  override def findParticipants(gameId: ID[Game]): F[GamePreView] = {
+    val query = for {
+      users <- queries.findUsersByGameId(gameId)
+      winner <- queries.findWinnerByGameId(gameId)
+    } yield GamePreView(gameId, users, winner)
+
+    query.transact(xa)
   }
 }

@@ -45,11 +45,11 @@ object QuridorGame{
     "securepassword"
   )
 
-  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO]
-  private val userService: UserService[IO] = new UserServiceImpl(userStorage)
-
   private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO]
   private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO]
+
+  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO]
+  private val userService: UserService[IO] = new UserServiceImpl(userStorage, gameStorage)
 
   private val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](
     protoGameStorage, gameStorage, userStorage

@@ -9,6 +9,4 @@ trait GameService[F[_]] {
   def makeMove(gameId: ID[Game], userId: ID[User], move: Move): F[Game]
 
   def gameHistory(gameId: ID[Game], userId: ID[User]): F[List[Game]]
-
-//  def usersPlayHistory(userId: ID[User]): F[List[GameView]]
 }
