@@ -37,6 +37,9 @@ object GameException {
 
   case class GameAlreadyStarted(gameId: ID[Game])
     extends GameException(s"Game with id=$gameId has already started")
+
+  case class GameHasFinishedException(gameId: ID[Game])
+    extends GameException(s"Game with id=$gameId has already finished")
 }
 
 

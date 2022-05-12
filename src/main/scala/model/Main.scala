@@ -30,28 +30,35 @@ object Main {
     val gameCreator: GameCreator[IO] = new GameCreatorImpl(protoGameStorage, gameStorage, userStorage)
     val gameService: GameService[IO] = new GameServiceImpl(protoGameStorage, gameStorage, userStorage)
 
-    val io = for {
+    val newGame = for {
       _ <- dropDB.transact(xa)
       _ <- createDB.transact(xa)
       user_1 <- userStorage.insert("Aleksei")
       user_2 <- userStorage.insert("Michal")
-      user_3 <- userStorage.insert("Mike")
-      user_4 <- userStorage.insert("Igor")
       pg <- gameCreator.createGame(user_1.id)
       _ <- gameCreator.joinPlayer(pg.id, user_2.id)
-      _ <- gameCreator.joinPlayer(pg.id, user_3.id)
-      _ <- gameCreator.joinPlayer(pg.id, user_4.id)
       game <- gameCreator.startGame(pg.id, user_1.id)
-      _ = println(game)
-      move1 = PawnMove(PawnPosition(7, 4))
-      game1 <- gameService.makeMove(game.id, user_1.id, move1)
-      _ = println(game1)
-      move2 = PlaceWall(WallPosition(Horizontal, 6, 7))
-      game2 <- gameService.makeMove(game1.id, user_4.id, move2)
-      history <- gameService.gameHistory(game2.id, user_1.id)
-    } yield history
+    } yield (game.id, user_1.id, user_2.id)
 
-    println(io.unsafeRunSync())
+
+    println(newGame.flatMap{ case (id, id1, id2) =>
+      gameService.makeMove(id, id1, PawnMove(PawnPosition(7, 4)))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(1, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(6, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(2, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(5, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(3, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(4, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(5, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(3, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(6, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(2, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(7, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(1, 4))))
+      .flatMap(g => gameService.makeMove(g.id, id2, PawnMove(PawnPosition(8, 4))))
+//      .flatMap(g => gameService.makeMove(g.id, id1, PawnMove(PawnPosition(0, 4))))
+    }.unsafeRunSync()
+    )
 
   }
 
@@ -76,27 +83,30 @@ object Main {
 
       CREATE TABLE game (
           id UUID PRIMARY KEY,
-          creator UUID REFERENCES "user"
+          creator UUID NOT NULL REFERENCES "user"
       );
 
       CREATE TABLE player (
-          game_id UUID REFERENCES game,
-          user_id UUID REFERENCES "user",
+          game_id UUID NOT NULL REFERENCES game,
+          user_id UUID NOT NULL REFERENCES "user",
           target side NOT NULL,
-          PRIMARY KEY (game_id, user_id)
+          PRIMARY KEY (game_id, user_id),
+          UNIQUE (game_id, target)
       );
 
       CREATE TABLE game_state (
           id UUID PRIMARY KEY,
-          game_id UUID REFERENCES game,
-          previous_state UUID REFERENCES game_state,
-          active_player UUID REFERENCES "user",
-          FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id)
+          game_id UUID NOT NULL,
+          previous_state UUID NOT NULL REFERENCES game_state,
+          active_player UUID NOT NULL,
+          winner UUID,
+          FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id),
+          FOREIGN KEY (game_id, winner) REFERENCES player(game_id, user_id)
       );
 
       CREATE TABLE pawn_position (
           game_state_id UUID REFERENCES game_state,
-          user_id UUID REFERENCES "user",
+          user_id UUID NOT NULL REFERENCES "user",
           walls_amount INT NOT NULL,
           "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 8),
           "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 8),
@@ -104,10 +114,10 @@ object Main {
       );
 
       CREATE TABLE wall_position (
-          game_state_id UUID REFERENCES game_state,
+          game_state_id UUID NOT NULL REFERENCES game_state,
           orient orientation NOT NULL,
-          "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 8),
-          "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 8)
+          "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 7),
+          "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 7)
       );
          """.update.run
 

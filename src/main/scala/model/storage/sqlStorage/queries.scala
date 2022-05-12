@@ -192,10 +192,14 @@ object queries {
       }
   }
 
-  def recordNextState(gameId: ID[Game], previousGameId: ID[Game], protoGameId: ID[Game], activePlayerId: ID[User]): ConnectionIO[Unit] = {
+  def recordNextState(gameId: ID[Game],
+                      previousGameId: ID[Game],
+                      protoGameId: ID[Game],
+                      activePlayerId: ID[User],
+                      winner: Option[ID[User]]): ConnectionIO[Unit] = {
     sql"""
-    INSERT INTO game_state (id, game_id, previous_state, active_player)
-    VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId);
+    INSERT INTO game_state (id, game_id, previous_state, active_player, winner)
+    VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
     """.update.run.map(_ => ())
   }
 
@@ -260,5 +264,17 @@ object queries {
     SELECT * FROM game_state
     WHERE id = $gameId
     """.query.option.map(_.nonEmpty)
+  }
+
+  def findWinnerByGameId(gameId: ID[Game]): ConnectionIO[Option[User]] = {
+    sql"""
+    SELECT
+    "user".id,
+    "user".login
+    FROM game_state
+    JOIN "user"
+    ON "user".id = winner
+    WHERE game_state.id = $gameId
+    """.query[User].option
   }
 }
