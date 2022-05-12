@@ -10,4 +10,6 @@ trait GameStorage[F[_]] {
   def insert(previousGameId: ID[Game], state: State): F[Game]
 
   def create(protoGameId: ID[Game], state: State): F[Game]
+
+  def exists(gameId: ID[Game]): F[Boolean]
 }

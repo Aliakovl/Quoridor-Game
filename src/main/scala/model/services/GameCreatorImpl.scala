@@ -2,7 +2,7 @@ package model.services
 
 import cats.effect.Async
 import cats.implicits._
-import model.GameException.{NotGameCreator, PlayersNumberLimitException}
+import model.GameException.{GameAlreadyStarted, NotGameCreator, PlayersNumberLimitException}
 import model.game.geometry.Side._
 import model.{ProtoGame, User}
 import model.game.{Game, State}
@@ -20,6 +20,8 @@ class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
 
   override def joinPlayer(gameId: ID[Game], userId: ID[User]): F[ProtoGame] = {
     for {
+      gameAlreadyStarted <- gameStorage.exists(gameId)
+      _ <- F.fromEither(Either.cond(!gameAlreadyStarted, (), GameAlreadyStarted(gameId)))
       protoGame <- protoGameStorage.find(gameId)
       playersNumber = protoGame.players.guests.size + 1
       _ <- if (playersNumber > 3) F.raiseError(PlayersNumberLimitException) else F.unit

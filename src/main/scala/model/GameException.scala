@@ -34,6 +34,9 @@ object GameException {
 
   case class NotGameCreator(userId: ID[User], gameId: ID[Game])
     extends GameException(s"User with id=$userId did not create the game with id=$gameId")
+
+  case class GameAlreadyStarted(gameId: ID[Game])
+    extends GameException(s"Game with id=$gameId has already started")
 }
 
 

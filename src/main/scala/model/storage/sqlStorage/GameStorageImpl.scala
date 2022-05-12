@@ -47,4 +47,9 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
 
     query.transact(xa)
   }
+
+  override def exists(gameId: ID[Game]): F[Boolean] = {
+    queries.existsGameWithId(gameId)
+      .transact(xa)
+  }
 }

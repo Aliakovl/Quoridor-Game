@@ -255,4 +255,10 @@ object queries {
     """.query[ID[Game]].to[Set]
   }
 
+  def existsGameWithId(gameId: ID[Game]): ConnectionIO[Boolean] = {
+    sql"""
+    SELECT * FROM game_state
+    WHERE id = $gameId
+    """.query.option.map(_.nonEmpty)
+  }
 }
