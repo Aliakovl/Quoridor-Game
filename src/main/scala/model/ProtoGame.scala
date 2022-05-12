@@ -20,7 +20,7 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
       case head :: tail =>
         val n = tail.size + 2
         val toPlayerFun = toPlayer(n) _
-        if (n > 3) {
+        if (n > 4) {
           Left(PlayersNumberLimitException)
         } else {
           Right(

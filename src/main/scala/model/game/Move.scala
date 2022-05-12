@@ -23,8 +23,9 @@ trait MoveValidator { self: Move =>
       .map(Board.doWallsIntersect(wallPosition, _))
       .fold(false)(_ || _)
 
+    lazy val walls = state.walls + wallPosition
     lazy val noBlocks = state.players.toList.map{ player =>
-      Board.existsPath(player.pawnPosition, player.target, state.walls)
+      Board.existsPath(player.pawnPosition, player.target, walls)
     }.fold(true)(_ && _)
 
     for {
