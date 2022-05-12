@@ -86,6 +86,19 @@ class GameApi(userService: UserService[IO],
       }
     }
 
+  private val gameHistoryEndpoint = ep.get
+    .in(path[UUID]("userId"))
+    .in("history")
+    .in(query[UUID]("gameId"))
+    .errorOut(jsonBody[ExceptionResponse])
+    .out(jsonBody[List[Game]])
+    .serverLogic[IO] { case (userId, gameId) =>
+      gameService.gameHistory(gameId.typed[Game], userId.typed[User])
+        .map(x => Right(x)).handleError { er =>
+        Left(ExceptionResponse(er.getMessage))
+      }
+    }
+
 
   val api =
     List(
@@ -93,6 +106,7 @@ class GameApi(userService: UserService[IO],
       joinPlayerEndpoint,
       startGameEndpoint,
       pawnMoveEndpoint,
-      placeWallEndpoint
+      placeWallEndpoint,
+      gameHistoryEndpoint
     )
 }

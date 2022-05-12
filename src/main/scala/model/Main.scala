@@ -48,7 +48,8 @@ object Main {
       _ = println(game1)
       move2 = PlaceWall(WallPosition(Horizontal, 6, 7))
       game2 <- gameService.makeMove(game1.id, user_4.id, move2)
-    } yield game2
+      history <- gameService.gameHistory(game2.id, user_1.id)
+    } yield history
 
     println(io.unsafeRunSync())
 
@@ -96,7 +97,7 @@ object Main {
       CREATE TABLE pawn_position (
           game_state_id UUID REFERENCES game_state,
           user_id UUID REFERENCES "user",
-          wallsAmount INT NOT NULL,
+          walls_amount INT NOT NULL,
           "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 8),
           "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 8),
           PRIMARY KEY (game_state_id, user_id)

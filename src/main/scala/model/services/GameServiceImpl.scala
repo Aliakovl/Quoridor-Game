@@ -27,4 +27,22 @@ class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
       newGame <- gameStorage.insert(gameId, newState)
     } yield newGame
   }
+
+  override def gameHistory(gameId: ID[Game], userId: ID[User]): F[List[Game]] = {
+    for {
+      user <- userStorage.find(userId)
+      game <- gameStorage.find(gameId)
+
+      _ <- F.fromEither(
+        Either.cond(
+          game.state.players.toList.exists(_.id == userId), (), GameInterloperException(userId, gameId)
+        )
+      )
+
+      gameIds <- gameStorage.gameHistory(gameId)
+      history <- F.parSequenceN(gameIds.size){
+        gameIds.map(gameStorage.find)
+      }
+    } yield history
+  }
 }

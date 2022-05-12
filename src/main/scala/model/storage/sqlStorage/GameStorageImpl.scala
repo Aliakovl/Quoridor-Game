@@ -52,4 +52,10 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     queries.existsGameWithId(gameId)
       .transact(xa)
   }
+
+  override def gameHistory(gameId: ID[Game]): F[List[ID[Game]]] = {
+    queries.findGameBranchEndedOnGameId(gameId)
+      .map(_.reverse)
+      .transact(xa)
+  }
 }

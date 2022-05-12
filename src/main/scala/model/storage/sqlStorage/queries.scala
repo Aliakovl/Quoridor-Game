@@ -99,7 +99,7 @@ object queries {
     login,
     "row",
     "column",
-    wallsAmount,
+    walls_amount,
     target
     FROM pawn_position pp
     JOIN "user" u ON pp.user_id = u.id
@@ -130,7 +130,7 @@ object queries {
     login,
     "row",
     "column",
-    wallsAmount,
+    walls_amount,
     target
     from game_state
     JOIN "user" ON active_player = "user".id
@@ -149,7 +149,7 @@ object queries {
     login,
     "row",
     "column",
-    wallsAmount,
+    walls_amount,
     target
     FROM pawn_position pp
     JOIN "user" u ON pp.user_id = u.id
@@ -201,7 +201,7 @@ object queries {
 
   def recordPlayers(gameId: ID[Game], players: List[Player]): ConnectionIO[Unit] = {
     val sql = """
-        INSERT INTO pawn_position (game_state_id, user_id, wallsamount, "row", "column")
+        INSERT INTO pawn_position (game_state_id, user_id, walls_amount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
         """
     type PP = (ID[Game], ID[User], Int, Int, Int)
@@ -238,7 +238,7 @@ object queries {
     """.query[ID[Game]].to[Set]
   }
 
-  def findGameBranchEndedOnGameId(gameId: ID[Game]): ConnectionIO[Set[ID[Game]]] = {
+  def findGameBranchEndedOnGameId(gameId: ID[Game]): ConnectionIO[List[ID[Game]]] = {
     sql"""
     WITH RECURSIVE game_branch AS (
     SELECT gs.id, gs.previous_state
@@ -252,7 +252,7 @@ object queries {
     )
 
     SELECT id FROM game_branch
-    """.query[ID[Game]].to[Set]
+    """.query[ID[Game]].to[List]
   }
 
   def existsGameWithId(gameId: ID[Game]): ConnectionIO[Boolean] = {

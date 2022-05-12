@@ -39,7 +39,7 @@ CREATE TABLE game_state (
 CREATE TABLE pawn_position (
     game_state_id UUID REFERENCES game_state,
     user_id UUID REFERENCES "user",
-    wallsAmount INT NOT NULL,
+    walls_amount INT NOT NULL,
     "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 8),
     "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 8),
     PRIMARY KEY (game_state_id, user_id)
