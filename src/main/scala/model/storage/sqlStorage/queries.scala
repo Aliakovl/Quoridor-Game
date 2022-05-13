@@ -237,8 +237,10 @@ object queries {
     ON g.id = p.previous_state
     JOIN player
     ON g.game_id = player.game_id
-    WHERE p.id IS NULL
     AND player.user_id = $userId
+    WHERE p.id IS NULL OR g.id = g.game_id
+    GROUP BY g.id
+	  HAVING sum(1) = 1
     """.query[ID[Game]].to[List]
   }
 
