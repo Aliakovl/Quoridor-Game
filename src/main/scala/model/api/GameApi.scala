@@ -88,7 +88,7 @@ class GameApi(userService: UserService[IO],
 
   private val gameHistoryEndpoint = ep.get
     .in(path[UUID]("userId"))
-    .in("history")
+    .in("history" / "game")
     .in(query[UUID]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[List[Game]])
