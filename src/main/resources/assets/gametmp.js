@@ -1,18 +1,3 @@
-// function getGame(gameId, f) {
-//     let queryApi = `/api/18033395-d9f4-4944-82fd-9763059eaf20/game?gameId=${gameId}`
-//     fetch(queryApi).then(response => {
-//         if (response.ok) {
-//             response.json().then(game => {
-//                 f(game)
-//             })
-//         } else {
-//             response.json().then( em => {
-//                 alert(em.errorMessage)
-//             })
-//         }
-//     })
-// }
-
 function appendPseudoRow(table, row) {
     let tr = document.createElement("tr")
     for (let pseudoColumn = -1; pseudoColumn < 18; ++pseudoColumn) {
@@ -27,6 +12,7 @@ function appendPseudoRow(table, row) {
                 td.classList.add("empty-place")
             } else {
                 td.id = `wh${row}${column}`
+                td.setAttribute("orientation", "Horizontal")
                 if (column < 8) {
                     td.onmouseover = _ => {
                         td.classList.add("pointed-wall")
@@ -78,6 +64,7 @@ function appendRow(table, row) {
                 td.setAttribute("row", `${column}`)
                 td.setAttribute("column", `${row}`)
                 td.id = `wv${column}${row}`
+                td.setAttribute("orientation", "Vertical")
                 if (row < 8) {
                     td.onmouseover = _ => {
                         td.classList.add("pointed-wall")
@@ -133,6 +120,15 @@ function sideOrder(side) {
     }
 }
 
+function sideArrow(side) {
+    switch (side) {
+        case "North": return "↑"
+        case "East": return "→"
+        case "South": return "↓"
+        case "West": return "←"
+    }
+}
+
 function createPlayersTable(players) {
     let playersList = document.createElement("ul")
     let activePlayer = players.activePlayer
@@ -167,23 +163,7 @@ function pinPawn(player) {
     td.classList.add(player.target)
 }
 
-// document.addEventListener("DOMContentLoaded", _ => {
-//     let gameId = window.location.pathname.substring(6)
-//     let tablePlace = document.getElementById("table-place")
-//     let node = document.getElementById("players-place")
-//
-//     let gameField = createGameField(tablePlace)
-//
-//     getGame(gameId, game => {
-//         console.log(game)
-//         game.state.walls.forEach(wall => setWall(gameField, wall))
-//         let playersTable = createPlayersTable(game.state.players)
-//         node.appendChild(playersTable)
-//     })
-//
-// })
-
-function renderGame(game) {
+function renderGame(game, onPawnPlace, onWallPlace) {
     let tablePlace = document.getElementById("table-place")
     let nd = document.getElementById("players-place")
 
@@ -193,6 +173,21 @@ function renderGame(game) {
     let gameField = createGameField(tablePlace)
 
     game.state.walls.forEach(wall => setWall(gameField, wall))
+
+    const pawnPlaces = document.body.getElementsByClassName('pawn-place')
+
+    for (let pp of pawnPlaces) {
+        onPawnPlace(pp)
+    }
+
+    const wallsPlaces = document.body.getElementsByClassName('wall-place')
+
+    for (let wp of wallsPlaces) {
+        if (!wp.classList.contains('empty-place')){
+            onWallPlace(wp)
+        }
+    }
+
     let playersTable = createPlayersTable(game.state.players)
     nd.appendChild(playersTable)
 }

@@ -30,7 +30,6 @@ td.pawn-place, table.game-field {
 }
 
 td.pawn-place {
-    padding: 10px 10px 10px 10px;
     background-color: aliceblue;
 }
 
@@ -86,7 +85,6 @@ ul {
 ul li::before {
     content: "\2B24";
     font-weight: bold;
-    /*font-size: xxx-large;*/
     padding-bottom: 0;
     padding-top: 0;
 }
@@ -116,8 +114,3 @@ ul li.East:before {
 ul li.West:before {
     color: gold;
 }
-
-
-/*td.pointed-cell {*/
-/*    background-color: coral;*/
-/*}*/

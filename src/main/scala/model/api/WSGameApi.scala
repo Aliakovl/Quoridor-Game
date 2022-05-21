@@ -7,7 +7,7 @@ import io.circe.generic.auto.{exportDecoder, exportEncoder}
 import io.circe.{Json, parser}
 import io.circe.syntax.EncoderOps
 import model.game.{Game, Move}
-import model.User
+import model.{ExceptionResponse, GameException, GameMoveException, User}
 import model.services.GameService
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonEncoder
@@ -38,22 +38,27 @@ class WSGameApi(wsb: WebSocketBuilder2[IO],
   }
 
 
-  private def handle(sessionId: UUID, topic: Topic[IO, WebSocketFrame])(in: Stream[IO, WebSocketFrame]): Stream[IO, Unit] = in
-    .collect({
+  private def handle(sessionId: UUID, topic: Topic[IO, WebSocketFrame]): Pipe[IO, WebSocketFrame, Unit] = in =>
+    in.collect({
       case WebSocketFrame.Text(text, _) =>
         parser.parse(text).flatMap(_.as[UserMove])
     })
     .evalMap {
       case Right(UserMove(userId, move)) =>
-        val f = for {
+        val ws = for {
           gameId <- IO.fromOption(SessionsMap.gameStates.get(sessionId))(new Exception("There is no such session"))
           game <- gameService.makeMove(gameId.typed[Game], userId, move)
           _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
-        f.handleError(er => WebSocketFrame.Text(er.toString))
+        ws.handleError{
+          case er: GameException => WebSocketFrame.Text(ExceptionResponse(er.getMessage).asJson.toString())
+          case er: GameMoveException => WebSocketFrame.Text(ExceptionResponse(er.getMessage).asJson.toString())
+          case _ => WebSocketFrame.Text(ExceptionResponse("Something bed happened").asJson.toString())
+        }
 
-      case Left(_) => IO.pure(WebSocketFrame.Text("not able to parse input"))
+      case Left(_) => IO.pure(WebSocketFrame.Text(ExceptionResponse("Not able to parse input").asJson.toString()))
+
     }.through(topic.publish)
 
 

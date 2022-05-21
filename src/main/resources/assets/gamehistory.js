@@ -26,7 +26,7 @@ function createHistoryPage(gameHistory, node) {
     document.getElementById("placeholder").appendChild(toMain)
 
     const game = gameState(gameHistory)
-    renderGame(game.getElem())
+    renderGame(game.getElem(), () => {}, () => {})
 
     let backButton = document.createElement("button")
     backButton.innerText = "<-"
@@ -35,7 +35,7 @@ function createHistoryPage(gameHistory, node) {
         game.back()
         backButton.disabled = !game.canBackward()
         forwardButton.disabled = !game.canForward()
-        renderGame(game.getElem())
+        renderGame(game.getElem(), () => {}, () => {})
     }
 
     let forwardButton = document.createElement("button")
@@ -45,7 +45,7 @@ function createHistoryPage(gameHistory, node) {
         game.forward()
         backButton.disabled = !game.canBackward()
         forwardButton.disabled = !game.canForward()
-        renderGame(game.getElem())
+        renderGame(game.getElem(), () => {}, () => {})
     }
 
     document.getElementById("placeholder").appendChild(backButton)

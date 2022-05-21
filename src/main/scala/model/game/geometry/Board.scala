@@ -72,7 +72,6 @@ object Board {
         val oppositeOrientation = orientation.opposite
         otherWall match {
           case WallPosition(`orientation`, `row`, otherColumn) => (column - otherColumn).abs <= 1
-          case WallPosition(`orientation`, otherRow, `column`) => (row - otherRow).abs <= 1
           case WallPosition(`oppositeOrientation`, otherRow, otherColumn) => (row == otherColumn) && (column == otherRow)
           case _ => false
         }
