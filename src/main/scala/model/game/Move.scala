@@ -60,3 +60,25 @@ case class PlaceWall(wallPosition: WallPosition) extends Move {
     state.copy(players.shift, walls)
   }
 }
+
+
+object Move {
+  import cats.syntax.functor._
+  import sttp.tapir.Schema
+  import sttp.tapir.generic.auto.schemaForCaseClass
+  import io.circe.{ Decoder, Encoder }
+  import io.circe.generic.auto._
+  import io.circe.syntax._
+
+  implicit val jsonEncoder: Encoder[Move] = Encoder.instance {
+    case pm @ PawnMove(_) => pm.asJson
+    case pw @ PlaceWall(_) => pw.asJson
+  }
+
+  implicit val jsonDecoder: Decoder[Move] = List[Decoder[Move]](
+    Decoder[PawnMove].widen,
+    Decoder[PlaceWall].widen
+  ).reduceLeft(_ or _)
+
+  implicit val schema: Schema[Move] = Schema.derivedSchema
+}

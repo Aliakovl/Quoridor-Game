@@ -11,6 +11,9 @@ object GameException {
   case class UserNotFoundException(userId: ID[User])
     extends GameException(s"User with id=$userId not found")
 
+  case class LoginNotFoundException(login: String)
+    extends GameException(s"User with login=$login not found")
+
   case class GameNotFoundException(gameId: ID[Game])
     extends GameException(s"Game with id=$gameId not found")
 

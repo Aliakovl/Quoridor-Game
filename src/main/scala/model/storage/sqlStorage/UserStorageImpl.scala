@@ -10,6 +10,10 @@ import utils.Typed.ID
 
 
 class UserStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends UserStorage[F] {
+  override def findByLogin(login: String): F[User] = {
+    queries.findUserByLogin(login).transact(xa)
+  }
+
   override def find(id: ID[User]): F[User] = {
     queries.findUserById(id).transact(xa)
   }

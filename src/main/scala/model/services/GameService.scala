@@ -6,6 +6,8 @@ import utils.Typed.ID
 
 
 trait GameService[F[_]] {
+  def findGame(gameId: ID[Game], userId: ID[User]): F[Game]
+
   def makeMove(gameId: ID[Game], userId: ID[User], move: Move): F[Game]
 
   def gameHistory(gameId: ID[Game], userId: ID[User]): F[List[Game]]

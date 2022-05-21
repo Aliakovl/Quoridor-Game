@@ -3,43 +3,55 @@ package model.api
 import cats.effect.IO
 import model.{ExceptionResponse, User}
 import model.services.UserService
-import model.GamePreView
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
-import utils.Typed.Implicits.TypedOps
+import org.reactormonk.CryptoBits
+import sttp.model.headers.CookieValueWithMeta
 
-import java.util.UUID
 
 
 case class Login(login: String)
 
-class UserApi(userService: UserService[IO]) extends TapirApi {
+class UserApi(userService: UserService[IO],
+              crypto: CryptoBits) extends TapirApi {
 
-  private val ep = endpoint.in("api")
-
-  private val createUser = ep.post
+  private val createUser = endpoint.post
     .in("register")
     .in(jsonBody[Login])
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[User])
+    .out(setCookie("auth-cookie"))
     .serverLogic[IO] { case Login(login) =>
-      userService.createUser(login).map(Right(_)).handleError{ er =>
+      val response = for {
+        user <- userService.createUser(login)
+        clock = java.time.Clock.systemUTC
+        cookie <- IO(CookieValueWithMeta.unsafeApply(crypto.signToken(user.id.toString, clock.millis.toString), secure = false, path = Some("/")))
+      } yield Right(user, cookie)
+
+      response.handleError{ er =>
         Left(ExceptionResponse(er.getMessage))
       }
     }
 
-  private val historyEndpoint = ep.get
-    .in(path[UUID]("userId"))
-    .in("history")
+  private val loginUser = endpoint.post
+    .in("login")
+    .in(jsonBody[Login])
     .errorOut(jsonBody[ExceptionResponse])
-    .out(jsonBody[List[GamePreView]])
-    .serverLogic[IO] { userId =>
-      userService.usersHistory(userId.typed[User]).map(Right(_)).handleError{ er =>
+    .out(jsonBody[User])
+    .out(setCookie("auth-cookie"))
+    .serverLogic[IO] { case Login(login) =>
+      val response = for {
+        user <- userService.findUser(login)
+        clock = java.time.Clock.systemUTC
+        cookie <- IO(CookieValueWithMeta.unsafeApply(crypto.signToken(user.id.toString, clock.millis.toString), secure = false, path = Some("/")))
+      } yield Right(user, cookie)
+
+      response.handleError{ er =>
         Left(ExceptionResponse(er.getMessage))
       }
     }
 
-  val api = List(createUser, historyEndpoint)
+  override val api = List(createUser, loginUser)
 }

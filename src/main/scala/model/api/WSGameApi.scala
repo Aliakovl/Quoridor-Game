@@ -1,0 +1,84 @@
+package model.api
+
+import cats.effect.IO
+import fs2.concurrent.Topic
+import fs2.{Pipe, Stream}
+import io.circe.generic.auto.{exportDecoder, exportEncoder}
+import io.circe.parser
+import io.circe.syntax.EncoderOps
+import model.game.{Game, Move}
+import model.User
+import model.services.GameService
+import org.http4s.circe.jsonEncoder
+import org.http4s.dsl.io._
+import org.http4s.{HttpRoutes, Response}
+import org.http4s.server.websocket.WebSocketBuilder2
+import org.http4s.websocket.WebSocketFrame
+import utils.Typed.ID
+import utils.Typed.Implicits.TypedOps
+
+import java.util.UUID
+import scala.collection.concurrent.TrieMap
+
+
+case class UserMove(id: ID[User], move: Move)
+
+class WSGameApi(wsb: WebSocketBuilder2[IO],
+                gameService: GameService[IO]) {
+
+  def logic(sessionId: UUID, topic: Topic[IO, WebSocketFrame]): IO[Response[IO]] = {
+    def toClient: Stream[IO, WebSocketFrame] =
+      topic.subscribe(1000)
+
+    def fromClient: Pipe[IO, WebSocketFrame, Unit] =
+      handle(sessionId, topic)
+
+    wsb.build(toClient, fromClient)
+  }
+
+
+  private def handle(sessionId: UUID, topic: Topic[IO, WebSocketFrame])(in: Stream[IO, WebSocketFrame]): Stream[IO, Unit] = in
+    .collect({
+      case WebSocketFrame.Text(text, _) =>
+        parser.parse(text).flatMap(_.as[UserMove])
+    })
+    .evalMap {
+      case Right(UserMove(userId, move)) =>
+        val f = for {
+          gameId <- IO.fromOption(SessionsMap.gameStates.get(sessionId))(new Exception("There is no such session"))
+          game <- gameService.makeMove(gameId.typed[Game], userId, move)
+          _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
+        } yield WebSocketFrame.Text(game.asJson.toString())
+
+        f.handleError(er => WebSocketFrame.Text(er.toString))
+
+      case Left(_) => IO.pure(WebSocketFrame.Text("not able to parse input"))
+    }.through(topic.publish)
+
+
+  def routeWs: HttpRoutes[IO] = {
+    HttpRoutes.of[IO] {
+      case GET -> Root / "session" / UUIDVar(sessionId) if SessionsMap.gameStates.contains(sessionId) =>
+        SessionsMap.sessions.get(sessionId) match {
+          case Some(topic) =>
+            logic(sessionId, topic)
+          case None => for {
+            topic <- Topic[IO, WebSocketFrame]
+            _ = SessionsMap.sessions.update(sessionId, topic)
+            l <- logic(sessionId, topic)
+          } yield l
+        }
+
+      case POST -> Root / "create" / UUIDVar(gameId) =>
+        val sessionId = UUID.randomUUID()
+        SessionsMap.gameStates.update(sessionId, gameId)
+        IO(Response(Ok).withEntity(s"sessionId: $sessionId".asJson))
+    }
+  }
+}
+
+object SessionsMap {
+  val sessions: TrieMap[UUID, Topic[IO, WebSocketFrame]] = TrieMap[UUID, Topic[IO, WebSocketFrame]]().empty
+
+  val gameStates: TrieMap[UUID, UUID] = TrieMap[UUID, UUID]().empty
+}

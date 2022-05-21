@@ -1,0 +1,198 @@
+// function getGame(gameId, f) {
+//     let queryApi = `/api/18033395-d9f4-4944-82fd-9763059eaf20/game?gameId=${gameId}`
+//     fetch(queryApi).then(response => {
+//         if (response.ok) {
+//             response.json().then(game => {
+//                 f(game)
+//             })
+//         } else {
+//             response.json().then( em => {
+//                 alert(em.errorMessage)
+//             })
+//         }
+//     })
+// }
+
+function appendPseudoRow(table, row) {
+    let tr = document.createElement("tr")
+    for (let pseudoColumn = -1; pseudoColumn < 18; ++pseudoColumn) {
+        let td = document.createElement("td")
+        let column = Math.floor(pseudoColumn / 2)
+        if (pseudoColumn % 2 === 0) {
+            td.classList.add("wall-place")
+            td.classList.add("horizontal")
+            td.setAttribute("row", `${row}`)
+            td.setAttribute("column", `${column}`)
+            if (row < 0 || row > 7 || pseudoColumn < 0 || pseudoColumn > 16) {
+                td.classList.add("empty-place")
+            } else {
+                td.id = `wh${row}${column}`
+                if (column < 8) {
+                    td.onmouseover = _ => {
+                        td.classList.add("pointed-wall")
+                        document.getElementById(`i${row}${column}`).classList.add("pointed-wall")
+                        document.getElementById(`wh${row}${column + 1}`).classList.add("pointed-wall")
+                    }
+                    td.onmouseout = _ => {
+                        td.classList.remove("pointed-wall")
+                        document.getElementById(`i${row}${column}`).classList.remove("pointed-wall")
+                        document.getElementById(`wh${row}${column + 1}`).classList.remove("pointed-wall")
+                    }
+                }
+            }
+        } else {
+            td.classList.add("intersection")
+            td.setAttribute("row", `${row}`)
+            td.setAttribute("column", `${column}`)
+            if (row < 0 || row > 7 || pseudoColumn < 0 || pseudoColumn > 16) {
+                td.classList.add("empty-place")
+            } else {
+                td.id = `i${row}${column}`
+            }
+        }
+        tr.appendChild(td)
+    }
+    table.appendChild(tr)
+}
+
+function appendRow(table, row) {
+    let tr = document.createElement("tr")
+    for (let pseudoColumn = -1; pseudoColumn < 18; ++pseudoColumn) {
+        let column = Math.floor(pseudoColumn / 2)
+        let td = document.createElement("td")
+        if (pseudoColumn % 2 === 0) {
+            td.classList.add("pawn-place")
+            td.setAttribute("row", `${row}`)
+            td.setAttribute("column", `${column}`)
+            td.id = `p${row}${column}`
+            td.onmouseover = _ =>
+                td.classList.add("pointed-cell")
+            td.onmouseout = _ =>
+                td.classList.remove("pointed-cell")
+        } else {
+            td.classList.add("wall-place")
+            td.classList.add("vertical")
+            if (pseudoColumn < 0 || pseudoColumn > 16){
+                td.classList.add("empty-place")
+            } else {
+                td.setAttribute("row", `${column}`)
+                td.setAttribute("column", `${row}`)
+                td.id = `wv${column}${row}`
+                if (row < 8) {
+                    td.onmouseover = _ => {
+                        td.classList.add("pointed-wall")
+                        document.getElementById(`i${row}${column}`).classList.add("pointed-wall")
+                        document.getElementById(`wv${column}${row + 1}`).classList.add("pointed-wall")
+                    }
+                    td.onmouseout = _ => {
+                        td.classList.remove("pointed-wall")
+                        document.getElementById(`i${row}${column}`).classList.remove("pointed-wall")
+                        document.getElementById(`wv${column}${row + 1}`).classList.remove("pointed-wall")
+                    }
+                }
+            }
+        }
+        tr.appendChild(td)
+    }
+    table.appendChild(tr)
+}
+
+function createGameField(parent) {
+    let table = document.createElement("table")
+    table.classList.add("game-field")
+
+    appendPseudoRow(table, -1)
+    for (let row = 0; row < 9; ++row) {
+        appendRow(table, row)
+        appendPseudoRow(table, row)
+    }
+
+    parent.appendChild(table)
+    return table
+}
+
+function setWall(gameField, wall) {
+    console.log(wall)
+    if (wall.orientation === "Horizontal") {
+        document.getElementById(`wh${wall.row}${wall.column}`).classList.add("placed-wall")
+        document.getElementById(`i${wall.row}${wall.column}`).classList.add("placed-wall")
+        document.getElementById(`wh${wall.row}${wall.column + 1}`).classList.add("placed-wall")
+    } else {
+        document.getElementById(`wv${wall.row}${wall.column}`).classList.add("placed-wall")
+        document.getElementById(`i${wall.column}${wall.row}`).classList.add("placed-wall")
+        document.getElementById(`wv${wall.row}${wall.column + 1}`).classList.add("placed-wall")
+    }
+}
+
+function sideOrder(side) {
+    switch (side) {
+        case "North": return 0
+        case "East": return 1
+        case "South": return 2
+        case "West": return 3
+    }
+}
+
+function createPlayersTable(players) {
+    let playersList = document.createElement("ul")
+    let activePlayer = players.activePlayer
+    let allPlayers = Array.from(players.enemies)
+    allPlayers.push(activePlayer)
+    allPlayers.sort((a, b) => {
+        return sideOrder(a.target) - sideOrder(b.target)
+    })
+    allPlayers.forEach(player => {
+        pinPawn(player)
+        addPlayerToTable(playersList, player, activePlayer)
+    })
+    return playersList
+}
+
+function addPlayerToTable(playersList, player, activePlayer) {
+    let li = document.createElement("li")
+    li.classList.add(player.target)
+    if (player === activePlayer) {
+        li.textContent = `➤ ${player.login}: █ ${player.wallsAmount}`
+    } else {
+        li.textContent = `${player.login}: █ ${player.wallsAmount}`
+    }
+    playersList.appendChild(li)
+}
+
+function pinPawn(player) {
+    let row = player.pawnPosition.row
+    let column = player.pawnPosition.column
+    let td = document.getElementById(`p${row}${column}`)
+    td.setAttribute("player-id", player.id)
+    td.classList.add(player.target)
+}
+
+// document.addEventListener("DOMContentLoaded", _ => {
+//     let gameId = window.location.pathname.substring(6)
+//     let tablePlace = document.getElementById("table-place")
+//     let node = document.getElementById("players-place")
+//
+//     let gameField = createGameField(tablePlace)
+//
+//     getGame(gameId, game => {
+//         console.log(game)
+//         game.state.walls.forEach(wall => setWall(gameField, wall))
+//         let playersTable = createPlayersTable(game.state.players)
+//         node.appendChild(playersTable)
+//     })
+//
+// })
+
+function renderGame(game) {
+    let tablePlace = document.getElementById("table-place")
+    let nd = document.getElementById("players-place")
+
+    tablePlace.innerHTML = null
+    nd.innerHTML = null
+
+    let gameField = createGameField(tablePlace)
+
+    game.state.walls.forEach(wall => setWall(gameField, wall))
+    let playersTable = createPlayersTable(game.state.players)
+    nd.appendChild(playersTable)
+}
