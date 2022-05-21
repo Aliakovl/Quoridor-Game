@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quoridor Game</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
+    <script type="text/javascript" src="/assets/gamecreation.js"></script>
+</head>
+<body>
+<div id="page">
+    <button id="logout-button" type="button">Logout</button><br><br>
+    <div id="user-space">
+        <form id="create-game-form">
+            <label for="user-login">User's login:</label><br>
+            <input id="user-login" type="text" name="username"/><br>
+            <input id="add-player" type="submit" value="Add player"/>
+            <input id="start-game" type="submit" value="Start game"/>
+        </form><br>
+        <label>Participants:</label>
+        <ul id="added-players"></ul>
+    </div>
+</div>
+</body>
+</html>

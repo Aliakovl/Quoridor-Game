@@ -13,21 +13,12 @@ import sttp.tapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
-//import fs2._
-//import fs2.concurrent.Topic
-//import sttp.capabilities.WebSockets
-//import sttp.capabilities.fs2.Fs2Streams
-//import sttp.ws.{WebSocket, WebSocketFrame}
-//import utils.Typed.ID
-//import utils.Typed.Implicits._
 
 import java.util.UUID
 
 class GameApi(userService: UserService[IO],
               gameCreator: GameCreator[IO],
               gameService: GameService[IO]) extends TapirApi {
-
-//  private val endpoint = endpoint.in("api")
 
   private val createGameEndpoint = endpoint.post
     .in(path[UUID]("userId"))

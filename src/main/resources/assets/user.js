@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", _ => {
     }
 
     document.getElementById("new-game-button").onclick = _ => {
-        console.log("NOT IMPLEMENTED")
+        window.location.href = `/game-creation${window.location.pathname}`
     }
 
     historyRequest()

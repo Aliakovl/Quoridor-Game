@@ -13,7 +13,7 @@ import model.storage.sqlStorage._
 import com.comcast.ip4s.IpLiteralSyntax
 import fs2.concurrent.Topic
 import io.circe.generic.auto.exportEncoder
-import model.User
+import model.{ExceptionResponse, User}
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.{HttpApp, HttpRoutes, Request, Response, StaticFile}
 import org.http4s.dsl.io._
@@ -50,7 +50,7 @@ object QuoridorApp extends IOApp {
   val assetsRoutes = resourceServiceBuilder[IO]("/assets").toRoutes
 
   val loginPage = HttpRoutes.of[IO] {
-    case request @ GET -> Root =>
+    case GET -> Root =>
       StaticFile.fromResource[IO]("/loginpage.html").getOrElseF(InternalServerError())
   }
 
@@ -82,8 +82,18 @@ object QuoridorApp extends IOApp {
   }
 
   val gameTmp = HttpRoutes.of[IO] {
-    case request @ GET -> Root / UUIDVar(uuid) =>
+    case GET -> Root / UUIDVar(uuid) =>
       StaticFile.fromResource[IO]("/gamepagetmp.html").getOrElseF(InternalServerError())
+  }
+
+  val gameCreationRoute = HttpRoutes.of[IO] {
+    case GET -> Root / UUIDVar(uuid) =>
+      StaticFile.fromResource[IO]("/gamecreationpage.html").getOrElseF(InternalServerError())
+  }
+
+  val gameSessionRoute = HttpRoutes.of[IO] {
+    case GET -> Root / UUIDVar(sessionId) =>
+      StaticFile.fromResource[IO]("/gamesessionpage.html").getOrElseF(InternalServerError())
   }
 
   val httpApp: HttpRoutes[IO] = Router[IO](
@@ -92,6 +102,8 @@ object QuoridorApp extends IOApp {
     "sign" -> loginPage,
     "api" -> QuoridorGame.routes,
     "game" -> gameTmp,
+    "game-creation" -> gameCreationRoute,
+    "game-session" -> gameSessionRoute
   )
 
   override def run(args: List[String]): IO[ExitCode] = BlazeServerBuilder[IO]
@@ -99,7 +111,9 @@ object QuoridorApp extends IOApp {
     .withHttpWebSocketApp({wsb =>
       Router[IO] (
         "/" -> httpApp,
-        "ws" -> new WSGameApi(wsb, QuoridorGame.gameService).routeWs
+        "ws" -> new WSGameApi(wsb, QuoridorGame.gameService).routeWs.handleError{ error =>
+          Response(BadRequest).withEntity(ExceptionResponse(error.getMessage))
+        }
       ).orNotFound
     })
     .serve

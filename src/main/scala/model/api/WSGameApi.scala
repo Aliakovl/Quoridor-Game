@@ -4,14 +4,15 @@ import cats.effect.IO
 import fs2.concurrent.Topic
 import fs2.{Pipe, Stream}
 import io.circe.generic.auto.{exportDecoder, exportEncoder}
-import io.circe.parser
+import io.circe.{Json, parser}
 import io.circe.syntax.EncoderOps
 import model.game.{Game, Move}
 import model.User
 import model.services.GameService
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonEncoder
 import org.http4s.dsl.io._
-import org.http4s.{HttpRoutes, Response}
+import org.http4s.{HttpRoutes, Response, StaticFile}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import utils.Typed.ID
@@ -72,7 +73,13 @@ class WSGameApi(wsb: WebSocketBuilder2[IO],
       case POST -> Root / "create" / UUIDVar(gameId) =>
         val sessionId = UUID.randomUUID()
         SessionsMap.gameStates.update(sessionId, gameId)
-        IO(Response(Ok).withEntity(s"sessionId: $sessionId".asJson))
+        IO(Response(Ok).withEntity(parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)))
+
+      case GET -> Root / "game" / UUIDVar(sessionId) / UUIDVar(userId) if SessionsMap.gameStates.contains(sessionId) =>
+        val gameId = SessionsMap.gameStates.get(sessionId)
+        for {
+          game <- gameService.findGame(gameId.get.typed[Game], userId.typed[User])
+        } yield Response(Ok).withEntity(game)
     }
   }
 }

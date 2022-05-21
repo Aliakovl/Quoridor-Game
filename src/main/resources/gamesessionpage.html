@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>Quoridor Game</title>
     <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
-    <script type="text/javascript" src="/assets/user.js"></script>
-    <script type="text/javascript" src="/assets/gamehistory.js"></script>
     <script type="text/javascript" src="/assets/gametmp.js"></script>
-    <link rel="stylesheet" type="text/css" href="/assets/user.css">
     <link rel="stylesheet" type="text/css" href="/assets/gametmp.css">
+    <script type="text/javascript" src="/assets/gamesession.js"></script>
 </head>
 <body>
 <div id="page">
-    <button id="logout-button" type="button">Logout</button><br><br>
     <div id="user-space">
-        <button id="new-game-button">New Game</button><br><br>
-        <table id="user-history-table"></table>
+        <div id="placeholder">
+            <button id="logout-button" type="button">Logout</button>
+        </div>
+        <div id="table-place"></div>
+        <div id="players-place"></div>
     </div>
 </div>
 </body>

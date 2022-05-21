@@ -53,5 +53,15 @@ class UserApi(userService: UserService[IO],
       }
     }
 
-  override val api = List(createUser, loginUser)
+  private val getUser = endpoint.get
+    .in("user" / path[String]("Login"))
+    .errorOut(jsonBody[ExceptionResponse])
+    .out(jsonBody[User])
+    .serverLogic[IO] { login =>
+      userService.findUser(login).map(Right(_)).handleError{ er =>
+        Left(ExceptionResponse(er.getMessage))
+      }
+    }
+
+  override val api = List(createUser, loginUser, getUser)
 }

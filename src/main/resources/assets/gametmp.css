@@ -1,15 +1,13 @@
 #user-space {
     display: flex;
     align-items: center;
-    /*align-content: center;*/
-    /*align-self: center;*/
     justify-content: flex-start;
     flex-flow: row wrap;
-    /*flex-wrap: wrap-reverse;*/
 }
 
 #placeholder {
     flex: 1;
+    align-self: start;
 }
 
 #table-place {
@@ -24,8 +22,6 @@ table.game-field {
     height: 700px;
     width: 700px;
     background-color: lightsteelblue;
-    /*margin-left: auto;*/
-    /*margin-right: auto;*/
 }
 
 td.pawn-place, table.game-field {
