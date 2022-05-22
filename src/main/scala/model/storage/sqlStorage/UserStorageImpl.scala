@@ -23,6 +23,11 @@ class UserStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends UserStora
   }
 
   override def history(id: ID[User]): F[List[ID[Game]]] = {
-    queries.findGameLeavesByUserId(id).transact(xa)
+    val query = for {
+      _ <- queries.findUserById(id)
+      userHistory <- queries.findGameLeavesByUserId(id)
+    } yield userHistory
+
+    query.transact(xa)
   }
 }

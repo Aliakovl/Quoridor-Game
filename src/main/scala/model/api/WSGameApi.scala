@@ -4,8 +4,9 @@ import cats.effect.IO
 import fs2.concurrent.Topic
 import fs2.{Pipe, Stream}
 import io.circe.generic.auto.{exportDecoder, exportEncoder}
-import io.circe.{Json, parser}
+import io.circe.{Encoder, Json, parser}
 import io.circe.syntax.EncoderOps
+import model.ExceptionResponse.ExceptionResponse400
 import model.game.{Game, Move}
 import model.{ExceptionResponse, GameException, GameMoveException, User}
 import model.services.GameService
@@ -37,6 +38,7 @@ class WSGameApi(wsb: WebSocketBuilder2[IO],
     wsb.build(toClient, fromClient)
   }
 
+  implicit val jsonEncode: Encoder[ExceptionResponse] = Encoder.forProduct1("errorMessage")(_.message)
 
   private def handle(sessionId: UUID, topic: Topic[IO, WebSocketFrame]): Pipe[IO, WebSocketFrame, Unit] = in =>
     in.collect({
@@ -51,41 +53,35 @@ class WSGameApi(wsb: WebSocketBuilder2[IO],
           _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
-        ws.handleError{
-          case er: GameException => WebSocketFrame.Text(ExceptionResponse(er.getMessage).asJson.toString())
-          case er: GameMoveException => WebSocketFrame.Text(ExceptionResponse(er.getMessage).asJson.toString())
-          case _ => WebSocketFrame.Text(ExceptionResponse("Something bed happened").asJson.toString())
-        }
+        ws.handleError{ er => WebSocketFrame.Text(ExceptionResponse(er).asJson.toString()) }
 
-      case Left(_) => IO.pure(WebSocketFrame.Text(ExceptionResponse("Not able to parse input").asJson.toString()))
+      case Left(_) => IO.pure(WebSocketFrame.Text(ExceptionResponse400("Not able to parse input data").asJson.toString()))
 
     }.through(topic.publish)
 
 
-  def routeWs: HttpRoutes[IO] = {
-    HttpRoutes.of[IO] {
-      case GET -> Root / "session" / UUIDVar(sessionId) if SessionsMap.gameStates.contains(sessionId) =>
-        SessionsMap.sessions.get(sessionId) match {
-          case Some(topic) =>
-            logic(sessionId, topic)
-          case None => for {
-            topic <- Topic[IO, WebSocketFrame]
-            _ = SessionsMap.sessions.update(sessionId, topic)
-            l <- logic(sessionId, topic)
-          } yield l
-        }
+  def routeWs: HttpRoutes[IO] = HttpRoutes.of[IO] {
+    case GET -> Root / "session" / UUIDVar(sessionId) if SessionsMap.gameStates.contains(sessionId) =>
+      SessionsMap.sessions.get(sessionId) match {
+        case Some(topic) =>
+          logic(sessionId, topic)
+        case None => for {
+          topic <- Topic[IO, WebSocketFrame]
+          _ = SessionsMap.sessions.update(sessionId, topic)
+          l <- logic(sessionId, topic)
+        } yield l
+      }
 
-      case POST -> Root / "create" / UUIDVar(gameId) =>
-        val sessionId = UUID.randomUUID()
-        SessionsMap.gameStates.update(sessionId, gameId)
-        IO(Response(Ok).withEntity(parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)))
+    case POST -> Root / "create" / UUIDVar(gameId) =>
+      val sessionId = UUID.randomUUID()
+      SessionsMap.gameStates.update(sessionId, gameId)
+      IO(Response(Created).withEntity(parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)))
 
-      case GET -> Root / "game" / UUIDVar(sessionId) / UUIDVar(userId) if SessionsMap.gameStates.contains(sessionId) =>
-        val gameId = SessionsMap.gameStates.get(sessionId)
-        for {
-          game <- gameService.findGame(gameId.get.typed[Game], userId.typed[User])
-        } yield Response(Ok).withEntity(game)
-    }
+    case GET -> Root / "game" / UUIDVar(sessionId) / UUIDVar(userId) if SessionsMap.gameStates.contains(sessionId) =>
+      val gameId = SessionsMap.gameStates.get(sessionId)
+      for {
+        game <- gameService.findGame(gameId.get.typed[Game], userId.typed[User])
+      } yield Response(Ok).withEntity(game)
   }
 }
 

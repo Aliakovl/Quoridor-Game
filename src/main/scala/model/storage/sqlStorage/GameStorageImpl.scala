@@ -15,7 +15,7 @@ import java.util.UUID
 class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStorage[F] {
   override def find(gameId: ID[Game]): F[Game] = {
     val query = for {
-      _ <- queries.previousGameId(gameId) // throw exception if there is no gameId
+      _ <- queries.previousGameId(gameId)
       activePlayer <- queries.findActivePlayerByGameId(gameId)
       enemies <- queries.findEnemiesByGameId(gameId)
       walls <- queries.findWallsByGameId(gameId)

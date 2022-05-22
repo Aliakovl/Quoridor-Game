@@ -20,7 +20,7 @@ class ProtoGameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends Prot
 
   override def insert(userId: ID[User]): F[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().typed[Game]
-    val target = North // remove
+    val target = North
     val query = for {
       user <- queries.findUserById(userId)
       _ <- queries.createProtoGameByUser(gameId, userId)

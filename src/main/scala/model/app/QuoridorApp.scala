@@ -30,6 +30,7 @@ import sttp.tapir.swagger.SwaggerUI
 import utils.Typed.Implicits.TypedOps
 import cats.effect.implicits._
 import cats.implicits._
+import io.circe.Encoder
 import org.http4s.blaze.server.BlazeServerBuilder
 
 import java.util.UUID
@@ -81,11 +82,6 @@ object QuoridorApp extends IOApp {
       )
   }
 
-  val gameTmp = HttpRoutes.of[IO] {
-    case GET -> Root / UUIDVar(uuid) =>
-      StaticFile.fromResource[IO]("/gamepagetmp.html").getOrElseF(InternalServerError())
-  }
-
   val gameCreationRoute = HttpRoutes.of[IO] {
     case GET -> Root / UUIDVar(uuid) =>
       StaticFile.fromResource[IO]("/gamecreationpage.html").getOrElseF(InternalServerError())
@@ -101,18 +97,19 @@ object QuoridorApp extends IOApp {
     "/" -> cookieAuth,
     "sign" -> loginPage,
     "api" -> QuoridorGame.routes,
-    "game" -> gameTmp,
     "game-creation" -> gameCreationRoute,
     "game-session" -> gameSessionRoute
   )
 
+  implicit val jsonEncode: Encoder[ExceptionResponse] = Encoder.forProduct1("errorMessage")(_.message)
+
   override def run(args: List[String]): IO[ExitCode] = BlazeServerBuilder[IO]
     .bindHttp(8080, "0.0.0.0")
-    .withHttpWebSocketApp({wsb =>
+    .withHttpWebSocketApp({ wsb =>
       Router[IO] (
         "/" -> httpApp,
         "ws" -> new WSGameApi(wsb, QuoridorGame.gameService).routeWs.handleError{ error =>
-          Response(BadRequest).withEntity(ExceptionResponse(error.getMessage))
+          Response(InternalServerError).withEntity(ExceptionResponse(error))
         }
       ).orNotFound
     })

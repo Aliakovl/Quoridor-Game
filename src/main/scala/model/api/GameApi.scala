@@ -1,18 +1,20 @@
 package model.api
 
 import cats.effect.IO
+import cats.implicits._
 import model.services.{GameCreator, GameService, UserService}
 import model.ExceptionResponse
+import model.ExceptionResponse._
 import model.ProtoGame
 import model.User
-import model.game.{Game, Move, PawnMove, PlaceWall}
-import model.game.geometry.{PawnPosition, WallPosition}
+import model.game.{Game, Move}
 import model.GamePreView
 import utils.Typed.Implicits._
 import sttp.tapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
+import sttp.model.StatusCode
 
 import java.util.UUID
 
@@ -23,11 +25,14 @@ class GameApi(userService: UserService[IO],
   private val createGameEndpoint = endpoint.post
     .in(path[UUID]("userId"))
     .in("create-game")
-    .errorOut(jsonBody[ExceptionResponse])
-    .out(jsonBody[ProtoGame])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
+    .out(oneOf(oneOfVariant(StatusCode.Created, jsonBody[ProtoGame])))
     .serverLogic[IO] { uuid =>
-      gameCreator.createGame(uuid.typed[User]).map(x => Right(x)).handleError{ er =>
-        Left(ExceptionResponse(er.getMessage))
+      gameCreator.createGame(uuid.typed[User]).map(x => Right(x)).handleError { er =>
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -35,12 +40,16 @@ class GameApi(userService: UserService[IO],
     .in(path[UUID]("userId"))
     .in("join-game")
     .in(query[UUID]("gameId"))
-    .errorOut(jsonBody[ExceptionResponse])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.BadRequest, jsonBody[ExceptionResponse400]),
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
     .out(jsonBody[ProtoGame])
     .serverLogic[IO] { case (userId, gameId) =>
       gameCreator.joinPlayer(gameId.typed[Game], userId.typed[User])
         .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -48,40 +57,17 @@ class GameApi(userService: UserService[IO],
     .in(path[UUID]("userId"))
     .in("start-game")
     .in(query[UUID]("gameId"))
-    .errorOut(jsonBody[ExceptionResponse])
-    .out(jsonBody[Game])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.BadRequest, jsonBody[ExceptionResponse400]),
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.Forbidden, jsonBody[ExceptionResponse403]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
+    .out(oneOf(oneOfVariant(StatusCode.Created, jsonBody[Game])))
     .serverLogic[IO] { case (userId, gameId) =>
       gameCreator.startGame(gameId.typed[Game], userId.typed[User])
         .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
-      }
-    }
-
-  private val pawnMoveEndpoint = endpoint.post
-    .in(path[UUID]("userId"))
-    .in("move" / "pawn-move")
-    .in(query[UUID]("gameId"))
-    .in(jsonBody[PawnPosition])
-    .errorOut(jsonBody[ExceptionResponse])
-    .out(jsonBody[Game])
-    .serverLogic[IO] { case (userId, gameId, pawnPosition) =>
-      gameService.makeMove(gameId.typed[Game], userId.typed[User], PawnMove(pawnPosition))
-        .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
-      }
-    }
-
-  private val placeWallEndpoint = endpoint.post
-    .in(path[UUID]("userId"))
-    .in("move" / "place-wall")
-    .in(query[UUID]("gameId"))
-    .in(jsonBody[WallPosition])
-    .errorOut(jsonBody[ExceptionResponse])
-    .out(jsonBody[Game])
-    .serverLogic[IO] { case (userId, gameId, wallPosition) =>
-      gameService.makeMove(gameId.typed[Game], userId.typed[User], PlaceWall(wallPosition))
-        .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -90,23 +76,30 @@ class GameApi(userService: UserService[IO],
     .in("game")
     .in("history")
     .in(query[UUID]("gameId"))
-    .errorOut(jsonBody[ExceptionResponse])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.Forbidden, jsonBody[ExceptionResponse403]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
     .out(jsonBody[List[Game]])
     .serverLogic[IO] { case (userId, gameId) =>
       gameService.gameHistory(gameId.typed[Game], userId.typed[User])
         .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
+        ExceptionResponse(er).asLeft
       }
     }
 
   private val historyEndpoint = endpoint.get
     .in(path[UUID]("userId"))
     .in("history")
-    .errorOut(jsonBody[ExceptionResponse])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
     .out(jsonBody[List[GamePreView]])
     .serverLogic[IO] { userId =>
-      userService.usersHistory(userId.typed[User]).map(Right(_)).handleError{ er =>
-        Left(ExceptionResponse(er.getMessage))
+      userService.usersHistory(userId.typed[User]).map(Right(_)).handleError { er =>
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -114,11 +107,14 @@ class GameApi(userService: UserService[IO],
     .in(path[UUID]("userId"))
     .in("game")
     .in(query[UUID]("gameId"))
-    .errorOut(jsonBody[ExceptionResponse])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
     .out(jsonBody[Game])
     .serverLogic[IO] { case (userId, gameId) =>
-      gameService.findGame(gameId.typed[Game], userId.typed[User]).map(Right(_)).handleError{ er =>
-        Left(ExceptionResponse(er.getMessage))
+      gameService.findGame(gameId.typed[Game], userId.typed[User]).map(Right(_)).handleError { er =>
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -128,12 +124,17 @@ class GameApi(userService: UserService[IO],
     .in("move")
     .in(query[UUID]("gameId"))
     .in(jsonBody[Move])
-    .errorOut(jsonBody[ExceptionResponse])
+    .errorOut(oneOf(
+      oneOfVariant(StatusCode.BadRequest, jsonBody[ExceptionResponse400]),
+      oneOfVariant(StatusCode.Forbidden, jsonBody[ExceptionResponse403]),
+      oneOfVariant(StatusCode.NotFound, jsonBody[ExceptionResponse404]),
+      oneOfVariant(StatusCode.InternalServerError, jsonBody[ExceptionResponse500])
+    ))
     .out(jsonBody[Game])
     .serverLogic[IO] { case (userId, gameId, move) =>
       gameService.makeMove(gameId.typed[Game], userId.typed[User], move)
         .map(x => Right(x)).handleError { er =>
-        Left(ExceptionResponse(er.getMessage))
+        ExceptionResponse(er).asLeft
       }
     }
 
@@ -142,8 +143,6 @@ class GameApi(userService: UserService[IO],
       createGameEndpoint,
       joinPlayerEndpoint,
       startGameEndpoint,
-      pawnMoveEndpoint,
-      placeWallEndpoint,
       gameHistoryEndpoint,
       historyEndpoint,
       getGameEndpoint,
