@@ -16,9 +16,9 @@ object QuoridorGame {
 
   implicit val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",
-    "jdbc:postgresql://localhost:5432/",
+    "jdbc:postgresql://db:5432/",
     "postgres",
-    "securepassword"
+    "postgres"
   )
 
   private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO]

@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  server:
+    build: .
+    ports:
+      - "8080:8080"
+    command:
+      sbt run
+    depends_on:
+      - flyway
+
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:postgresql://db:5432/postgres -schemas=postgres -user=postgres -password=postgres -connectRetries=60 migrate
+    volumes:
+      - ./src/main/resources/migrations:/flyway/sql
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
