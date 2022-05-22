@@ -83,12 +83,12 @@ object QuoridorApp extends IOApp {
   }
 
   val gameCreationRoute = HttpRoutes.of[IO] {
-    case GET -> Root / UUIDVar(uuid) =>
+    case GET -> Root / UUIDVar(_) =>
       StaticFile.fromResource[IO]("/gamecreationpage.html").getOrElseF(InternalServerError())
   }
 
   val gameSessionRoute = HttpRoutes.of[IO] {
-    case GET -> Root / UUIDVar(sessionId) =>
+    case GET -> Root / UUIDVar(_) =>
       StaticFile.fromResource[IO]("/gamesessionpage.html").getOrElseF(InternalServerError())
   }
 

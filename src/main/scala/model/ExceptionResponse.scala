@@ -1,7 +1,5 @@
 package model
 
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import model.GameException._
 
 sealed abstract class ExceptionResponse(errorMessage: String) extends Product with Serializable {
@@ -30,6 +28,4 @@ object ExceptionResponse {
     extends ExceptionResponse(errorMessage)
   case class ExceptionResponse500(errorMessage: String)
     extends ExceptionResponse(errorMessage)
-
-  implicit val jsonEncode: Encoder[ExceptionResponse] = Encoder.forProduct1("errorMessage")(_.message)
 }

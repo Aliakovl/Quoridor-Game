@@ -1,7 +1,9 @@
 package model.app
 
 import cats.effect.IO
-import doobie.Transactor
+import cats.effect.kernel.Resource
+import doobie.{ExecutionContexts, Transactor}
+import doobie.hikari.HikariTransactor
 import model.api.{GameApi, UserApi}
 import model.services.{GameCreator, GameCreatorImpl, GameService, GameServiceImpl, UserService, UserServiceImpl}
 import model.storage.{GameStorage, ProtoGameStorage, UserStorage}
@@ -14,12 +16,16 @@ import scala.util.Random
 
 object QuoridorGame {
 
-  implicit val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
-    "org.postgresql.Driver",
-    "jdbc:postgresql://db:5432/",
-    "postgres",
-    "postgres"
-  )
+  implicit val resourceTransactor: Resource[IO, HikariTransactor[IO]] = for {
+    ce <- ExecutionContexts.fixedThreadPool[IO](32)
+    xa <- HikariTransactor.newHikariTransactor[IO](
+      "org.postgresql.Driver",
+      "jdbc:postgresql://db:5432/",
+      "postgres",
+      "postgres",
+      ce
+    )
+  } yield xa
 
   private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO]
   private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO]

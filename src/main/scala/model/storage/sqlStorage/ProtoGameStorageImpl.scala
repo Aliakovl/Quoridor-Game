@@ -1,8 +1,8 @@
 package model.storage.sqlStorage
 
-import cats.effect.Async
+import cats.effect.{Async, Resource}
+import doobie.hikari.HikariTransactor
 import doobie.implicits._
-import doobie.util.transactor.Transactor
 import model.game.Game
 import model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import model.game.geometry.Side
@@ -10,15 +10,16 @@ import model.game.geometry.Side.North
 import model.storage.ProtoGameStorage
 import utils.Typed.ID
 import utils.Typed.Implicits._
+
 import java.util.UUID
 
 
-class ProtoGameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends ProtoGameStorage[F] {
-  override def find(gameId: ID[Game]): F[ProtoGame] = {
+class ProtoGameStorageImpl[F[_]: Async](implicit transactor: Resource[F, HikariTransactor[F]]) extends ProtoGameStorage[F] {
+  override def find(gameId: ID[Game]): F[ProtoGame] = transactor.use { xa =>
     queries.findProtoGameByGameId(gameId).transact(xa)
   }
 
-  override def insert(userId: ID[User]): F[ProtoGame] = {
+  override def insert(userId: ID[User]): F[ProtoGame] = transactor.use { xa =>
     lazy val gameId = UUID.randomUUID().typed[Game]
     val target = North
     val query = for {
@@ -32,7 +33,7 @@ class ProtoGameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends Prot
     query.transact(xa)
   }
 
-  override def update(gameId: ID[Game], userId: ID[User], target: Side): F[ProtoGame] = {
+  override def update(gameId: ID[Game], userId: ID[User], target: Side): F[ProtoGame] = transactor.use { xa =>
     val query = for {
       _ <- queries.findUserById(userId)
       _ <- queries.addUserIntoProtoGame(gameId, userId, target)

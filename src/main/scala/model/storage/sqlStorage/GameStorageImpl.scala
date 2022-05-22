@@ -1,8 +1,8 @@
 package model.storage.sqlStorage
 
-import cats.effect.Async
+import cats.effect.{Async, Resource}
+import doobie.hikari.HikariTransactor
 import doobie.implicits._
-import doobie.util.transactor.Transactor
 import model.{GamePreView, User}
 import model.game.{Game, Players, State}
 import model.storage.GameStorage
@@ -12,8 +12,8 @@ import utils.Typed.Implicits._
 import java.util.UUID
 
 
-class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStorage[F] {
-  override def find(gameId: ID[Game]): F[Game] = {
+class GameStorageImpl[F[_]: Async](implicit transactor: Resource[F, HikariTransactor[F]]) extends GameStorage[F] {
+  override def find(gameId: ID[Game]): F[Game] = transactor.use { xa =>
     val query = for {
       _ <- queries.previousGameId(gameId)
       activePlayer <- queries.findActivePlayerByGameId(gameId)
@@ -25,7 +25,7 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     query.transact(xa)
   }
 
-  override def insert(previousGameId: ID[Game], state: State, winner: Option[User]): F[Game] = {
+  override def insert(previousGameId: ID[Game], state: State, winner: Option[User]): F[Game] = transactor.use { xa =>
     lazy val activePlayer = state.players.activePlayer
     lazy val gameId = UUID.randomUUID().typed[Game]
     val query = for {
@@ -38,7 +38,7 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     query.transact(xa)
   }
 
-  override def create(protoGameId: ID[Game], state: State): F[Game] = {
+  override def create(protoGameId: ID[Game], state: State): F[Game] = transactor.use { xa =>
     lazy val activePlayer = state.players.activePlayer
     val gameId = protoGameId
     val query = for {
@@ -50,18 +50,18 @@ class GameStorageImpl[F[_]: Async](implicit xa: Transactor[F]) extends GameStora
     query.transact(xa)
   }
 
-  override def exists(gameId: ID[Game]): F[Boolean] = {
+  override def exists(gameId: ID[Game]): F[Boolean] = transactor.use { xa =>
     queries.existsGameWithId(gameId)
       .transact(xa)
   }
 
-  override def gameHistory(gameId: ID[Game]): F[List[ID[Game]]] = {
+  override def gameHistory(gameId: ID[Game]): F[List[ID[Game]]] = transactor.use { xa =>
     queries.findGameBranchEndedOnGameId(gameId)
       .map(_.reverse)
       .transact(xa)
   }
 
-  override def findParticipants(gameId: ID[Game]): F[GamePreView] = {
+  override def findParticipants(gameId: ID[Game]): F[GamePreView] = transactor.use { xa =>
     val query = for {
       users <- queries.findUsersByGameId(gameId)
       winner <- queries.findWinnerByGameId(gameId)
