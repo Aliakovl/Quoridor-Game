@@ -5,7 +5,7 @@ import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
-import model.GameException.{GameNotFoundException, LoginOccupiedException, SamePlayerException, UserNotFoundException}
+import model.GameException._
 import model.game.geometry.Side.North
 import model.game.geometry.{Orientation, PawnPosition, Side, WallPosition}
 import model.game.{Game, Player}
@@ -19,6 +19,19 @@ import java.util.UUID
 object queries {
 
   implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.typed[T])(_.unType)
+
+  def findUserByLogin(login: String): ConnectionIO[User] = {
+    sql"""
+    SELECT * FROM "user"
+    WHERE login = $login
+    """
+      .query[User]
+      .option
+      .map {
+        case Some(v) => v
+        case None    => throw LoginNotFoundException(login)
+      }
+  }
 
   def findUserById(userId: ID[User]): ConnectionIO[User] = {
     sql"""
