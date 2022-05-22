@@ -19,7 +19,9 @@ class GameApi(userService: UserService[IO],
               gameCreator: GameCreator[IO],
               gameService: GameService[IO]) extends TapirApi {
 
-  private val createGameEndpoint = endpoint.post
+  private val en = endpoint.in("api")
+
+  private val createGameEndpoint = en.post
     .in(path[UUID]("userId"))
     .in("create-game")
     .errorOut(oneOf(
@@ -33,7 +35,7 @@ class GameApi(userService: UserService[IO],
       }
     }
 
-  private val joinPlayerEndpoint = endpoint.post
+  private val joinPlayerEndpoint = en.post
     .in(path[UUID]("userId"))
     .in("join-game")
     .in(query[UUID]("gameId"))
@@ -50,7 +52,7 @@ class GameApi(userService: UserService[IO],
       }
     }
 
-  private val startGameEndpoint = endpoint.post
+  private val startGameEndpoint = en.post
     .in(path[UUID]("userId"))
     .in("start-game")
     .in(query[UUID]("gameId"))
@@ -68,7 +70,7 @@ class GameApi(userService: UserService[IO],
       }
     }
 
-  private val gameHistoryEndpoint = endpoint.get
+  private val gameHistoryEndpoint = en.get
     .in(path[UUID]("userId"))
     .in("game")
     .in("history")
@@ -86,7 +88,7 @@ class GameApi(userService: UserService[IO],
       }
     }
 
-  private val historyEndpoint = endpoint.get
+  private val historyEndpoint = en.get
     .in(path[UUID]("userId"))
     .in("history")
     .errorOut(oneOf(
@@ -100,7 +102,7 @@ class GameApi(userService: UserService[IO],
       }
     }
 
-  private val getGameEndpoint = endpoint.get
+  private val getGameEndpoint = en.get
     .in(path[UUID]("userId"))
     .in("game")
     .in(query[UUID]("gameId"))
@@ -116,7 +118,7 @@ class GameApi(userService: UserService[IO],
     }
 
 
-  private val moveEndpoint = endpoint.post
+  private val moveEndpoint = en.post
     .in(path[UUID]("userId"))
     .in("move")
     .in(query[UUID]("gameId"))

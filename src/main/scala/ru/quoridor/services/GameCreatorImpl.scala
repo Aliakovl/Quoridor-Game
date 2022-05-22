@@ -4,7 +4,6 @@ import cats.effect.Async
 import cats.implicits._
 import ru.quoridor.GameException.{GameAlreadyStarted, NotGameCreator, PlayersNumberLimitException}
 import ru.quoridor.game.geometry.Side._
-import ru.quoridor.GameException.PlayersNumberLimitException
 import ru.quoridor.game.{Game, State}
 import ru.quoridor.{ProtoGame, User}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}

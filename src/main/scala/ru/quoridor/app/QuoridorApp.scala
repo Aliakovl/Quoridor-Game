@@ -1,6 +1,7 @@
 package ru.quoridor.app
 
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.syntax.semigroupk._
 import cats.implicits._
 import io.circe.Encoder
 import org.http4s.blaze.server.BlazeServerBuilder
@@ -12,18 +13,22 @@ import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.{HttpRoutes, Request, Response, StaticFile}
 import ru.quoridor.ExceptionResponse
 import ru.quoridor.api.WSGameApi
+import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
+import sttp.tapir.swagger.SwaggerUI
+import sttp.tapir.openapi.circe.yaml.RichOpenAPI
+import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 import java.util.UUID
 
 
 object QuoridorApp extends IOApp {
-//  val openApi = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[IO](
-//    QuoridorGame.api,
-//    "Quoridor game server",
-//    "0.0.1"
-//  )
-//
-//  val swagger = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](openApi.toYaml))
+  val openApi = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[IO](
+    QuoridorGame.api,
+    "Quoridor game server",
+    "0.0.1"
+  )
+
+  val swagger = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](openApi.toYaml))
 
   val assetsRoutes = resourceServiceBuilder[IO]("/assets").toRoutes
 
@@ -71,9 +76,8 @@ object QuoridorApp extends IOApp {
 
   val httpApp: HttpRoutes[IO] = Router[IO](
     "assets" -> assetsRoutes,
-    "/" -> cookieAuth,
+    "/" -> cookieAuth.<+>(QuoridorGame.routes).<+>(swagger),
     "sign" -> loginPage,
-    "api" -> QuoridorGame.routes,
     "game-creation" -> gameCreationRoute,
     "game-session" -> gameSessionRoute
   )
