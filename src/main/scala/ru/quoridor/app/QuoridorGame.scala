@@ -5,6 +5,8 @@ import cats.effect.kernel.Resource
 import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
 import org.reactormonk.{CryptoBits, PrivateKey}
+import pureconfig._
+import pureconfig.generic.auto._
 import ru.quoridor.api.{GameApi, UserApi}
 import ru.quoridor.services.{GameCreator, GameCreatorImpl, GameService, GameServiceImpl, UserService, UserServiceImpl}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
@@ -16,13 +18,15 @@ import scala.util.Random
 
 object QuoridorGame {
 
+  val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+
   implicit val resourceTransactor: Resource[IO, HikariTransactor[IO]] = for {
     ce <- ExecutionContexts.fixedThreadPool[IO](32)
     xa <- HikariTransactor.newHikariTransactor[IO](
-      "org.postgresql.Driver",
-      "jdbc:postgresql://db:5432/",
-      "postgres",
-      "postgres",
+      appConfig.DB.driver,
+      appConfig.DB.url,
+      appConfig.DB.user,
+      appConfig.DB.password,
       ce
     )
   } yield xa

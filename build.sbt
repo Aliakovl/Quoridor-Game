@@ -25,7 +25,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum-circe" % "1.7.0",
   "org.http4s" %% "http4s-blaze-server" % http4sVersion,
   "org.http4s" %% "http4s-circe" % http4sVersion,
-  "org.reactormonk" %% "cryptobits" % "1.3.1"
+  "org.reactormonk" %% "cryptobits" % "1.3.1",
+  "com.github.pureconfig" %% "pureconfig" % "0.17.1"
 )
 
 lazy val root = (project in file("."))

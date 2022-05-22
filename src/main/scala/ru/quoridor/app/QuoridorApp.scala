@@ -29,7 +29,7 @@ object QuoridorApp extends IOApp {
 
   val loginPage = HttpRoutes.of[IO] {
     case GET -> Root =>
-      StaticFile.fromResource[IO]("/loginpage.html").getOrElseF(InternalServerError())
+      StaticFile.fromResource[IO]("/assets/loginpage.html").getOrElseF(InternalServerError())
   }
 
   val crypto = QuoridorGame.crypto
@@ -45,7 +45,7 @@ object QuoridorApp extends IOApp {
     case request @ GET -> Root / UUIDVar(uuid) =>
       val confirmed = uuidFromCookie(request).contains(uuid)
       if (confirmed) {
-        StaticFile.fromResource[IO]("/userpage.html").getOrElseF(InternalServerError())
+        StaticFile.fromResource[IO]("/assets/userpage.html").getOrElseF(InternalServerError())
       } else {
         IO(Response[IO](Unauthorized))
       }
@@ -61,12 +61,12 @@ object QuoridorApp extends IOApp {
 
   val gameCreationRoute = HttpRoutes.of[IO] {
     case GET -> Root / UUIDVar(_) =>
-      StaticFile.fromResource[IO]("/gamecreationpage.html").getOrElseF(InternalServerError())
+      StaticFile.fromResource[IO]("/assets/gamecreationpage.html").getOrElseF(InternalServerError())
   }
 
   val gameSessionRoute = HttpRoutes.of[IO] {
     case GET -> Root / UUIDVar(_) =>
-      StaticFile.fromResource[IO]("/gamesessionpage.html").getOrElseF(InternalServerError())
+      StaticFile.fromResource[IO]("/assets/gamesessionpage.html").getOrElseF(InternalServerError())
   }
 
   val httpApp: HttpRoutes[IO] = Router[IO](
@@ -81,7 +81,7 @@ object QuoridorApp extends IOApp {
   implicit val jsonEncode: Encoder[ExceptionResponse] = Encoder.forProduct1("errorMessage")(_.message)
 
   override def run(args: List[String]): IO[ExitCode] = BlazeServerBuilder[IO]
-    .bindHttp(8080, "0.0.0.0")
+    .bindHttp(QuoridorGame.appConfig.address.port, QuoridorGame.appConfig.address.host)
     .withHttpWebSocketApp({ wsb =>
       Router[IO] (
         "/" -> httpApp,
