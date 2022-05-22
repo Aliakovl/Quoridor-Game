@@ -9,7 +9,7 @@ import model.storage.UserStorage
 import utils.Typed.ID
 
 
-class UserStorageImpl[F[_]: Async](implicit transactor: Resource[F, HikariTransactor[F]]) extends UserStorage[F] {
+class UserStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends UserStorage[F] {
   override def findByLogin(login: String): F[User] = transactor.use { xa =>
     queries.findUserByLogin(login).transact(xa)
   }

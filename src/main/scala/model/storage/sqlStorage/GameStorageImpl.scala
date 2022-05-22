@@ -12,7 +12,7 @@ import utils.Typed.Implicits._
 import java.util.UUID
 
 
-class GameStorageImpl[F[_]: Async](implicit transactor: Resource[F, HikariTransactor[F]]) extends GameStorage[F] {
+class GameStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends GameStorage[F] {
   override def find(gameId: ID[Game]): F[Game] = transactor.use { xa =>
     val query = for {
       _ <- queries.previousGameId(gameId)

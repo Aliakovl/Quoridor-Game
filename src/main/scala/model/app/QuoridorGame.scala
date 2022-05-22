@@ -2,7 +2,7 @@ package model.app
 
 import cats.effect.IO
 import cats.effect.kernel.Resource
-import doobie.{ExecutionContexts, Transactor}
+import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
 import model.api.{GameApi, UserApi}
 import model.services.{GameCreator, GameCreatorImpl, GameService, GameServiceImpl, UserService, UserServiceImpl}
@@ -27,13 +27,13 @@ object QuoridorGame {
     )
   } yield xa
 
-  private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO]
-  private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO]
+  private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO](resourceTransactor)
+  private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO](resourceTransactor)
+  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO](resourceTransactor)
 
-  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO]
   val userService: UserService[IO] = new UserServiceImpl(userStorage, gameStorage)
 
-  private val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](
+  val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](
     protoGameStorage, gameStorage, userStorage
   )
 

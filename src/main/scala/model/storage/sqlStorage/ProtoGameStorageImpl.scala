@@ -14,7 +14,7 @@ import utils.Typed.Implicits._
 import java.util.UUID
 
 
-class ProtoGameStorageImpl[F[_]: Async](implicit transactor: Resource[F, HikariTransactor[F]]) extends ProtoGameStorage[F] {
+class ProtoGameStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends ProtoGameStorage[F] {
   override def find(gameId: ID[Game]): F[ProtoGame] = transactor.use { xa =>
     queries.findProtoGameByGameId(gameId).transact(xa)
   }
