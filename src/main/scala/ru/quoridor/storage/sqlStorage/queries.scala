@@ -1,10 +1,12 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.data.NonEmptyList
+import doobie.enumerated.SqlState
 import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
+import doobie.postgres.sqlstate.class23.{FOREIGN_KEY_VIOLATION, RESTRICT_VIOLATION, UNIQUE_VIOLATION}
+import doobie.postgres.sqlstate.class40.TRANSACTION_INTEGRITY_CONSTRAINT_VIOLATION
 import ru.quoridor.GameException._
 import ru.quoridor.game.geometry.Side.North
 import ru.quoridor.game.{Game, Player}
@@ -101,6 +103,7 @@ object queries {
       .run
       .exceptSomeSqlState{
         case UNIQUE_VIOLATION => throw SamePlayerException(userId, gameId)
+        case SqlState("23506") => throw GameNotFoundException(gameId)
       }
       .map(_ => ())
   }

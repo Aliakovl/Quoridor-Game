@@ -1,7 +1,7 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.effect.{Async, Resource}
-import doobie.hikari.HikariTransactor
+import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor.User
 import ru.quoridor.game.Game
@@ -9,7 +9,7 @@ import ru.quoridor.storage.UserStorage
 import ru.utils.Typed.ID
 
 
-class UserStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends UserStorage[F] {
+class UserStorageImpl[F[_]: Async](transactor: Resource[F, Transactor[F]]) extends UserStorage[F] {
   override def findByLogin(login: String): F[User] = transactor.use { xa =>
     queries.findUserByLogin(login).transact(xa)
   }

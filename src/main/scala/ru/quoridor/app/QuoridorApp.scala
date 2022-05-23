@@ -1,7 +1,6 @@
 package ru.quoridor.app
 
 import cats.effect.{ExitCode, IO, IOApp}
-import cats.syntax.semigroupk._
 import cats.implicits._
 import io.circe.Encoder
 import org.http4s.blaze.server.BlazeServerBuilder
@@ -46,7 +45,7 @@ object QuoridorApp extends IOApp {
     } yield UUID.fromString(uuid)
   }
 
-  val cookieAuth = HttpRoutes.of[IO] {
+  val cookieAuth: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case request @ GET -> Root / UUIDVar(uuid) =>
       val confirmed = uuidFromCookie(request).contains(uuid)
       if (confirmed) {
@@ -76,7 +75,7 @@ object QuoridorApp extends IOApp {
 
   val httpApp: HttpRoutes[IO] = Router[IO](
     "assets" -> assetsRoutes,
-    "/" -> cookieAuth.<+>(QuoridorGame.routes).<+>(swagger),
+    "/" -> (cookieAuth <+> QuoridorGame.routes <+> swagger),
     "sign" -> loginPage,
     "game-creation" -> gameCreationRoute,
     "game-session" -> gameSessionRoute

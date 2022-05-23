@@ -1,7 +1,7 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.effect.{Async, Resource}
-import doobie.hikari.HikariTransactor
+import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor
 import ru.quoridor.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
@@ -15,7 +15,7 @@ import ru.utils.Typed.Implicits._
 import java.util.UUID
 
 
-class ProtoGameStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends ProtoGameStorage[F] {
+class ProtoGameStorageImpl[F[_]: Async](transactor: Resource[F, Transactor[F]]) extends ProtoGameStorage[F] {
   override def find(gameId: ID[Game]): F[ProtoGame] = transactor.use { xa =>
     queries.findProtoGameByGameId(gameId).transact(xa)
   }

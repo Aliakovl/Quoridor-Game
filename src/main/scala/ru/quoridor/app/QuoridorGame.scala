@@ -20,7 +20,7 @@ object QuoridorGame {
 
   val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
 
-  implicit val resourceTransactor: Resource[IO, HikariTransactor[IO]] = for {
+  private val resourceTransactor: Resource[IO, HikariTransactor[IO]] = for {
     ce <- ExecutionContexts.fixedThreadPool[IO](32)
     xa <- HikariTransactor.newHikariTransactor[IO](
       appConfig.DB.driver,

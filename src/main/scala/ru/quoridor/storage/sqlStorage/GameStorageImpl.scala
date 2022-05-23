@@ -1,7 +1,7 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.effect.{Async, Resource}
-import doobie.hikari.HikariTransactor
+import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor
 import ru.quoridor.{GamePreView, User, game}
@@ -13,7 +13,7 @@ import ru.utils.Typed.ID
 import java.util.UUID
 
 
-class GameStorageImpl[F[_]: Async](transactor: Resource[F, HikariTransactor[F]]) extends GameStorage[F] {
+class GameStorageImpl[F[_]: Async](transactor: Resource[F, Transactor[F]]) extends GameStorage[F] {
   override def find(gameId: ID[Game]): F[Game] = transactor.use { xa =>
     val query = for {
       _ <- queries.previousGameId(gameId)
