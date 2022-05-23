@@ -5,8 +5,7 @@ import doobie.enumerated.SqlState
 import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.{FOREIGN_KEY_VIOLATION, RESTRICT_VIOLATION, UNIQUE_VIOLATION}
-import doobie.postgres.sqlstate.class40.TRANSACTION_INTEGRITY_CONSTRAINT_VIOLATION
+import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
 import ru.quoridor.GameException._
 import ru.quoridor.game.geometry.Side.North
 import ru.quoridor.game.{Game, Player}
@@ -217,6 +216,9 @@ object queries {
     INSERT INTO game_state (id, game_id, previous_state, active_player, winner)
     VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
     """.update.run.map(_ => ())
+      .exceptSomeSqlState {
+        case SqlState("23506") => throw GameNotFoundException(gameId)
+      }
   }
 
   def recordPlayers(gameId: ID[Game], players: List[Player]): ConnectionIO[Unit] = {
@@ -229,6 +231,9 @@ object queries {
     Update[PP](sql).updateMany(players.map{ case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
       (gameId, id, wallsAmount, row, column)
     }).map(_ => ())
+      .exceptSomeSqlState {
+        case SqlState("23506") => throw GameNotFoundException(gameId)
+      }
   }
 
   def recordWalls(gameId: ID[Game], wallPositions: Set[WallPosition]): ConnectionIO[Unit] = {
@@ -242,6 +247,9 @@ object queries {
     Update[PP](sql).updateMany(wallPositions.map{ case WallPosition(orientation, row, column) =>
       (gameId, orientation, row, column)
     }.toList).map(_ => ())
+      .exceptSomeSqlState {
+        case SqlState("23506") => throw GameNotFoundException(gameId)
+      }
   }
 
   def findGameLeavesByUserId(userId: ID[User]): ConnectionIO[List[ID[Game]]] = {
