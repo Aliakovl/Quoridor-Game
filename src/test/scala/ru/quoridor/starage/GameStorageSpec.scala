@@ -3,8 +3,6 @@ package ru.quoridor.starage
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
 import doobie.Transactor
-import doobie.implicits._
-import doobie.util.update.Update
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -20,40 +18,38 @@ import ru.quoridor.storage.sqlStorage.{GameStorageImpl, ProtoGameStorageImpl, Us
 import ru.utils.Typed.Implicits.TypedOps
 
 import java.util.UUID
-import scala.io.Source
 
 class GameStorageSpec extends AnyFlatSpec
   with Matchers
   with BeforeAndAfterAll {
 
-  val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
-    "org.h2.Driver",
-    "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-    "sa",
-    ""
+  private val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+
+  private val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
+    appConfig.DB.driver,
+    appConfig.DB.url,
+    appConfig.DB.user,
+    appConfig.DB.password
   )
 
-  val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  val create = Source.fromResource("migrations/V1__Initial.sql").getLines().mkString("\n")
+  private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  override protected def beforeAll(): Unit = {
-    Update(create).run().transact(xa).unsafeRunSync()
-  }
+  private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  val userStorage: UserStorage[IO] = new UserStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
+  private val userLogin = "user_" + "GameStorageSpec"
+  private val otherUserLogin = "other_user_" + "GameStorageSpec"
 
-  val gameStorage: GameStorage[IO] = new GameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
 
   behavior of "create"
 
   it should "create a game" in {
     for {
-      user <- userStorage.insert("user")
-      otherUser <- userStorage.insert("other_user")
+      user <- userStorage.insert(userLogin)
+      otherUser <- userStorage.insert(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -66,8 +62,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "not create a game from unknown proto game" in {
     val test = for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -75,7 +71,7 @@ class GameStorageSpec extends AnyFlatSpec
       game <- gameStorage.create(UUID.randomUUID().typed[Game], state)
     } yield game
 
-    test.handleError {
+    test.map(_ => fail).handleError {
       case _: GameNotFoundException => succeed
     }
   }.unsafeRunSync()
@@ -85,8 +81,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "find a game by id" in {
     for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -97,7 +93,7 @@ class GameStorageSpec extends AnyFlatSpec
   }.unsafeRunSync()
 
   it should "not find a game by unknown id" in {
-    gameStorage.find(UUID.randomUUID().typed[Game]).handleError {
+    gameStorage.find(UUID.randomUUID().typed[Game]).map(_ => fail).handleError {
       case _: GameNotFoundException => succeed
     }
   }.unsafeRunSync()
@@ -107,8 +103,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "return true if a game exists" in {
     for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -127,8 +123,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "find a game players" in {
     for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -143,7 +139,7 @@ class GameStorageSpec extends AnyFlatSpec
   }.unsafeRunSync()
 
   it should "not find players for an unknown game" in {
-    gameStorage.findParticipants(UUID.randomUUID().typed[Game]).handleError {
+    gameStorage.findParticipants(UUID.randomUUID().typed[Game]).map(_ => fail).handleError {
       case _: GameNotFoundException => succeed
     }
   }.unsafeRunSync()
@@ -153,8 +149,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "insert a new game state" in {
     for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -166,8 +162,8 @@ class GameStorageSpec extends AnyFlatSpec
 
   it should "not insert a new game " in {
     val test = for {
-      user <- userStorage.findByLogin("user")
-      otherUser <- userStorage.findByLogin("other_user")
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
       protoGame <- protoGameStorage.insert(user.id)
       updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
       players = updatedProtoGame.players.toPlayers.getOrElse(fail)
@@ -175,8 +171,45 @@ class GameStorageSpec extends AnyFlatSpec
       newGame <- gameStorage.insert(UUID.randomUUID().typed[Game], state, None)
     } yield newGame
 
-    test.handleError {
+    test.map(_ => fail).handleError {
       case _: GameNotFoundException => succeed
     }
   }.unsafeRunSync()
+
+
+  behavior of "gameHistory"
+
+  it should "return history of a game" in {
+    for {
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
+      protoGame <- protoGameStorage.insert(user.id)
+      updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
+      players = updatedProtoGame.players.toPlayers.getOrElse(fail)
+      state = State(players, Set.empty)
+      game <- gameStorage.create(updatedProtoGame.id, state)
+      newGame <- gameStorage.insert(game.id, state, None)
+      gameHistory <- gameStorage.gameHistory(newGame.id)
+    } yield gameHistory shouldEqual List(game.id, newGame.id)
+  }.unsafeRunSync()
+
+  it should "return history of a just started game" in {
+    for {
+      user <- userStorage.findByLogin(userLogin)
+      otherUser <- userStorage.findByLogin(otherUserLogin)
+      protoGame <- protoGameStorage.insert(user.id)
+      updatedProtoGame <- protoGameStorage.update(protoGame.id, otherUser.id, South)
+      players = updatedProtoGame.players.toPlayers.getOrElse(fail)
+      state = State(players, Set.empty)
+      game <- gameStorage.create(updatedProtoGame.id, state)
+      gameHistory <- gameStorage.gameHistory(game.id)
+    } yield gameHistory shouldEqual List(game.id)
+  }.unsafeRunSync()
+
+  it should "not return history an unknown game" in {
+    gameStorage.gameHistory(UUID.randomUUID().typed[Game]).map(_ => fail).handleError {
+      case _: GameNotFoundException => succeed
+    }
+  }.unsafeRunSync()
+
 }

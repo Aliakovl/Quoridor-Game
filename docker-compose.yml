@@ -3,10 +3,21 @@ version: "3"
 services:
   server:
     build: .
+    profiles: ["run"]
     ports:
       - "8080:8080"
     command:
       sbt run
+    depends_on:
+      - flyway
+
+  test:
+    build: .
+    profiles: ["test"]
+    ports:
+      - "8080:8080"
+    command:
+      sbt testOnly
     depends_on:
       - flyway
 

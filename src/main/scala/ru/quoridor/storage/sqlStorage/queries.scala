@@ -1,11 +1,10 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.data.NonEmptyList
-import doobie.enumerated.SqlState
 import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
+import doobie.postgres.sqlstate.class23.{FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION}
 import ru.quoridor.GameException._
 import ru.quoridor.game.geometry.Side.North
 import ru.quoridor.game.{Game, Player}
@@ -102,7 +101,7 @@ object queries {
       .run
       .exceptSomeSqlState{
         case UNIQUE_VIOLATION => throw SamePlayerException(userId, gameId)
-        case SqlState("23506") => throw GameNotFoundException(gameId)
+        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
       }
       .map(_ => ())
   }
@@ -217,7 +216,7 @@ object queries {
     VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
     """.update.run.map(_ => ())
       .exceptSomeSqlState {
-        case SqlState("23506") => throw GameNotFoundException(gameId)
+        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
       }
   }
 
@@ -232,7 +231,7 @@ object queries {
       (gameId, id, wallsAmount, row, column)
     }).map(_ => ())
       .exceptSomeSqlState {
-        case SqlState("23506") => throw GameNotFoundException(gameId)
+        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
       }
   }
 
@@ -248,7 +247,7 @@ object queries {
       (gameId, orientation, row, column)
     }.toList).map(_ => ())
       .exceptSomeSqlState {
-        case SqlState("23506") => throw GameNotFoundException(gameId)
+        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
       }
   }
 
@@ -282,7 +281,13 @@ object queries {
     )
 
     SELECT id FROM game_branch
-    """.query[ID[Game]].to[List]
+    """
+      .query[ID[Game]]
+      .to[List]
+      .map {
+        case Nil => throw GameNotFoundException(gameId)
+        case xs => xs
+      }
   }
 
   def existsGameWithId(gameId: ID[Game]): ConnectionIO[Boolean] = {
@@ -317,6 +322,12 @@ object queries {
     JOIN game g
     ON gs.game_id = g.id
     WHERE gs.id = $gameId
-    """.query[User].to[List]
+    """
+      .query[User]
+      .to[List]
+      .map {
+        case Nil => throw GameNotFoundException(gameId)
+        case xs => xs
+      }
   }
 }

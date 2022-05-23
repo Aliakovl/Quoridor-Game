@@ -3,8 +3,6 @@ package ru.quoridor.starage
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
 import doobie.Transactor
-import doobie.implicits._
-import doobie.util.update.Update
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -18,40 +16,39 @@ import ru.quoridor.storage.sqlStorage.UserStorageImpl
 import ru.utils.Typed.Implicits.TypedOps
 
 import java.util.UUID
-import scala.io.Source
 
 class UserStorageSpec extends AnyFlatSpec
   with Matchers
   with BeforeAndAfterAll {
 
-  val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
-    "org.h2.Driver",
-    "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-    "sa",
-    ""
+  private val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+
+  private val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
+    appConfig.DB.driver,
+    appConfig.DB.url,
+    appConfig.DB.user,
+    appConfig.DB.password
   )
 
-  val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+  private val userStorage: UserStorage[IO] = new UserStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  val create = Source.fromResource("migrations/V1__Initial.sql").getLines().mkString("\n")
-
-  override protected def beforeAll(): Unit = {
-    Update(create).run().transact(xa).unsafeRunSync()
-  }
-
-  val userStorage: UserStorage[IO] = new UserStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
+  private val userLogin = "user_" + "UserStorageSpec"
+  private val otherUserLogin = "other_user_" + "UserStorageSpec"
+  private val unknownUserLogin = "unknown_user_" + "UserStorageSpec"
+  private val someUserLogin = "some_user_" + "UserStorageSpec"
 
 
   behavior of "insert"
 
   it should "create a new user" in {
     for {
-      user <- userStorage.insert("some_user")
-    } yield user.login shouldEqual "some_user"
+      user <- userStorage.insert(userLogin)
+    } yield user.login shouldEqual userLogin
+
   }.unsafeRunSync()
 
   it should "not create the same user" in {
-    userStorage.insert("some_user").handleError {
+    userStorage.insert(userLogin).map(_ => fail).handleError {
       case _: LoginOccupiedException => succeed
     }
   }.unsafeRunSync()
@@ -61,12 +58,13 @@ class UserStorageSpec extends AnyFlatSpec
 
   it should "find a user by login" in {
     for {
-      user <- userStorage.findByLogin("some_user")
-    } yield user.login shouldEqual "some_user"
+      user <- userStorage.findByLogin(userLogin)
+    } yield user.login shouldEqual userLogin
+
   }
 
   it should "not find unknown login" in {
-    userStorage.findByLogin("unknown_user").handleError {
+    userStorage.findByLogin(unknownUserLogin).map(_ => fail).handleError {
       case _: LoginNotFoundException => succeed
     }
   }
@@ -76,13 +74,13 @@ class UserStorageSpec extends AnyFlatSpec
 
   it should "find a user by id" in {
     for {
-      user <- userStorage.insert("user")
+      user <- userStorage.insert(someUserLogin)
       theSameUser <- userStorage.find(user.id)
     } yield theSameUser shouldEqual user
   }
 
   it should "not find user by unknown id" in {
-    userStorage.find(UUID.randomUUID().typed[User]).handleError {
+    userStorage.find(UUID.randomUUID().typed[User]).map(_ => fail).handleError {
       case _: UserNotFoundException => succeed
     }
   }
@@ -92,7 +90,7 @@ class UserStorageSpec extends AnyFlatSpec
 
   it should "get empty history" in {
     for {
-      user <- userStorage.insert("new_user")
+      user <- userStorage.insert(otherUserLogin)
       history <- userStorage.history(user.id)
     } yield history shouldEqual List.empty
   }
