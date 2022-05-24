@@ -121,10 +121,10 @@ function sideOrder(side) {
 
 function sideArrow(side) {
     switch (side) {
-        case "North": return "↑"
-        case "East": return "→"
-        case "South": return "↓"
-        case "West": return "←"
+        case "North": return '\u2191'
+        case "East": return '\u2192'
+        case "South": return '\u2193'
+        case "West": return '\u2190'
     }
 }
 

@@ -28,10 +28,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "org.reactormonk" %% "cryptobits" % "1.3.1",
   "com.github.pureconfig" %% "pureconfig" % "0.17.1",
-  "org.scalamock" %% "scalamock" % "5.2.0" % Test,
   "org.scalatest" %% "scalatest" % "3.2.12" % Test,
-  "org.scalacheck" %% "scalacheck" % "1.16.0" % Test,
-  "com.h2database" % "h2" % "2.1.212" % Test,
   "org.typelevel" %% "cats-effect-testing-scalatest" % "1.4.0" % Test
 )
 
