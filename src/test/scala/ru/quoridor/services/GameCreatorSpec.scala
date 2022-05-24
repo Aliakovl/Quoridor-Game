@@ -32,8 +32,8 @@ class GameCreatorSpec extends AsyncFlatSpec
   private val protoGameStorage: ProtoGameStorage[IO] = new ProtoGameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
   private val gameStorage: GameStorage[IO] = new GameStorageImpl[IO](Resource.pure[IO, Transactor[IO]](xa))
 
-  private val userService: UserServiceImpl[IO] = new UserServiceImpl[IO](userStorage, gameStorage)
-  private val gameCreator: GameCreatorImpl[IO] = new GameCreatorImpl[IO](protoGameStorage, gameStorage)
+  private val userService: UserService[IO] = new UserServiceImpl[IO](userStorage, gameStorage)
+  private val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](protoGameStorage, gameStorage)
 
   private def userLogin = s"user_${UUID.randomUUID()}"
   private def otherUserLogin = s"other_user_${UUID.randomUUID()}"
