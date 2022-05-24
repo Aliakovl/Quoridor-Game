@@ -99,7 +99,6 @@ function createGameField(parent) {
 }
 
 function setWall(gameField, wall) {
-    console.log(wall)
     if (wall.orientation === "Horizontal") {
         document.getElementById(`wh${wall.row}${wall.column}`).classList.add("placed-wall")
         document.getElementById(`i${wall.row}${wall.column}`).classList.add("placed-wall")
@@ -148,9 +147,9 @@ function addPlayerToTable(playersList, player, activePlayer) {
     let li = document.createElement("li")
     li.classList.add(player.target)
     if (player === activePlayer) {
-        li.textContent = `➤ ${player.login}: █ ${player.wallsAmount}`
+        li.textContent = `➤ ${player.login}: ${sideArrow(player.target)} █ ${player.wallsAmount}`
     } else {
-        li.textContent = `${player.login}: █ ${player.wallsAmount}`
+        li.textContent = `${player.login}: ${sideArrow(player.target)} █ ${player.wallsAmount}`
     }
     playersList.appendChild(li)
 }

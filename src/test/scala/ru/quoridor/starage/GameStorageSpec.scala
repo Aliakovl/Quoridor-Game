@@ -9,7 +9,7 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto.exportReader
 import ru.quoridor.GameException.GameNotFoundException
 import ru.quoridor.app.AppConfig
-import ru.quoridor.game.{Game, Player, State}
+import ru.quoridor.game.{Game, State}
 import ru.quoridor.game.geometry.Side.South
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import ru.quoridor.storage.sqlStorage.{GameStorageImpl, ProtoGameStorageImpl, UserStorageImpl}

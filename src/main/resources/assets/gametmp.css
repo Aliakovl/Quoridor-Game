@@ -79,6 +79,7 @@ td.pointed-wall.placed-wall {
 
 ul {
     list-style: none;
+    width: max-content;
     float: left;
 }
 

@@ -13,6 +13,22 @@ function getGameHistory(userId, gameId, f) {
     })
 }
 
+function createSession(gameId, cb) {
+    fetch(`${window.origin}/ws/create/${gameId}`, {
+        method: 'POST'
+    }).then(response => {
+        if (response.ok) {
+            response.json().then( sessionId => {
+                cb(sessionId.sessionId)
+            })
+        } else {
+            response.json().then( em => {
+                alert("Can not make session")
+            })
+        }
+    })
+}
+
 function createHistoryPage(gameHistory, node) {
     node.innerHTML = `<div id="placeholder"></div>
                       <div id="table-place"></div>
@@ -48,9 +64,20 @@ function createHistoryPage(gameHistory, node) {
         renderGame(game.getElem(), () => {}, () => {})
     }
 
+    let startFromThisState = document.createElement("button")
+    startFromThisState.innerText = "Start new game from this place"
+    startFromThisState.onclick = _ => {
+        let gameId = game.getElem().id
+        createSession(gameId, sessionId => {
+            window.location.href = `${window.origin}/game-session/${sessionId}`
+        })
+    }
+
+    document.getElementById("placeholder").appendChild(document.createElement("br"))
     document.getElementById("placeholder").appendChild(backButton)
     document.getElementById("placeholder").appendChild(forwardButton)
-
+    document.getElementById("placeholder").appendChild(document.createElement("br"))
+    document.getElementById("placeholder").appendChild(startFromThisState)
 }
 
 function gameState(gameHistory) {
