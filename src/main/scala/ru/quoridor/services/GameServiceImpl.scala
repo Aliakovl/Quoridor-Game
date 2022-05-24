@@ -6,7 +6,7 @@ import ru.quoridor.GameException.{GameHasFinishedException, GameInterloperExcept
 import ru.quoridor.User
 import ru.quoridor.game.geometry.Board
 import ru.quoridor.game.{Game, Move, PawnMove, Player}
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
+import ru.quoridor.storage.GameStorage
 import ru.utils.Typed.ID
 
 

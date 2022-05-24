@@ -13,7 +13,7 @@ object ExceptionResponse {
     case ex: LoginNotFoundException => ExceptionResponse404(ex.getMessage)
     case ex: GameNotFoundException => ExceptionResponse404(ex.getMessage)
     case ex: GameInterloperException => ExceptionResponse403(ex.getMessage)
-    case ex: NotGameCreator => ExceptionResponse403(ex.getMessage)
+    case ex: NotGameCreatorException => ExceptionResponse403(ex.getMessage)
     case ex: GameException => ExceptionResponse400(ex.getMessage)
     case _ => ExceptionResponse500("Something went wrong")
   }
