@@ -2,7 +2,6 @@ package ru.quoridor
 
 import cats.data.NonEmptyList
 import GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
-import ru.quoridor.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
 import ru.quoridor.game.geometry.{Board, Side}
 import ru.quoridor.game.{Game, Player, Players}
 import ru.utils.Typed.ID
@@ -10,7 +9,9 @@ import ru.utils.Typed.ID
 
 case class ProtoGame(id: ID[Game], players: ProtoPlayers)
 
-case class ProtoPlayer(id: ID[User], login: String, target: Side)
+case class ProtoPlayer(id: ID[User], login: String, target: Side) {
+  def toUser: User = User(id, login)
+}
 
 case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
   lazy val toList: List[ProtoPlayer] = creator :: guests

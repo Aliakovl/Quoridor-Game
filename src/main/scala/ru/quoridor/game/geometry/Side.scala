@@ -18,7 +18,7 @@ sealed trait Side extends Opposite[Side] with Ordered[Side] with EnumEntry { sel
   override def compare(that: Side): Int = Ordering.by[Side, Int](x => order(x)).compare(this, that)
 }
 
-object Side extends Enum [Side] with CirceEnum[Side] {
+object Side extends Enum[Side] with CirceEnum[Side] {
   case object North extends Side
   case object South extends Side
   case object West extends Side

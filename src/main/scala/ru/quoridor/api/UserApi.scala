@@ -2,8 +2,6 @@ package ru.quoridor.api
 
 import cats.effect.IO
 import cats.implicits._
-import ru.quoridor._
-import ru.quoridor.ExceptionResponse._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir._
 import sttp.tapir.generic.auto._
@@ -14,7 +12,6 @@ import ru.quoridor.{ExceptionResponse, User}
 import ru.quoridor.services.UserService
 import sttp.model.StatusCode
 import sttp.model.headers.CookieValueWithMeta
-
 
 
 case class Login(login: String)

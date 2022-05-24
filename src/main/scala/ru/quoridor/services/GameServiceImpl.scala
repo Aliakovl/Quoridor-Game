@@ -2,7 +2,6 @@ package ru.quoridor.services
 
 import cats.effect.Async
 import cats.implicits._
-import ru.quoridor
 import ru.quoridor.GameException.{GameHasFinishedException, GameInterloperException, WrongPlayersTurnException}
 import ru.quoridor.User
 import ru.quoridor.game.geometry.Board
@@ -11,9 +10,8 @@ import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import ru.utils.Typed.ID
 
 
-class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
-                      gameStorage: GameStorage[F],
-                      userStorage: UserStorage[F])(implicit F: Async[F]) extends GameService[F] {
+class GameServiceImpl[F[_]](gameStorage: GameStorage[F])
+                           (implicit F: Async[F]) extends GameService[F] {
 
   override def findGame(gameId: ID[Game], userId: ID[User]): F[Game] = {
     for {
@@ -42,7 +40,7 @@ class GameServiceImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
         case PawnMove(pawnPosition) =>
           Some(game.state.players.activePlayer).collect {
             case Player(id, login, _, _, target) if Board.isPawnOnEdge(pawnPosition, target) =>
-              quoridor.User(id, login)
+              User(id, login)
           }
       }.flatten
       newGame <- gameStorage.insert(gameId, newState, winner)

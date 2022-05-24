@@ -12,7 +12,7 @@ CREATE TYPE orientation as ENUM (
 
 CREATE TABLE "user" (
     id UUID PRIMARY KEY,
-    login varchar(32) NOT NULL UNIQUE
+    login varchar(64) NOT NULL UNIQUE
 );
 
 CREATE TABLE game (

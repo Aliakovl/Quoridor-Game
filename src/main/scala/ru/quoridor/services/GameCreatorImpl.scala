@@ -11,8 +11,8 @@ import ru.utils.Typed.ID
 
 
 class GameCreatorImpl[F[_]](protoGameStorage: ProtoGameStorage[F],
-                                gameStorage: GameStorage[F],
-                                userStorage: UserStorage[F])(implicit F: Async[F]) extends GameCreator[F] {
+                            gameStorage: GameStorage[F])
+                           (implicit F: Async[F]) extends GameCreator[F] {
 
   override def createGame(userId: ID[User]): F[ProtoGame] = {
     protoGameStorage.insert(userId)

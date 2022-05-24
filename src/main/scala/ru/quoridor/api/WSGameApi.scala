@@ -10,10 +10,10 @@ import ru.quoridor.ExceptionResponse.ExceptionResponse400
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.circe.jsonEncoder
 import org.http4s.dsl.io._
-import org.http4s.{HttpRoutes, Response, StaticFile}
+import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import ru.quoridor.{ExceptionResponse, GameException, GameMoveException, User}
+import ru.quoridor.{ExceptionResponse, User}
 import ru.quoridor.game.{Game, Move}
 import ru.quoridor.services.GameService
 import ru.utils.Typed.ID

@@ -106,26 +106,6 @@ object queries {
       .map(_ => ())
   }
 
-  def findPlayersByGameId(gameId: ID[Game]): ConnectionIO[List[Player]] = {
-    sql"""
-    SELECT
-    pp.user_id,
-    login,
-    "row",
-    "column",
-    walls_amount,
-    target
-    FROM pawn_position pp
-    JOIN "user" u ON pp.user_id = u.id
-    JOIN game_state gs ON gs.id = pp.game_state_id
-    JOIN player p ON p.game_id = gs.game_id
-    AND p.user_id = pp.user_id
-    WHERE pp.game_state_id = $gameId
-    """
-      .query[Player]
-      .to[List]
-  }
-
   def findWallsByGameId(gameId: ID[Game]): ConnectionIO[Set[WallPosition]] = {
     sql"""
     SELECT

@@ -4,7 +4,7 @@ import cats.effect.{Async, Resource}
 import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor
-import ru.quoridor.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.{ProtoGame, ProtoPlayers, User}
 import ru.quoridor.game.Game
 import ru.quoridor.game.geometry.Side.North
 import ru.quoridor.game.geometry.Side

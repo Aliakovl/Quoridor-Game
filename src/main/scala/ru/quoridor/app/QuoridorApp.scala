@@ -36,12 +36,10 @@ object QuoridorApp extends IOApp {
       StaticFile.fromResource[IO]("/assets/loginpage.html").getOrElseF(InternalServerError())
   }
 
-  val crypto = QuoridorGame.crypto
-
   def uuidFromCookie(request: Request[IO]): Option[UUID] = {
     for {
       cookie <- request.cookies.find(_.name == "auth-cookie")
-      uuid <- crypto.validateSignedToken(cookie.content)
+      uuid <- QuoridorGame.crypto.validateSignedToken(cookie.content)
     } yield UUID.fromString(uuid)
   }
 
@@ -75,7 +73,7 @@ object QuoridorApp extends IOApp {
 
   val httpApp: HttpRoutes[IO] = Router[IO](
     "assets" -> assetsRoutes,
-    "/" -> (cookieAuth <+> QuoridorGame.routes <+> swagger),
+    "/" -> (cookieAuth <+> QuoridorGame.apiRoutes <+> swagger),
     "sign" -> loginPage,
     "game-creation" -> gameCreationRoute,
     "game-session" -> gameSessionRoute

@@ -36,14 +36,8 @@ object QuoridorGame {
   private val userStorage: UserStorage[IO] = new UserStorageImpl[IO](resourceTransactor)
 
   val userService: UserService[IO] = new UserServiceImpl(userStorage, gameStorage)
-
-  val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](
-    protoGameStorage, gameStorage, userStorage
-  )
-
-  val gameService: GameService[IO] = new GameServiceImpl[IO](
-    protoGameStorage, gameStorage, userStorage
-  )
+  val gameCreator: GameCreator[IO] = new GameCreatorImpl[IO](protoGameStorage, gameStorage)
+  val gameService: GameService[IO] = new GameServiceImpl[IO](gameStorage)
 
   private val key = PrivateKey(Codec.toUTF8(Random.alphanumeric.take(20).mkString("")))
   val crypto = CryptoBits(key)
@@ -53,5 +47,5 @@ object QuoridorGame {
 
   val api =  userApi.api ::: gameApi.api
 
-  val routes = Http4sServerInterpreter[IO]().toRoutes(api)
+  val apiRoutes = Http4sServerInterpreter[IO]().toRoutes(api)
 }

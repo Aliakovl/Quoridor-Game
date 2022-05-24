@@ -3,8 +3,6 @@ package ru.quoridor.game.geometry
 import Direction._
 import Side._
 
-import scala.collection.mutable
-
 
 object Board {
   private val width: Int = 9
@@ -78,6 +76,8 @@ object Board {
     }
   }
 
+
+  import scala.collection.mutable
 
   def existsPath(from: PawnPosition, target: Side, walls: Set[WallPosition]): Boolean = {
     val queue = mutable.Queue.empty[PawnPosition]
