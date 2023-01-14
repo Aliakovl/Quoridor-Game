@@ -7,7 +7,7 @@ import ru.quoridor.game.geometry.{Board, PawnPosition, WallPosition}
 
 
 trait MoveValidator { self: Move =>
-  def validate(state: State): Either[GameMoveException, Unit] = self match {
+  protected def validate(state: State): Either[GameMoveException, Unit] = self match {
     case PawnMove(pawnPosition) => pawnMoveValidate(state, pawnPosition)
     case PlaceWall(wallPosition) => placeWallValidate(state, wallPosition)
   }
@@ -72,8 +72,8 @@ object Move {
   import io.circe.syntax._
 
   implicit val jsonEncoder: Encoder[Move] = Encoder.instance {
-    case pm @ PawnMove(_) => pm.asJson
-    case pw @ PlaceWall(_) => pw.asJson
+    case pm: PawnMove => pm.asJson
+    case pw: PlaceWall => pw.asJson
   }
 
   implicit val jsonDecoder: Decoder[Move] = List[Decoder[Move]](
