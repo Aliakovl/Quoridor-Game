@@ -17,6 +17,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion,
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
@@ -35,6 +36,7 @@ ThisBuild / libraryDependencies ++= Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "Quoridor Game"
+    name := "Quoridor Game",
+    scalacOptions += "-feature"
   )
 

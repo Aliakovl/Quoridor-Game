@@ -3,18 +3,22 @@ package ru.quoridor.storage
 import ru.quoridor.{GamePreView, User}
 import ru.quoridor.game.{Game, State}
 import ru.utils.Typed.ID
+import zio.Task
 
+trait GameStorage {
+  def find(id: ID[Game]): Task[Game]
 
-trait GameStorage[F[_]] {
-  def find(id: ID[Game]): F[Game]
+  def insert(
+      previousGameId: ID[Game],
+      state: State,
+      winner: Option[User]
+  ): Task[Game]
 
-  def insert(previousGameId: ID[Game], state: State, winner: Option[User]): F[Game]
+  def create(protoGameId: ID[Game], state: State): Task[Game]
 
-  def create(protoGameId: ID[Game], state: State): F[Game]
+  def exists(gameId: ID[Game]): Task[Boolean]
 
-  def exists(gameId: ID[Game]): F[Boolean]
+  def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]]
 
-  def gameHistory(gameId: ID[Game]): F[List[ID[Game]]]
-
-  def findParticipants(gameId: ID[Game]): F[GamePreView]
+  def findParticipants(gameId: ID[Game]): Task[GamePreView]
 }

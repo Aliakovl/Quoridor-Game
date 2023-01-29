@@ -2,8 +2,9 @@ package ru.utils
 
 import io.circe.{Decoder, Encoder}
 import sttp.tapir.Schema
-import java.util.UUID
 
+import java.util.UUID
+import scala.language.implicitConversions
 
 trait Typed[+A, +B] {
   def unType: A
@@ -31,7 +32,9 @@ object Typed {
 
   import Typed.Implicits._
 
-  implicit def jsonDecoder[B]: Decoder[ID[B]] = Decoder.decodeUUID.map(_.typed[B])
-  implicit def jsonEncoder[B]: Encoder[ID[B]] = Encoder.encodeUUID.contramap(_.unType)
+  implicit def jsonDecoder[B]: Decoder[ID[B]] =
+    Decoder.decodeUUID.map(_.typed[B])
+  implicit def jsonEncoder[B]: Encoder[ID[B]] =
+    Encoder.encodeUUID.contramap(_.unType)
   implicit def schemaID[B]: Schema[ID[B]] = Schema.schemaForUUID.as
 }

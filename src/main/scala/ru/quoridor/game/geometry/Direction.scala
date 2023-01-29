@@ -16,7 +16,7 @@ trait Cross { this: Direction =>
   val crossed: (Direction, Direction) = {
     this match {
       case ToNorth | ToSouth => (ToWest, ToEast)
-      case ToWest  | ToEast  => (ToNorth, ToSouth)
+      case ToWest | ToEast   => (ToNorth, ToSouth)
     }
   }
 }

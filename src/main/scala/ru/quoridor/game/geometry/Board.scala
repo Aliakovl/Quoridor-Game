@@ -3,7 +3,6 @@ package ru.quoridor.game.geometry
 import Direction._
 import Side._
 
-
 object Board {
   private val width: Int = 9
   private val halfWidth: Int = width / 2
@@ -33,9 +32,11 @@ object Board {
     }
   }
 
-  def adjacentPosition(pawnPosition: PawnPosition,
-                       walls: Set[WallPosition],
-                       direction: Direction): Option[PawnPosition] = {
+  def adjacentPosition(
+      pawnPosition: PawnPosition,
+      walls: Set[WallPosition],
+      direction: Direction
+  ): Option[PawnPosition] = {
     val wp1 = direction.toWallPosition(pawnPosition)
     val wp2 = wp1.copy(column = wp1.column - 1)
     val wayIsBlocked = (walls contains wp1) || (walls contains wp2)
@@ -47,8 +48,10 @@ object Board {
     }
   }
 
-  def adjacentPositions(pawnPosition: PawnPosition,
-                        walls: Set[WallPosition]): Seq[PawnPosition] = {
+  def adjacentPositions(
+      pawnPosition: PawnPosition,
+      walls: Set[WallPosition]
+  ): Seq[PawnPosition] = {
     Seq(
       adjacentPosition(_, _, ToNorth),
       adjacentPosition(_, _, ToSouth),
@@ -69,17 +72,22 @@ object Board {
       case WallPosition(orientation, row, column) =>
         val oppositeOrientation = orientation.opposite
         otherWall match {
-          case WallPosition(`orientation`, `row`, otherColumn) => (column - otherColumn).abs <= 1
-          case WallPosition(`oppositeOrientation`, otherRow, otherColumn) => (row == otherColumn) && (column == otherRow)
+          case WallPosition(`orientation`, `row`, otherColumn) =>
+            (column - otherColumn).abs <= 1
+          case WallPosition(`oppositeOrientation`, otherRow, otherColumn) =>
+            (row == otherColumn) && (column == otherRow)
           case _ => false
         }
     }
   }
 
-
   import scala.collection.mutable
 
-  def existsPath(from: PawnPosition, target: Side, walls: Set[WallPosition]): Boolean = {
+  def existsPath(
+      from: PawnPosition,
+      target: Side,
+      walls: Set[WallPosition]
+  ): Boolean = {
     val queue = mutable.Queue.empty[PawnPosition]
     val used = mutable.Set.empty[PawnPosition]
     queue.enqueue(from)

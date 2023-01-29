@@ -4,7 +4,10 @@ import cats.data.NonEmptyList
 import doobie.{ConnectionIO, Meta, Update}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.{FOREIGN_KEY_VIOLATION, UNIQUE_VIOLATION}
+import doobie.postgres.sqlstate.class23.{
+  FOREIGN_KEY_VIOLATION,
+  UNIQUE_VIOLATION
+}
 import ru.quoridor.GameException._
 import ru.quoridor.game.geometry.Side.North
 import ru.quoridor.game.{Game, Player}
@@ -14,7 +17,6 @@ import ru.utils.Typed.Implicits._
 import ru.utils.Typed.ID
 
 import java.util.UUID
-
 
 object queries {
 
@@ -51,13 +53,11 @@ object queries {
     sql"""
     INSERT INTO "user" (id, login)
     VALUES ($userId, $login)
-    """
-      .update
-      .run
-      .exceptSomeSqlState{
-        case UNIQUE_VIOLATION => throw LoginOccupiedException(login)
+    """.update.run
+      .exceptSomeSqlState { case UNIQUE_VIOLATION =>
+        throw LoginOccupiedException(login)
       }
-      .map{ _ =>
+      .map { _ =>
         User(userId, login)
       }
   }
@@ -75,32 +75,36 @@ object queries {
       .to[List]
       .map {
         case Nil => throw GameNotFoundException(gameId)
-        case creator :: guests => ProtoGame(gameId, ProtoPlayers(creator, guests))
+        case creator :: guests =>
+          ProtoGame(gameId, ProtoPlayers(creator, guests))
       }
   }
 
-  def createProtoGameByUser(gameId: ID[Game], userId: ID[User]): ConnectionIO[Unit] = {
+  def createProtoGameByUser(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): ConnectionIO[Unit] = {
     val target = North
     sql"""
     INSERT INTO game (id, creator)
     VALUES ($gameId, $userId);
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
-    """
-      .update
-      .run
+    """.update.run
       .map(_ => ())
   }
 
-  def addUserIntoProtoGame(gameId: ID[Game], userId: ID[User], target: Side): ConnectionIO[Unit] = {
+  def addUserIntoProtoGame(
+      gameId: ID[Game],
+      userId: ID[User],
+      target: Side
+  ): ConnectionIO[Unit] = {
     sql"""
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
-    """
-      .update
-      .run
-      .exceptSomeSqlState{
-        case UNIQUE_VIOLATION => throw SamePlayerException(userId, gameId)
+    """.update.run
+      .exceptSomeSqlState {
+        case UNIQUE_VIOLATION      => throw SamePlayerException(userId, gameId)
         case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
       }
       .map(_ => ())
@@ -136,7 +140,9 @@ object queries {
     """.query[Player].unique
   }
 
-  def findEnemiesByGameId(gameId: ID[Game]): ConnectionIO[NonEmptyList[Player]] = {
+  def findEnemiesByGameId(
+      gameId: ID[Game]
+  ): ConnectionIO[NonEmptyList[Player]] = {
     sql"""
     SELECT
     pp.user_id,
@@ -152,8 +158,8 @@ object queries {
     AND p.user_id = pp.user_id
     WHERE pp.game_state_id = $gameId
     AND NOT pp.user_id = gs.active_player
-    """.query[Player].to[List].map{
-      case List() => throw GameNotFoundException(gameId)
+    """.query[Player].to[List].map {
+      case List()  => throw GameNotFoundException(gameId)
       case x :: xs => NonEmptyList(x, xs)
     }
   }
@@ -186,36 +192,48 @@ object queries {
       }
   }
 
-  def recordNextState(gameId: ID[Game],
-                      previousGameId: ID[Game],
-                      protoGameId: ID[Game],
-                      activePlayerId: ID[User],
-                      winner: Option[ID[User]]): ConnectionIO[Unit] = {
+  def recordNextState(
+      gameId: ID[Game],
+      previousGameId: ID[Game],
+      protoGameId: ID[Game],
+      activePlayerId: ID[User],
+      winner: Option[ID[User]]
+  ): ConnectionIO[Unit] = {
     sql"""
     INSERT INTO game_state (id, game_id, previous_state, active_player, winner)
     VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
-    """.update.run.map(_ => ())
-      .exceptSomeSqlState {
-        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
+    """.update.run
+      .map(_ => ())
+      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
+        throw GameNotFoundException(gameId)
       }
   }
 
-  def recordPlayers(gameId: ID[Game], players: List[Player]): ConnectionIO[Unit] = {
+  def recordPlayers(
+      gameId: ID[Game],
+      players: List[Player]
+  ): ConnectionIO[Unit] = {
     val sql = """
         INSERT INTO pawn_position (game_state_id, user_id, walls_amount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
         """
     type PP = (ID[Game], ID[User], Int, Int, Int)
 
-    Update[PP](sql).updateMany(players.map{ case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
-      (gameId, id, wallsAmount, row, column)
-    }).map(_ => ())
-      .exceptSomeSqlState {
-        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
+    Update[PP](sql)
+      .updateMany(players.map {
+        case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
+          (gameId, id, wallsAmount, row, column)
+      })
+      .map(_ => ())
+      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
+        throw GameNotFoundException(gameId)
       }
   }
 
-  def recordWalls(gameId: ID[Game], wallPositions: Set[WallPosition]): ConnectionIO[Unit] = {
+  def recordWalls(
+      gameId: ID[Game],
+      wallPositions: Set[WallPosition]
+  ): ConnectionIO[Unit] = {
     val sql = """
         INSERT INTO wall_position (game_state_id, orient, "row", "column")
         VALUES (?, ?, ?, ?)
@@ -223,11 +241,14 @@ object queries {
 
     type PP = (ID[Game], Orientation, Int, Int)
 
-    Update[PP](sql).updateMany(wallPositions.map{ case WallPosition(orientation, row, column) =>
-      (gameId, orientation, row, column)
-    }.toList).map(_ => ())
-      .exceptSomeSqlState {
-        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
+    Update[PP](sql)
+      .updateMany(wallPositions.map {
+        case WallPosition(orientation, row, column) =>
+          (gameId, orientation, row, column)
+      }.toList)
+      .map(_ => ())
+      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
+        throw GameNotFoundException(gameId)
       }
   }
 
@@ -247,7 +268,9 @@ object queries {
     """.query[ID[Game]].to[List]
   }
 
-  def findGameBranchEndedOnGameId(gameId: ID[Game]): ConnectionIO[List[ID[Game]]] = {
+  def findGameBranchEndedOnGameId(
+      gameId: ID[Game]
+  ): ConnectionIO[List[ID[Game]]] = {
     sql"""
     WITH RECURSIVE game_branch AS (
     SELECT gs.id, gs.previous_state
@@ -266,7 +289,7 @@ object queries {
       .to[List]
       .map {
         case Nil => throw GameNotFoundException(gameId)
-        case xs => xs
+        case xs  => xs
       }
   }
 
@@ -307,7 +330,7 @@ object queries {
       .to[List]
       .map {
         case Nil => throw GameNotFoundException(gameId)
-        case xs => xs
+        case xs  => xs
       }
   }
 }
