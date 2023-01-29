@@ -15,7 +15,10 @@ case class State(players: Players, walls: Set[WallPosition]) {
     ).flatMap(f => f(players.activePlayer))
   }
 
-  private def possibleStep(player: Player, direction: Direction): List[PawnPosition] = {
+  private def possibleStep(
+      player: Player,
+      direction: Direction
+  ): List[PawnPosition] = {
     val pawnPosition = player.pawnPosition
     Board.adjacentPosition(pawnPosition, walls, direction) match {
       case None => List.empty

@@ -1,31 +1,23 @@
 package ru.quoridor
 
 import GameException._
+import sttp.model.StatusCode
 
-sealed abstract class ExceptionResponse(errorMessage: String) extends Product with Serializable {
-  def message: String = errorMessage
-}
+final case class ExceptionResponse(errorMessage: String)
 
 object ExceptionResponse {
-  def apply(throwable: Throwable): ExceptionResponse = throwable match {
-    case ex: GameMoveException => ExceptionResponse400(ex.getMessage)
-    case ex: UserNotFoundException => ExceptionResponse404(ex.getMessage)
-    case ex: LoginNotFoundException => ExceptionResponse404(ex.getMessage)
-    case ex: GameNotFoundException => ExceptionResponse404(ex.getMessage)
-    case ex: GameInterloperException => ExceptionResponse403(ex.getMessage)
-    case ex: NotGameCreatorException => ExceptionResponse403(ex.getMessage)
-    case ex: GameException => ExceptionResponse400(ex.getMessage)
-    case _ => ExceptionResponse500("Something went wrong")
-  }
+  def apply(throwable: Throwable): ExceptionResponse = ExceptionResponse(
+    throwable.getMessage
+  )
 
-  case class ExceptionResponse400(errorMessage: String)
-    extends ExceptionResponse(errorMessage)
-  case class ExceptionResponse401(errorMessage: String)
-    extends ExceptionResponse(errorMessage)
-  case class ExceptionResponse403(errorMessage: String)
-    extends ExceptionResponse(errorMessage)
-  case class ExceptionResponse404(errorMessage: String)
-    extends ExceptionResponse(errorMessage)
-  case class ExceptionResponse500(errorMessage: String)
-    extends ExceptionResponse(errorMessage)
+  def exceptionCode(throwable: Throwable): StatusCode = throwable match {
+    case _: GameMoveException       => StatusCode.BadRequest
+    case _: UserNotFoundException   => StatusCode.NotFound
+    case _: LoginNotFoundException  => StatusCode.NotFound
+    case _: GameNotFoundException   => StatusCode.NotFound
+    case _: GameInterloperException => StatusCode.Forbidden
+    case _: NotGameCreatorException => StatusCode.Forbidden
+    case _: GameException           => StatusCode.BadRequest
+    case _                          => StatusCode.InternalServerError
+  }
 }
