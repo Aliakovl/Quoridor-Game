@@ -13,7 +13,7 @@ import ru.quoridor.ExceptionResponse
 import ru.quoridor.api.WSGameApi
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.swagger.SwaggerUI
-import sttp.tapir.openapi.circe.yaml.RichOpenAPI
+import sttp.apispec.openapi.circe.yaml.RichOpenAPI
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 
