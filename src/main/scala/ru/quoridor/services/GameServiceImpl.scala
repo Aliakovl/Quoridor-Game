@@ -78,3 +78,8 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
     } yield history
   }
 }
+
+object GameServiceImpl {
+  def apply(gameStorage: GameStorage): GameServiceImpl =
+    new GameServiceImpl(gameStorage)
+}

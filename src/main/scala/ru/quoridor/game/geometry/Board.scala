@@ -48,7 +48,7 @@ object Board {
     }
   }
 
-  def adjacentPositions(
+  private def adjacentPositions(
       pawnPosition: PawnPosition,
       walls: Set[WallPosition]
   ): Seq[PawnPosition] = {

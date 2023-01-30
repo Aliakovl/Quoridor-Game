@@ -98,3 +98,8 @@ class GameStorageImpl(transactor: Resource[Task, Transactor[Task]])
       query.transact(xa)
     }
 }
+
+object GameStorageImpl {
+  def apply(transactor: Resource[Task, Transactor[Task]]): GameStorageImpl =
+    new GameStorageImpl(transactor)
+}

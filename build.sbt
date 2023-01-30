@@ -5,6 +5,7 @@ lazy val circeVersion = "0.14.3"
 lazy val tapirVersion = "1.2.7"
 lazy val http4sVersion = "0.23.18"
 lazy val doobieVersion = "1.0.0-RC1"
+lazy val zioVersion = "2.0.6"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -28,7 +29,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "org.reactormonk" %% "cryptobits" % "1.3.1",
   "com.github.pureconfig" %% "pureconfig" % "0.17.2",
-  "dev.zio" %% "zio" % "2.0.6",
+  "dev.zio" %% "zio" % zioVersion,
+  "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-interop-cats" % "23.0.0.1",
   "org.scalatest" %% "scalatest" % "3.2.15" % Test,
   "org.typelevel" %% "cats-effect-testing-scalatest" % "1.4.0" % Test

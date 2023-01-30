@@ -27,7 +27,7 @@ case class UserMove(id: ID[User], move: Move)
 
 class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
 
-  def logic(
+  private def logic(
       sessionId: UUID,
       topic: Topic[Task, WebSocketFrame]
   ): Task[Response[Task]] = {

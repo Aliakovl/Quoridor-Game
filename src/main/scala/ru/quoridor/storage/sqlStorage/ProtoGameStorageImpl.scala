@@ -51,3 +51,10 @@ class ProtoGameStorageImpl(transactor: Resource[Task, Transactor[Task]])
     query.transact(xa)
   }
 }
+
+object ProtoGameStorageImpl {
+  def apply(
+      transactor: Resource[Task, Transactor[Task]]
+  ): ProtoGameStorageImpl =
+    new ProtoGameStorageImpl(transactor)
+}

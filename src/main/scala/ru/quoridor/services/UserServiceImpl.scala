@@ -27,3 +27,10 @@ class UserServiceImpl(userStorage: UserStorage, gameStorage: GameStorage)
     } yield gamePreViews
   }
 }
+
+object UserServiceImpl {
+  def apply(
+      userStorage: UserStorage,
+      gameStorage: GameStorage
+  ): UserServiceImpl = new UserServiceImpl(userStorage, gameStorage)
+}

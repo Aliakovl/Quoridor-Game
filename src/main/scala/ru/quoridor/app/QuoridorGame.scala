@@ -27,7 +27,7 @@ import scala.util.Random
 
 object QuoridorGame {
 
-  val appConfig = ConfigSource.default.loadOrThrow[AppConfig]
+  val appConfig: AppConfig = ConfigSource.default.loadOrThrow[AppConfig]
 
   private val resourceTransactor: Resource[Task, HikariTransactor[Task]] = for {
     ce <- ExecutionContexts.fixedThreadPool[Task](32)
@@ -54,14 +54,14 @@ object QuoridorGame {
   private val key = PrivateKey(
     Codec.toUTF8(Random.alphanumeric.take(20).mkString(""))
   )
-  val crypto = CryptoBits(key)
+  val crypto: CryptoBits = CryptoBits(key)
 
   private val userApi = new UserApi(userService, crypto)
   private val gameApi = new GameApi(userService, gameCreator, gameService)
 
   val api = userApi.api ::: gameApi.api
 
-  val serverOptions = Http4sServerOptions
+  private val serverOptions = Http4sServerOptions
     .customiseInterceptors[Task]
     .exceptionHandler(ExceptionHandler.pure[Task] { ctx =>
       Some(
