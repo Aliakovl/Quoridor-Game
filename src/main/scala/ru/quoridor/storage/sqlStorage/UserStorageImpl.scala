@@ -34,3 +34,8 @@ class UserStorageImpl(transactor: Resource[Task, Transactor[Task]])
       query.transact(xa)
   }
 }
+
+object UserStorageImpl {
+  def apply(transactor: Resource[Task, Transactor[Task]]): UserStorageImpl =
+    new UserStorageImpl(transactor)
+}

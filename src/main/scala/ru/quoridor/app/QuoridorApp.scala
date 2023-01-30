@@ -18,16 +18,16 @@ import zio.interop.catz._
 import zio.{ExitCode, Scope, Task, ZIO, ZIOAppArgs, ZIOAppDefault}
 
 object QuoridorApp extends ZIOAppDefault {
-  val openApi = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[Task](
+  private val openApi = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[Task](
     QuoridorGame.api,
     "Quoridor game server",
     "0.0.1"
   )
 
-  val swagger =
+  private val swagger =
     Http4sServerInterpreter[Task]().toRoutes(SwaggerUI[Task](openApi.toYaml))
 
-  val httpApp: HttpRoutes[Task] = QuoridorGame.apiRoutes <+> swagger
+  private val httpApp: HttpRoutes[Task] = QuoridorGame.apiRoutes <+> swagger
 
   implicit val jsonEncode: Encoder[ExceptionResponse] =
     Encoder.forProduct1("errorMessage")(_.errorMessage)

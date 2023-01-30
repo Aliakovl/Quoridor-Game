@@ -50,3 +50,10 @@ class GameCreatorImpl(
     } yield game
   }
 }
+
+object GameCreatorImpl {
+  def apply(
+      protoGameStorage: ProtoGameStorage,
+      gameStorage: GameStorage
+  ): GameCreatorImpl = new GameCreatorImpl(protoGameStorage, gameStorage)
+}
