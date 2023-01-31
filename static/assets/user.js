@@ -3,7 +3,6 @@ function historyRequest(userId) {
         if (response.ok) {
             response.json().then(history => {
                 fillTable(history)
-                return history
             })
         } else {
             response.json().then(em => {
@@ -53,6 +52,47 @@ function appendGameView(table, gameView) {
     table.appendChild(tr)
 }
 
+function currentSessionRequest(userId) {
+    fetch(`/ws/current-sessions/${userId}`).then(response => {
+        if (response.ok) {
+            response.json().then(sessionList => {
+                fillSessions(sessionList)
+            })
+        } else {
+            response.json().then(em => {
+                alert(em.errorMessage)
+            })
+        }
+    })
+}
+
+function fillSessions(sessionList) {
+    let table = document.getElementById("current-sessions")
+    sessionList.forEach(session => appendSession(table, session))
+}
+
+function appendSession(table, session) {
+    const htmlString =
+        `<tr>
+            <td class="user-history">
+                <div>
+                    <p>${session}</p>
+                    <button class="enter-game-session" type="button" value=${session}>Enter game session</button>
+                </div>
+            </td>
+        </tr>`
+    const tr = document.createElement("tr")
+    tr.innerHTML = htmlString
+
+    const button = tr.getElementsByClassName("enter-game-session")[0]
+    button.onclick = _ => {
+        window.localStorage.setItem("sessionId", button.value)
+        window.location.href = `${window.origin}/game-session`
+    }
+
+    table.appendChild(tr)
+}
+
 document.addEventListener("DOMContentLoaded", _ => {
     document.getElementById("logout-button").onclick = _ => {
         document.cookie = "auth-cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
@@ -65,5 +105,6 @@ document.addEventListener("DOMContentLoaded", _ => {
 
     const userId = window.localStorage.getItem("user_id")
 
+    currentSessionRequest(userId)
     historyRequest(userId)
 })
