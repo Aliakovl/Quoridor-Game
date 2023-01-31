@@ -112,7 +112,7 @@ class GameApi(userService: UserService[IO],
     ))
     .out(jsonBody[Game])
     .serverLogic[IO] { case (userId, gameId) =>
-      gameService.findGame(gameId.typed[Game], userId.typed[User]).map(Right(_)).handleError { er =>
+      gameService.findGame(gameId.typed[Game]).map(Right(_)).handleError { er =>
         ExceptionResponse(er).asLeft
       }
     }

@@ -53,8 +53,8 @@ class GameServiceSpec extends AsyncFlatSpec
       protoGame <- gameCreator.createGame(user.id)
       _ <- gameCreator.joinPlayer(protoGame.id, otherUser.id)
       game <- gameCreator.startGame(protoGame.id, user.id)
-      theSameGame <- gameService.findGame(game.id, user.id)
-      alsoTheSameGame <- gameService.findGame(game.id, otherUser.id)
+      theSameGame <- gameService.findGame(game.id)
+      alsoTheSameGame <- gameService.findGame(game.id)
       _ = theSameGame shouldEqual game
       _ = alsoTheSameGame shouldEqual game
     } yield ()
@@ -68,7 +68,7 @@ class GameServiceSpec extends AsyncFlatSpec
       protoGame <- gameCreator.createGame(user.id)
       _ <- gameCreator.joinPlayer(protoGame.id, otherUser.id)
       game <- gameCreator.startGame(protoGame.id, user.id)
-      _ <- gameService.findGame(game.id, thirdUser.id)
+      _ <- gameService.findGame(game.id)
     } yield ()
 
     test.map(_ => fail).handleError {

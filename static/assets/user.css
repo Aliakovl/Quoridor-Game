@@ -9,6 +9,11 @@ td.user-history {
     margin-right: auto;
 }
 
+#current-sessions {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #new-game-button {
     align-self: start;
 }

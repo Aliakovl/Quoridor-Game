@@ -13,15 +13,8 @@ import ru.utils.Typed.ID
 class GameServiceImpl[F[_]](gameStorage: GameStorage[F])
                            (implicit F: Async[F]) extends GameService[F] {
 
-  override def findGame(gameId: ID[Game], userId: ID[User]): F[Game] = {
-    for {
-      game <- gameStorage.find(gameId)
-
-      _ <- F.fromEither{
-        Either.cond(game.state.players.toList.exists(_.id == userId), (), GameInterloperException(userId, gameId))
-      }
-
-    } yield game
+  override def findGame(gameId: ID[Game]): F[Game] = {
+    gameStorage.find(gameId)
   }
 
   override def makeMove(gameId: ID[Game], userId: ID[User], move: Move): F[Game] = {
