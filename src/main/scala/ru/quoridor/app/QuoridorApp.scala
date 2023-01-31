@@ -8,16 +8,13 @@ import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.Router
-import org.http4s.server.staticcontent.resourceServiceBuilder
-import org.http4s.{HttpRoutes, Request, Response, StaticFile}
+import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.ExceptionResponse
 import ru.quoridor.api.WSGameApi
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.swagger.SwaggerUI
 import sttp.tapir.openapi.circe.yaml.RichOpenAPI
 import sttp.tapir.server.http4s.Http4sServerInterpreter
-
-import java.util.UUID
 
 
 object QuoridorApp extends IOApp {
@@ -29,55 +26,7 @@ object QuoridorApp extends IOApp {
 
   val swagger = Http4sServerInterpreter[IO]().toRoutes(SwaggerUI[IO](openApi.toYaml))
 
-  val assetsRoutes = resourceServiceBuilder[IO]("/assets").toRoutes
-
-  val loginPage = HttpRoutes.of[IO] {
-    case GET -> Root =>
-      StaticFile.fromResource[IO]("/assets/loginpage.html").getOrElseF(InternalServerError())
-  }
-
-  def uuidFromCookie(request: Request[IO]): Option[UUID] = {
-    for {
-      cookie <- request.cookies.find(_.name == "auth-cookie")
-      uuid <- QuoridorGame.crypto.validateSignedToken(cookie.content)
-    } yield UUID.fromString(uuid)
-  }
-
-  val cookieAuth: HttpRoutes[IO] = HttpRoutes.of[IO] {
-    case request @ GET -> Root / UUIDVar(uuid) =>
-      val confirmed = uuidFromCookie(request).contains(uuid)
-      if (confirmed) {
-        StaticFile.fromResource[IO]("/assets/userpage.html").getOrElseF(InternalServerError())
-      } else {
-        IO(Response[IO](Unauthorized))
-      }
-
-    case request @ GET -> Root =>
-      val uuidOpt = uuidFromCookie(request).map(_.toString)
-      IO(Response[IO](MovedPermanently)
-        .withHeaders(List(
-          "Location" -> ("/" + uuidOpt.getOrElse("sign"))
-        ))
-      )
-  }
-
-  val gameCreationRoute = HttpRoutes.of[IO] {
-    case GET -> Root / UUIDVar(_) =>
-      StaticFile.fromResource[IO]("/assets/gamecreationpage.html").getOrElseF(InternalServerError())
-  }
-
-  val gameSessionRoute = HttpRoutes.of[IO] {
-    case GET -> Root / UUIDVar(_) =>
-      StaticFile.fromResource[IO]("/assets/gamesessionpage.html").getOrElseF(InternalServerError())
-  }
-
-  val httpApp: HttpRoutes[IO] = Router[IO](
-    "assets" -> assetsRoutes,
-    "/" -> (cookieAuth <+> QuoridorGame.apiRoutes <+> swagger),
-    "sign" -> loginPage,
-    "game-creation" -> gameCreationRoute,
-    "game-session" -> gameSessionRoute
-  )
+  val httpApp: HttpRoutes[IO] = QuoridorGame.apiRoutes <+> swagger
 
   implicit val jsonEncode: Encoder[ExceptionResponse] = Encoder.forProduct1("errorMessage")(_.message)
 

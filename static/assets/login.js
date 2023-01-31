@@ -7,7 +7,7 @@ function postLogin(login, method) {
             response.json().then( user => {
                 window.localStorage.setItem("lagin", user.login)
                 window.localStorage.setItem("user_id", user.id)
-                window.location.href = `/${user.id}`
+                window.location.href = `/account`
             })
         } else {
             response.json().then( em => {

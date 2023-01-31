@@ -14,7 +14,7 @@ function getUser(userLogin, cb) {
 }
 
 function joinUser(user, cb) {
-    let gameId = window.localStorage.getItem("game_id")
+    const gameId = window.localStorage.getItem("game_id")
     fetch(`${window.origin}/api/${user.id}/join-game?gameId=${gameId}`, {
         method: 'POST'
     }).then(response => {
@@ -31,7 +31,7 @@ function joinUser(user, cb) {
 }
 
 function onAddPlayer() {
-    let userLogin = document.getElementById("user-login").value
+    const userLogin = document.getElementById("user-login").value
     getUser(userLogin, user => {
         joinUser(user, () => {
             let list = document.getElementById("added-players")
@@ -79,7 +79,8 @@ function createSession(game, cb) {
 function onStartGame() {
     startGame(game => {
         createSession(game, sessionId => {
-            window.location.href = `${window.origin}/game-session/${sessionId}`
+            window.localStorage.setItem("sessionId", sessionId)
+            window.location.href = `${window.origin}/game-session`
         })
     })
 }
@@ -117,7 +118,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 
     document.getElementById("logout-button").onclick = _ => {
         document.cookie = "auth-cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-        window.location.href = "/sign"
+        window.location.href = "/"
     }
 
     createGame(storeProtoGame)
