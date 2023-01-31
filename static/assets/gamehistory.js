@@ -69,7 +69,8 @@ function createHistoryPage(gameHistory, node) {
     startFromThisState.onclick = _ => {
         let gameId = game.getElem().id
         createSession(gameId, sessionId => {
-            window.location.href = `${window.origin}/game-session/${sessionId}`
+            window.localStorage.setItem("sessionId", sessionId)
+            window.location.href = `${window.origin}/game-session`
         })
     }
 

@@ -1,12 +1,12 @@
-function historyRequest() {
-    fetch(`/api${window.location.pathname}/history`).then(response => {
+function historyRequest(userId) {
+    fetch(`/api/${userId}/history`).then(response => {
         if (response.ok) {
-            response.json().then( history => {
+            response.json().then(history => {
                 fillTable(history)
                 return history
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }
@@ -27,7 +27,7 @@ function printWinner(winner) {
 }
 
 function viewGameHistory(game_id) {
-    const userId = window.location.pathname.substring(1)
+    const userId = window.localStorage.getItem("user_id")
     getGameHistory(userId, game_id, gh => createHistoryPage(gh, document.getElementById("user-space")))
 }
 
@@ -56,12 +56,14 @@ function appendGameView(table, gameView) {
 document.addEventListener("DOMContentLoaded", _ => {
     document.getElementById("logout-button").onclick = _ => {
         document.cookie = "auth-cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-        window.location.href = "/sign"
+        window.location.href = "/"
     }
 
     document.getElementById("new-game-button").onclick = _ => {
-        window.location.href = `/game-creation${window.location.pathname}`
+        window.location.href = `/game-creation`
     }
 
-    historyRequest()
+    const userId = window.localStorage.getItem("user_id")
+
+    historyRequest(userId)
 })

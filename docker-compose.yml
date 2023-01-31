@@ -1,23 +1,12 @@
 version: "3"
 
 services:
-  server:
+  quoridor-api:
     build: .
-    profiles: ["run"]
     ports:
       - "8080:8080"
     command:
       sbt run
-    depends_on:
-      - flyway
-
-  test:
-    build: .
-    profiles: ["test"]
-    ports:
-      - "8080:8080"
-    command:
-      sbt testOnly
     depends_on:
       - flyway
 
@@ -38,3 +27,14 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./static:/app/static
+    depends_on:
+      - quoridor-api
