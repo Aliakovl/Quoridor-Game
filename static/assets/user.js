@@ -47,6 +47,7 @@ function appendGameView(table, gameView) {
     const button = tr.getElementsByClassName("view-history-button")[0]
     button.onclick = _ => {
         viewGameHistory(button.value)
+        document.getElementById("new-game-button").remove()
     }
 
     table.appendChild(tr)

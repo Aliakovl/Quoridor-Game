@@ -4,13 +4,13 @@ function postLogin(login, method) {
         body: JSON.stringify({"login": login})
     }).then(response => {
         if (response.ok) {
-            response.json().then( user => {
+            response.json().then(user => {
                 window.localStorage.setItem("lagin", user.login)
                 window.localStorage.setItem("user_id", user.id)
                 window.location.href = `/account`
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }

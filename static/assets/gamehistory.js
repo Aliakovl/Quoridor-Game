@@ -6,7 +6,7 @@ function getGameHistory(userId, gameId, f) {
                 f(gameHistory)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }
@@ -18,11 +18,11 @@ function createSession(gameId, cb) {
         method: 'POST'
     }).then(response => {
         if (response.ok) {
-            response.json().then( sessionId => {
+            response.json().then(sessionId => {
                 cb(sessionId.sessionId)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert("Can not make session")
             })
         }
@@ -34,15 +34,17 @@ function createHistoryPage(gameHistory, node) {
                       <div id="table-place"></div>
                       <div id="players-place"></div>`
     let toMain = document.createElement("button")
-    toMain.innerText = "Exit history"
+    toMain.innerText = "Home"
     toMain.onclick = _ => {
         window.location.reload()
     }
 
-    document.getElementById("placeholder").appendChild(toMain)
+    document.getElementById("top-bar").prepend(toMain)
 
     const game = gameState(gameHistory)
-    renderGame(game.getElem(), () => {}, () => {})
+    renderGame(game.getElem(), () => {
+    }, () => {
+    })
 
     let backButton = document.createElement("button")
     backButton.innerText = "<-"
@@ -51,7 +53,9 @@ function createHistoryPage(gameHistory, node) {
         game.back()
         backButton.disabled = !game.canBackward()
         forwardButton.disabled = !game.canForward()
-        renderGame(game.getElem(), () => {}, () => {})
+        renderGame(game.getElem(), () => {
+        }, () => {
+        })
     }
 
     let forwardButton = document.createElement("button")
@@ -61,7 +65,9 @@ function createHistoryPage(gameHistory, node) {
         game.forward()
         backButton.disabled = !game.canBackward()
         forwardButton.disabled = !game.canForward()
-        renderGame(game.getElem(), () => {}, () => {})
+        renderGame(game.getElem(), () => {
+        }, () => {
+        })
     }
 
     let startFromThisState = document.createElement("button")
