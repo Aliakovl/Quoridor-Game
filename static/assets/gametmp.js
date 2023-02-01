@@ -58,7 +58,7 @@ function appendRow(table, row) {
         } else {
             td.classList.add("wall-place")
             td.classList.add("vertical")
-            if (pseudoColumn < 0 || pseudoColumn > 16){
+            if (pseudoColumn < 0 || pseudoColumn > 16) {
                 td.classList.add("empty-place")
             } else {
                 td.setAttribute("row", `${column}`)
@@ -112,19 +112,27 @@ function setWall(gameField, wall) {
 
 function sideOrder(side) {
     switch (side) {
-        case "North": return 0
-        case "East": return 1
-        case "South": return 2
-        case "West": return 3
+        case "North":
+            return 0
+        case "East":
+            return 1
+        case "South":
+            return 2
+        case "West":
+            return 3
     }
 }
 
 function sideArrow(side) {
     switch (side) {
-        case "North": return '\u2191'
-        case "East": return '\u2192'
-        case "South": return '\u2193'
-        case "West": return '\u2190'
+        case "North":
+            return '\u2191'
+        case "East":
+            return '\u2192'
+        case "South":
+            return '\u2193'
+        case "West":
+            return '\u2190'
     }
 }
 
@@ -182,7 +190,7 @@ function renderGame(game, onPawnPlace, onWallPlace) {
     const wallsPlaces = document.body.getElementsByClassName('wall-place')
 
     for (let wp of wallsPlaces) {
-        if (!wp.classList.contains('empty-place')){
+        if (!wp.classList.contains('empty-place')) {
             onWallPlace(wp)
         }
     }

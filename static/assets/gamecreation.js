@@ -2,11 +2,11 @@ function getUser(userLogin, cb) {
     fetch(`${window.origin}/api/user/${userLogin}`)
         .then(response => {
             if (response.ok) {
-                response.json().then( user => {
+                response.json().then(user => {
                     cb(user)
                 })
             } else {
-                response.json().then( em => {
+                response.json().then(em => {
                     alert(em.errorMessage)
                 })
             }
@@ -19,11 +19,11 @@ function joinUser(user, cb) {
         method: 'POST'
     }).then(response => {
         if (response.ok) {
-            response.json().then( protoGame => {
+            response.json().then(protoGame => {
                 cb(protoGame)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }
@@ -49,11 +49,11 @@ function startGame(cb) {
         method: 'POST'
     }).then(response => {
         if (response.ok) {
-            response.json().then( game => {
+            response.json().then(game => {
                 cb(game)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }
@@ -65,11 +65,11 @@ function createSession(game, cb) {
         method: 'POST'
     }).then(response => {
         if (response.ok) {
-            response.json().then( sessionId => {
+            response.json().then(sessionId => {
                 cb(sessionId.sessionId)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert("Can not make session")
             })
         }
@@ -91,11 +91,11 @@ function createGame(cb) {
         method: 'POST'
     }).then(response => {
         if (response.ok) {
-            response.json().then( protoGame => {
+            response.json().then(protoGame => {
                 cb(protoGame)
             })
         } else {
-            response.json().then( em => {
+            response.json().then(em => {
                 alert(em.errorMessage)
             })
         }
@@ -115,6 +115,10 @@ document.addEventListener("DOMContentLoaded", _ => {
     document.getElementById("create-game-form").addEventListener("submit", (event) => {
         event.preventDefault()
     })
+
+    document.getElementById("account-button").onclick = _ => {
+        window.location.href = "/account"
+    }
 
     document.getElementById("logout-button").onclick = _ => {
         document.cookie = "auth-cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"

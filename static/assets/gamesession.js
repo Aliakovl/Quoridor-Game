@@ -7,7 +7,7 @@ function getGameGySessionId(sessionId, cb) {
                     cb(game)
                 })
             } else {
-                response.json().then( em => {
+                response.json().then(em => {
                     alert(em.errorMessage)
                 }).catch(() => {
                     window.location.href = window.location.origin
@@ -53,6 +53,10 @@ function onWallPlace(wallsPlace, ws) {
 }
 
 document.addEventListener("DOMContentLoaded", _ => {
+    document.getElementById("account-button").onclick = _ => {
+        window.location.href = "/account"
+    }
+
     document.getElementById("logout-button").onclick = _ => {
         document.cookie = "auth-cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
         window.location.href = "/"
