@@ -93,7 +93,9 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
         game <- gameService.findGame(gameId.typed[Game])
         players = game.state.players.toList.map(_.id.unType)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
-      } yield Response(Created).withEntity(parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null))
+      } yield Response(Created).withEntity(
+        parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)
+      )
 
     case GET -> Root / "game" / UUIDVar(sessionId) / UUIDVar(userId)
         if SessionsMap.gameStates.contains(sessionId) =>
@@ -103,9 +105,12 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
       } yield Response(Ok).withEntity(game)
 
     case GET -> Root / "current-sessions" / UUIDVar(userId) =>
-      val currentSessions: List[UUID] =  SessionsMap.sessionPlayers.filter {
-        case (_, players) => players.contains(userId)
-      }.keys.toList
+      val currentSessions: List[UUID] = SessionsMap.sessionPlayers
+        .filter { case (_, players) =>
+          players.contains(userId)
+        }
+        .keys
+        .toList
       ZIO.succeed(Response(Ok).withEntity(currentSessions))
   }
 }
@@ -116,5 +121,6 @@ object SessionsMap {
 
   val gameStates: TrieMap[UUID, UUID] = TrieMap[UUID, UUID]().empty
 
-  val sessionPlayers: TrieMap[UUID, List[UUID]] = TrieMap[UUID, List[UUID]]().empty
+  val sessionPlayers: TrieMap[UUID, List[UUID]] =
+    TrieMap[UUID, List[UUID]]().empty
 }

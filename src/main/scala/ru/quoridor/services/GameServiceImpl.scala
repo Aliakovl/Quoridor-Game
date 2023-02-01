@@ -15,7 +15,7 @@ import zio.{Task, ZIO}
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
-    gameStorage.find(gameId)
+    gameStorage.find(gameId) // TODO: вернуть проверку на принадлежность игрока игре
   }
 
   override def makeMove(
