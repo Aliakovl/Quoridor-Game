@@ -24,9 +24,12 @@ jobs:
     - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519"
     - run: chmod 600 "$HOME/.ssh/id_ed25519"
     - run: sbt "Docker / stage"
-    - run: rsync -e "ssh -i $HOME/.ssh/id_ed25519
+    - run: ssh -o StrictHostKeyChecking=no aliakovl@quoridor.online
+        "cd $HD && docker-compose down"
+    - if: success() || failure()
+      run: rsync -e "ssh -i $HOME/.ssh/id_ed25519
            -o StrictHostKeyChecking=no" -a -z --delete-after
            ./migrations ./nginx ./target ./static
            ./docker-compose.yml "aliakovl@quoridor.online:$HD"
     - run: ssh -o StrictHostKeyChecking=no aliakovl@quoridor.online
-           "cd $HD && docker-compose down && docker-compose up --build -d"
+           "cd $HD && docker-compose up --build -d"
