@@ -1,0 +1,31 @@
+name: Deployment
+
+on:
+  workflow_dispatch
+
+permissions:
+  contents: read
+
+env:
+  HD: ${{ vars.HD }}
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'sbt'
+    - run: mkdir "$HOME/.ssh"
+    - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519"
+    - run: chmod 600 "$HOME/.ssh/id_ed25519"
+    - run: sbt docker:stage
+    - run: rsync -e "ssh -o StrictHostKeyChecking=no" -a -z --delete
+           ./migrations ./nginx ./target/docker/stage ./static
+           ./docker-compose.yml "aliakovl@quoridor.online:/HD"
+    - run: ssh -o StrictHostKeyChecking=no aliakovl@quoridor.online
+           "cd $HD && docker-compose down && docker-compose up --build"
