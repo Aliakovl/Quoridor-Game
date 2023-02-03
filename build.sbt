@@ -1,4 +1,3 @@
-
 ThisBuild / scalaVersion := "2.13.8"
 
 lazy val circeVersion = "0.14.3"
@@ -10,7 +9,7 @@ lazy val zioVersion = "2.0.6"
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
   "org.tpolecat" %% "doobie-core" % doobieVersion,
-  "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
   "org.tpolecat" %% "doobie-hikari" % doobieVersion,
   "ch.qos.logback" % "logback-classic" % "1.4.5",
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
@@ -39,6 +38,10 @@ ThisBuild / libraryDependencies ++= Seq(
 lazy val root = (project in file("."))
   .settings(
     name := "Quoridor Game",
+    version := "0.1.0",
+    dockerBaseImage := "openjdk:17-alpine",
+    dockerUpdateLatest := true,
+    dockerExposedPorts := Seq(8080),
     scalacOptions += "-feature"
   )
-
+  .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)
