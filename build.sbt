@@ -42,6 +42,7 @@ lazy val root = (project in file("."))
     dockerBaseImage := "openjdk:17-alpine",
     dockerUpdateLatest := true,
     dockerExposedPorts := Seq(8080),
-    scalacOptions += "-feature"
+    scalacOptions += "-feature",
+    Compile / doc / sources := Nil
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)
