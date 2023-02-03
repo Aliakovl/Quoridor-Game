@@ -21,10 +21,10 @@ jobs:
         distribution: 'temurin'
         cache: 'sbt'
     - run: mkdir "$HOME/.ssh"
-    - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519.pub"
-    - run: chmod 600 "$HOME/.ssh/id_ed25519.pub"
+    - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519"
+    - run: chmod 600 "$HOME/.ssh/id_ed25519"
     - run: sbt "Docker / stage"
-    - run: rsync -e "ssh -i $HOME/.ssh/id_ed25519.pub
+    - run: rsync -e "ssh -i $HOME/.ssh/id_ed25519
            -o StrictHostKeyChecking=no" -a -z --delete
            ./migrations ./nginx ./target/docker/stage ./static
            ./docker-compose.yml "aliakovl@quoridor.online:$HD"
