@@ -25,8 +25,8 @@ jobs:
     - run: chmod 600 "$HOME/.ssh/id_ed25519"
     - run: sbt "Docker / stage"
     - run: rsync -e "ssh -i $HOME/.ssh/id_ed25519
-           -o StrictHostKeyChecking=no" -a -z --delete
+           -o StrictHostKeyChecking=no" -a -z --delete-after
            ./migrations ./nginx ./target/docker/stage ./static
            ./docker-compose.yml "aliakovl@quoridor.online:$HD"
     - run: ssh -o StrictHostKeyChecking=no aliakovl@quoridor.online
-           "cd $HD && docker-compose down && docker-compose up --build"
+           "cd $HD && docker-compose down && docker-compose up --build -d"
