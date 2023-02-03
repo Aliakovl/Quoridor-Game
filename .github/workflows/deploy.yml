@@ -29,4 +29,4 @@ jobs:
            ./migrations ./nginx ./target/docker/stage ./static
            ./docker-compose.yml "aliakovl@quoridor.online:$HD"
     - run: ssh -o StrictHostKeyChecking=no aliakovl@quoridor.online
-           "cd $HD && docker-compose down && docker-compose up --build"
+           "cd $HD && docker-compose down && docker-compose up --build -d"
