@@ -22,7 +22,7 @@ jobs:
         cache: 'sbt'
     - run: mkdir "$HOME/.ssh"
     - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519.pub"
-    - run: chmod 600 "$HOME/.ssh/id_ed25519"
+    - run: chmod 600 "$HOME/.ssh/id_ed25519.pub"
     - run: sbt "Docker / stage"
     - run: rsync -e "ssh -i $HOME/.ssh/id_ed25519.pub
            -o StrictHostKeyChecking=no" -a -z --delete
