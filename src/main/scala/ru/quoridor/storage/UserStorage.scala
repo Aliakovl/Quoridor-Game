@@ -1,6 +1,5 @@
 package ru.quoridor.storage
 
-import cats.effect.Resource
 import doobie.Transactor
 import ru.quoridor.User
 import ru.quoridor.game.Game
@@ -20,7 +19,7 @@ trait UserStorage {
 
 object UserStorage {
   val live: ZLayer[
-    Resource[Task, Transactor[Task]],
+    Transactor[Task],
     Nothing,
     UserStorage
   ] = ZLayer.fromFunction(UserStorageImpl.apply _)
