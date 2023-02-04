@@ -1,12 +1,10 @@
 package ru.quoridor.storage
 
-import cats.effect.Resource
-import doobie.Transactor
 import ru.quoridor.{GamePreView, User}
 import ru.quoridor.game.{Game, State}
 import ru.quoridor.storage.sqlStorage.GameStorageImpl
 import ru.utils.Typed.ID
-import zio.{Task, ZLayer}
+import zio.{RLayer, Task, ZLayer}
 
 trait GameStorage {
   def find(id: ID[Game]): Task[Game]
@@ -27,6 +25,6 @@ trait GameStorage {
 }
 
 object GameStorage {
-  val live: ZLayer[Resource[Task, Transactor[Task]], Nothing, GameStorage] =
+  val live: RLayer[DataBase, GameStorage] =
     ZLayer.fromFunction(GameStorageImpl.apply _)
 }

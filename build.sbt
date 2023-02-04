@@ -26,7 +26,6 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum-circe" % "1.7.2",
   "org.http4s" %% "http4s-blaze-server" % "0.23.13",
   "org.http4s" %% "http4s-circe" % http4sVersion,
-  "org.reactormonk" %% "cryptobits" % "1.3.1",
   "com.github.pureconfig" %% "pureconfig" % "0.17.2",
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-streams" % zioVersion,
@@ -42,7 +41,11 @@ lazy val root = (project in file("."))
     dockerBaseImage := "openjdk:17-alpine",
     dockerUpdateLatest := true,
     dockerExposedPorts := Seq(8080),
-    scalacOptions += "-feature",
-    Compile / doc / sources := Nil
+    scalacOptions ++= Seq(
+      "-feature",
+      "-P:kind-projector:underscore-placeholders"
+    ),
+    Compile / doc / sources := Nil,
+    addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)

@@ -12,29 +12,32 @@ import org.http4s.dsl.io._
 import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
+import ru.quoridor.app.QuoridorGame.Env
 import ru.quoridor.{ExceptionResponse, User}
 import ru.quoridor.game.{Game, Move}
 import ru.quoridor.services.GameService
 import ru.utils.Typed.ID
 import ru.utils.Typed.Implicits.TypedOps
 import zio.interop.catz._
-import zio.{Task, ZIO}
+import zio.{RIO, ZIO}
 
 import java.util.UUID
 import scala.collection.concurrent.TrieMap
 
 case class UserMove(id: ID[User], move: Move)
 
-class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
+class WSGameApi(
+    wsb: WebSocketBuilder2[RIO[Env, _]]
+) {
 
   private def logic(
       sessionId: UUID,
-      topic: Topic[Task, WebSocketFrame]
-  ): Task[Response[Task]] = {
-    def toClient: Stream[Task, WebSocketFrame] =
+      topic: Topic[RIO[Env, _], WebSocketFrame]
+  ): RIO[Env, Response[RIO[Env, _]]] = {
+    def toClient: Stream[RIO[Env, _], WebSocketFrame] =
       topic.subscribe(1000)
 
-    def fromClient: Pipe[Task, WebSocketFrame, Unit] =
+    def fromClient: Pipe[RIO[Env, _], WebSocketFrame, Unit] =
       handle(sessionId, topic)
 
     wsb.build(toClient, fromClient)
@@ -45,8 +48,8 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
 
   private def handle(
       sessionId: UUID,
-      topic: Topic[Task, WebSocketFrame]
-  ): Pipe[Task, WebSocketFrame, Unit] = in =>
+      topic: Topic[RIO[Env, _], WebSocketFrame]
+  ): Pipe[RIO[Env, _], WebSocketFrame, Unit] = in =>
     in.collect({ case WebSocketFrame.Text(text, _) =>
       parser.parse(text).flatMap(_.as[UserMove])
     }).evalMap {
@@ -55,6 +58,7 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
           gameId <- ZIO
             .fromOption(SessionsMap.gameStates.get(sessionId))
             .orElseFail(new Exception("There is no such session"))
+          gameService <- ZIO.service[GameService]
           game <- gameService.makeMove(gameId.typed[Game], userId, move)
           _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
         } yield WebSocketFrame.Text(game.asJson.toString())
@@ -72,7 +76,7 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
 
     }.through(topic.publish)
 
-  def routeWs: HttpRoutes[Task] = HttpRoutes.of[Task] {
+  def routeWs: HttpRoutes[RIO[Env, _]] = HttpRoutes.of[RIO[Env, _]] {
     case GET -> Root / "session" / UUIDVar(sessionId)
         if SessionsMap.gameStates.contains(sessionId) =>
       SessionsMap.sessions.get(sessionId) match {
@@ -80,7 +84,7 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
           logic(sessionId, topic)
         case None =>
           for {
-            topic <- Topic[Task, WebSocketFrame]
+            topic <- Topic[RIO[Env, _], WebSocketFrame]
             _ = SessionsMap.sessions.update(sessionId, topic)
             l <- logic(sessionId, topic)
           } yield l
@@ -90,6 +94,7 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
       val sessionId = UUID.randomUUID()
       SessionsMap.gameStates.update(sessionId, gameId)
       for {
+        gameService <- ZIO.service[GameService]
         game <- gameService.findGame(gameId.typed[Game])
         players = game.state.players.toList.map(_.id.unType)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
@@ -101,6 +106,7 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
         if SessionsMap.gameStates.contains(sessionId) =>
       val gameId = SessionsMap.gameStates.get(sessionId)
       for {
+        gameService <- ZIO.service[GameService]
         game <- gameService.findGame(gameId.get.typed[Game])
       } yield Response(Ok).withEntity(game)
 
@@ -113,11 +119,12 @@ class WSGameApi(wsb: WebSocketBuilder2[Task], gameService: GameService) {
         .toList
       ZIO.succeed(Response(Ok).withEntity(currentSessions))
   }
+
 }
 
 object SessionsMap {
-  val sessions: TrieMap[UUID, Topic[Task, WebSocketFrame]] =
-    TrieMap[UUID, Topic[Task, WebSocketFrame]]().empty
+  val sessions: TrieMap[UUID, Topic[RIO[Env, _], WebSocketFrame]] =
+    TrieMap[UUID, Topic[RIO[Env, _], WebSocketFrame]]().empty
 
   val gameStates: TrieMap[UUID, UUID] = TrieMap[UUID, UUID]().empty
 
