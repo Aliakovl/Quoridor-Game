@@ -1,17 +1,13 @@
 package ru.quoridor.app
 
-import cats.effect.kernel.Resource
-import doobie.ExecutionContexts
-import doobie.hikari.HikariTransactor
 import io.circe.generic.auto._
-import org.reactormonk.{CryptoBits, PrivateKey}
+import org.http4s.HttpRoutes
 import pureconfig._
 import pureconfig.generic.auto._
 import ru.quoridor.ExceptionResponse
-import ru.quoridor.api.{GameApi, UserApi}
-import ru.quoridor.services._
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
-import ru.quoridor.storage.sqlStorage._
+import ru.quoridor.api.GameApi._
+import ru.quoridor.api.UserApi._
+import ru.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.Http4sServerOptions
@@ -19,51 +15,33 @@ import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.server.interceptor.exception.ExceptionHandler
 import sttp.tapir.server.model.ValuedEndpointOutput
 import sttp.tapir.statusCode
-import zio.Task
+import sttp.tapir.ztapir._
+import zio.{RIO, ZLayer}
 import zio.interop.catz._
-
-import scala.io.Codec
-import scala.util.Random
 
 object QuoridorGame {
 
-  val appConfig: AppConfig = ConfigSource.default.loadOrThrow[AppConfig]
+  val appConfigLayer: ZLayer[Any, Nothing, AppConfig] =
+    ZLayer.fromFunction(() => ConfigSource.default.loadOrThrow[AppConfig])
 
-  private val resourceTransactor: Resource[Task, HikariTransactor[Task]] = for {
-    ce <- ExecutionContexts.fixedThreadPool[Task](32)
-    xa <- HikariTransactor.newHikariTransactor[Task](
-      appConfig.DB.driver,
-      appConfig.DB.url,
-      appConfig.DB.user,
-      appConfig.DB.password,
-      ce
-    )
-  } yield xa
+  type Env = GameService with GameCreator with UserService
 
-  private val protoGameStorage: ProtoGameStorage = new ProtoGameStorageImpl(
-    resourceTransactor
+  val api: List[ZServerEndpoint[Env, Any]] = List(
+    createUser.widen[Env],
+    loginUser.widen[Env],
+    getUser.widen[Env],
+    createGameEndpoint.widen[Env],
+    joinPlayerEndpoint.widen[Env],
+    startGameEndpoint.widen[Env],
+    gameHistoryEndpoint.widen[Env],
+    historyEndpoint.widen[Env],
+    getGameEndpoint.widen[Env],
+    moveEndpoint.widen[Env]
   )
-  private val gameStorage: GameStorage = new GameStorageImpl(resourceTransactor)
-  private val userStorage: UserStorage = new UserStorageImpl(resourceTransactor)
-
-  val userService: UserService = new UserServiceImpl(userStorage, gameStorage)
-  val gameCreator: GameCreator =
-    new GameCreatorImpl(protoGameStorage, gameStorage)
-  val gameService: GameService = new GameServiceImpl(gameStorage)
-
-  private val key = PrivateKey(
-    Codec.toUTF8(Random.alphanumeric.take(20).mkString(""))
-  )
-  val crypto: CryptoBits = CryptoBits(key)
-
-  private val userApi = new UserApi(userService, crypto)
-  private val gameApi = new GameApi(userService, gameCreator, gameService)
-
-  val api = userApi.api ::: gameApi.api
 
   private val serverOptions = Http4sServerOptions
-    .customiseInterceptors[Task]
-    .exceptionHandler(ExceptionHandler.pure[Task] { ctx =>
+    .customiseInterceptors[RIO[Env, _]]
+    .exceptionHandler(ExceptionHandler.pure[RIO[Env, _]] { ctx =>
       Some(
         ValuedEndpointOutput(
           jsonBody[ExceptionResponse],
@@ -73,5 +51,6 @@ object QuoridorGame {
     })
     .options
 
-  val apiRoutes = ZHttp4sServerInterpreter(serverOptions).from(api).toRoutes
+  val apiRoutes: HttpRoutes[RIO[Env, _]] =
+    ZHttp4sServerInterpreter(serverOptions).from(api).toRoutes
 }

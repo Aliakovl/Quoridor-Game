@@ -3,3 +3,8 @@
 project/target/
 project/project/
 target/
+project/.bloop
+.bloop
+*metals
+metals*
+.vscode

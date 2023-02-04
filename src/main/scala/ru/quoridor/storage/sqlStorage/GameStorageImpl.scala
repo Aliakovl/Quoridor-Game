@@ -1,11 +1,10 @@
 package ru.quoridor.storage.sqlStorage
 
-import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor
 import ru.quoridor.{GamePreView, User, game}
 import ru.quoridor.game.{Game, State}
-import ru.quoridor.storage.GameStorage
+import ru.quoridor.storage.{DataBase, GameStorage}
 import ru.utils.Typed.Implicits._
 import ru.utils.Typed.ID
 import zio.Task
@@ -13,7 +12,7 @@ import zio.interop.catz._
 
 import java.util.UUID
 
-class GameStorageImpl(transactor: Transactor[Task]) extends GameStorage {
+class GameStorageImpl(dataBase: DataBase) extends GameStorage {
   override def find(gameId: ID[Game]): Task[Game] = {
     val query = for {
       _ <- queries.previousGameId(gameId)
@@ -27,7 +26,7 @@ class GameStorageImpl(transactor: Transactor[Task]) extends GameStorage {
       winner
     )
 
-    query.transact(transactor)
+    dataBase.transact(query.transact[Task])
   }
 
   override def insert(
@@ -50,7 +49,7 @@ class GameStorageImpl(transactor: Transactor[Task]) extends GameStorage {
       _ <- queries.recordWalls(gameId, state.walls)
     } yield Game(gameId, state, winner)
 
-    query.transact(transactor)
+    dataBase.transact(query.transact[Task])
   }
 
   override def create(protoGameId: ID[Game], state: State): Task[Game] = {
@@ -68,19 +67,23 @@ class GameStorageImpl(transactor: Transactor[Task]) extends GameStorage {
       _ <- queries.recordWalls(gameId, state.walls)
     } yield Game(gameId, state, None)
 
-    query.transact(transactor)
+    dataBase.transact(query.transact[Task])
   }
 
-  override def exists(gameId: ID[Game]): Task[Boolean] =
-    queries
-      .existsGameWithId(gameId)
-      .transact(transactor)
+  override def exists(gameId: ID[Game]): Task[Boolean] = dataBase.transact {
+    transactor =>
+      queries
+        .existsGameWithId(gameId)
+        .transact(transactor)
+  }
 
   override def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]] =
-    queries
-      .findGameBranchEndedOnGameId(gameId)
-      .map(_.reverse)
-      .transact(transactor)
+    dataBase.transact { transactor =>
+      queries
+        .findGameBranchEndedOnGameId(gameId)
+        .map(_.reverse)
+        .transact(transactor)
+    }
 
   override def findParticipants(gameId: ID[Game]): Task[GamePreView] = {
     val query = for {
@@ -88,11 +91,11 @@ class GameStorageImpl(transactor: Transactor[Task]) extends GameStorage {
       winner <- queries.findWinnerByGameId(gameId)
     } yield quoridor.GamePreView(gameId, users, winner)
 
-    query.transact(transactor)
+    dataBase.transact(query.transact[Task])
   }
 }
 
 object GameStorageImpl {
-  def apply(transactor: Transactor[Task]): GameStorageImpl =
-    new GameStorageImpl(transactor)
+  def apply(dataBase: DataBase): GameStorageImpl =
+    new GameStorageImpl(dataBase)
 }

@@ -1,25 +1,24 @@
 package ru.quoridor.storage.sqlStorage
 
-import doobie.Transactor
 import doobie.implicits._
 import ru.quoridor.User
 import ru.quoridor.game.Game
-import ru.quoridor.storage.UserStorage
+import ru.quoridor.storage.{DataBase, UserStorage}
 import ru.utils.Typed.ID
 import zio.Task
 import zio.interop.catz._
 
-class UserStorageImpl(transactor: Transactor[Task]) extends UserStorage {
+class UserStorageImpl(dataBase: DataBase) extends UserStorage {
   override def findByLogin(login: String): Task[User] = {
-    queries.findUserByLogin(login).transact(transactor)
+    dataBase.transact(queries.findUserByLogin(login).transact[Task])
   }
 
   override def find(id: ID[User]): Task[User] = {
-    queries.findUserById(id).transact(transactor)
+    dataBase.transact(queries.findUserById(id).transact[Task])
   }
 
   override def insert(login: String): Task[User] = {
-    queries.registerUser(login).transact(transactor)
+    dataBase.transact(queries.registerUser(login).transact[Task])
   }
 
   override def history(id: ID[User]): Task[List[ID[Game]]] = {
@@ -28,11 +27,11 @@ class UserStorageImpl(transactor: Transactor[Task]) extends UserStorage {
       userHistory <- queries.findGameLeavesByUserId(id)
     } yield userHistory
 
-    query.transact(transactor)
+    dataBase.transact(query.transact[Task])
   }
 }
 
 object UserStorageImpl {
-  def apply(transactor: Transactor[Task]): UserStorageImpl =
-    new UserStorageImpl(transactor)
+  def apply(dataBase: DataBase): UserStorageImpl =
+    new UserStorageImpl(dataBase)
 }
