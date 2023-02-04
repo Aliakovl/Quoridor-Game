@@ -43,11 +43,9 @@ object QuoridorApp extends ZIOAppDefault {
   implicit val jsonEncode: Encoder[ExceptionResponse] =
     Encoder.forProduct1("errorMessage")(_.errorMessage)
 
-  override def run: ZIO[Any, Any, ExitCode] = {
-    for {
-      appConfig <- ZIO.service[AppConfig]
-      gameService <- ZIO.service[GameService]
-      exitCode <- BlazeServerBuilder[RIO[Env, _]]
+  override def run: ZIO[Any, Any, ExitCode] = ZIO
+    .serviceWithZIO[AppConfig] { appConfig =>
+      BlazeServerBuilder[RIO[Env, _]]
         .bindHttp(
           appConfig.address.port,
           appConfig.address.host
@@ -55,7 +53,7 @@ object QuoridorApp extends ZIOAppDefault {
         .withHttpWebSocketApp({ wsb =>
           Router[RIO[Env, _]](
             "/" -> httpApp,
-            "ws" -> new WSGameApi(wsb, gameService).routeWs
+            "ws" -> new WSGameApi(wsb).routeWs
               .handleError { _ =>
                 Response(InternalServerError).withEntity(
                   ExceptionResponse("Something went wrong!")
@@ -67,16 +65,16 @@ object QuoridorApp extends ZIOAppDefault {
         .compile
         .drain
         .exitCode
-    } yield exitCode
-  }.provide(
-    QuoridorGame.appConfigLayer,
-    DataBase.live,
-    ProtoGameStorage.live,
-    GameStorage.live,
-    UserStorage.live,
-    GameCreator.live,
-    GameService.live,
-    UserService.live
-  )
+    }
+    .provide(
+      QuoridorGame.appConfigLayer,
+      DataBase.live,
+      ProtoGameStorage.live,
+      GameStorage.live,
+      UserStorage.live,
+      GameCreator.live,
+      GameService.live,
+      UserService.live
+    )
 
 }

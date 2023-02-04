@@ -12,6 +12,7 @@ import org.http4s.dsl.io._
 import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
+import ru.quoridor.app.QuoridorGame.Env
 import ru.quoridor.{ExceptionResponse, User}
 import ru.quoridor.game.{Game, Move}
 import ru.quoridor.services.GameService
@@ -25,15 +26,14 @@ import scala.collection.concurrent.TrieMap
 
 case class UserMove(id: ID[User], move: Move)
 
-class WSGameApi[R](
-    wsb: WebSocketBuilder2[RIO[R, _]],
-    gameService: GameService
+class WSGameApi[R <: Env](
+    wsb: WebSocketBuilder2[RIO[R, _]]
 ) {
 
   private def logic(
       sessionId: UUID,
       topic: Topic[RIO[R, _], WebSocketFrame]
-  ) = {
+  ): RIO[R, Response[RIO[R, _]]] = {
     def toClient: Stream[RIO[R, _], WebSocketFrame] =
       topic.subscribe(1000)
 
@@ -58,6 +58,7 @@ class WSGameApi[R](
           gameId <- ZIO
             .fromOption(SessionsMap.gameStates.get(sessionId))
             .orElseFail(new Exception("There is no such session"))
+          gameService <- ZIO.service[GameService]
           game <- gameService.makeMove(gameId.typed[Game], userId, move)
           _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
         } yield WebSocketFrame.Text(game.asJson.toString())
@@ -93,6 +94,7 @@ class WSGameApi[R](
       val sessionId = UUID.randomUUID()
       SessionsMap.gameStates.update(sessionId, gameId)
       for {
+        gameService <- ZIO.service[GameService]
         game <- gameService.findGame(gameId.typed[Game])
         players = game.state.players.toList.map(_.id.unType)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
@@ -104,6 +106,7 @@ class WSGameApi[R](
         if SessionsMap.gameStates.contains(sessionId) =>
       val gameId = SessionsMap.gameStates.get(sessionId)
       for {
+        gameService <- ZIO.service[GameService]
         game <- gameService.findGame(gameId.get.typed[Game])
       } yield Response(Ok).withEntity(game)
 
