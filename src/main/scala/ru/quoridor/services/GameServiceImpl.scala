@@ -1,13 +1,13 @@
 package ru.quoridor.services
 
-import ru.quoridor.GameException.{
+import ru.quoridor.model.GameException.{
   GameHasFinishedException,
   GameInterloperException,
   WrongPlayersTurnException
 }
-import ru.quoridor.User
-import ru.quoridor.game.geometry.Board
-import ru.quoridor.game.{Game, Move, PawnMove, Player}
+import ru.quoridor.model.User
+import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
+import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
 import ru.utils.Typed.ID
 import zio.{Task, ZIO}
@@ -15,8 +15,8 @@ import zio.{Task, ZIO}
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
-    gameStorage.find(gameId) // TODO: вернуть проверку на принадлежность игрока игре
-  }
+    gameStorage.find(gameId)
+  } // TODO: вернуть проверку на принадлежность игрока игре
 
   override def makeMove(
       gameId: ID[Game],

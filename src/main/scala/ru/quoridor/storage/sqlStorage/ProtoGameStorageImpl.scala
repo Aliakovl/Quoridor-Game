@@ -1,11 +1,10 @@
 package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
-import ru.quoridor
-import ru.quoridor.{ProtoGame, ProtoPlayers, User}
-import ru.quoridor.game.Game
-import ru.quoridor.game.geometry.Side.North
-import ru.quoridor.game.geometry.Side
+import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.model.game.Game
+import ru.quoridor.model.game.geometry.Side.North
+import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.{DataBase, ProtoGameStorage}
 import ru.utils.Typed.ID
 import ru.utils.Typed.Implicits._
@@ -25,9 +24,9 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
       user <- queries.findUserById(userId)
       _ <- queries.createProtoGameByUser(gameId, userId)
       protoPlayer = user match {
-        case User(id, login) => quoridor.ProtoPlayer(id, login, target)
+        case User(id, login) => ProtoPlayer(id, login, target)
       }
-    } yield quoridor.ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
+    } yield ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
 
     dataBase.transact(query.transact[Task])
   }

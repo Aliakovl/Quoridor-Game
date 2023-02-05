@@ -1,9 +1,9 @@
 package ru.quoridor.services
 
-import ru.quoridor.GameException._
-import ru.quoridor.game.geometry.Side._
-import ru.quoridor.game.{Game, State}
-import ru.quoridor.{ProtoGame, User}
+import ru.quoridor.model.GameException._
+import ru.quoridor.model.game.geometry.Side._
+import ru.quoridor.model.game.{Game, State}
+import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
 import ru.utils.Typed.ID
 import zio.{Task, ZIO}

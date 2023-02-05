@@ -8,11 +8,16 @@ import doobie.postgres.sqlstate.class23.{
   FOREIGN_KEY_VIOLATION,
   UNIQUE_VIOLATION
 }
-import ru.quoridor.GameException._
-import ru.quoridor.game.geometry.Side.North
-import ru.quoridor.game.{Game, Player}
-import ru.quoridor.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
-import ru.quoridor.game.geometry.{Orientation, PawnPosition, Side, WallPosition}
+import ru.quoridor.model.GameException._
+import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.model.game.geometry.Side.North
+import ru.quoridor.model.game.{Game, Player}
+import ru.quoridor.model.game.geometry.{
+  Orientation,
+  PawnPosition,
+  Side,
+  WallPosition
+}
 import ru.utils.Typed.Implicits._
 import ru.utils.Typed.ID
 

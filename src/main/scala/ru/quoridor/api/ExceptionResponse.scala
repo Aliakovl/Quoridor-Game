@@ -1,6 +1,7 @@
-package ru.quoridor
+package ru.quoridor.api
 
-import GameException._
+import ru.quoridor.model.GameException._
+import ru.quoridor.model.{GameException, GameMoveException}
 import sttp.model.StatusCode
 
 final case class ExceptionResponse(errorMessage: String)

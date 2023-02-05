@@ -1,7 +1,7 @@
-package ru.quoridor.game
+package ru.quoridor.model.game
 
-import ru.quoridor.User
-import ru.quoridor.game.geometry.{PawnPosition, Side}
+import ru.quoridor.model.User
+import ru.quoridor.model.game.geometry.{PawnPosition, Side}
 import ru.utils.Typed.ID
 
 case class Player(

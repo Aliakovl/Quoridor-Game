@@ -1,9 +1,9 @@
 package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
-import ru.quoridor
-import ru.quoridor.{GamePreView, User, game}
-import ru.quoridor.game.{Game, State}
+import ru.quoridor.model.{GamePreView, User}
+import ru.quoridor.model
+import ru.quoridor.model.game.{Game, Players, State}
 import ru.quoridor.storage.{DataBase, GameStorage}
 import ru.utils.Typed.Implicits._
 import ru.utils.Typed.ID
@@ -20,9 +20,9 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
       enemies <- queries.findEnemiesByGameId(gameId)
       walls <- queries.findWallsByGameId(gameId)
       winner <- queries.findWinnerByGameId(gameId)
-    } yield game.Game(
+    } yield Game(
       gameId,
-      State(game.Players(activePlayer, enemies), walls),
+      model.game.State(Players(activePlayer, enemies), walls),
       winner
     )
 
@@ -89,7 +89,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
     val query = for {
       users <- queries.findUsersByGameId(gameId)
       winner <- queries.findWinnerByGameId(gameId)
-    } yield quoridor.GamePreView(gameId, users, winner)
+    } yield GamePreView(gameId, users, winner)
 
     dataBase.transact(query.transact[Task])
   }
