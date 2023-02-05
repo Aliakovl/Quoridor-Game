@@ -1,7 +1,7 @@
 package ru.quoridor.storage
 
-import ru.quoridor.{GamePreView, User}
-import ru.quoridor.game.{Game, State}
+import ru.quoridor.model.{GamePreView, User}
+import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.storage.sqlStorage.GameStorageImpl
 import ru.utils.Typed.ID
 import zio.{RLayer, Task, ZLayer}

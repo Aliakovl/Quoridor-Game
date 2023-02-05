@@ -42,7 +42,12 @@ lazy val root = (project in file("."))
     dockerUpdateLatest := true,
     dockerExposedPorts := Seq(8080),
     scalacOptions ++= Seq(
+      "-encoding", "utf8",
       "-feature",
+      "-unchecked",
+      "-Werror",
+      "-Xlint",
+      "-Xlint:-byname-implicit",
       "-P:kind-projector:underscore-placeholders"
     ),
     Compile / doc / sources := Nil,

@@ -1,7 +1,7 @@
 package ru.quoridor.services
 
-import ru.quoridor.User
-import ru.quoridor.game.{Game, Move}
+import ru.quoridor.model.User
+import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.storage.GameStorage
 import ru.utils.Typed.ID
 import zio.{RIO, Task, ZIO, ZLayer}

@@ -1,8 +1,8 @@
-package ru.quoridor.game
+package ru.quoridor.model.game
 
-import ru.quoridor.GameMoveException._
-import ru.quoridor.GameMoveException
-import ru.quoridor.game.geometry.{Board, PawnPosition, WallPosition}
+import ru.quoridor.model.GameMoveException._
+import ru.quoridor.model.GameMoveException
+import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =

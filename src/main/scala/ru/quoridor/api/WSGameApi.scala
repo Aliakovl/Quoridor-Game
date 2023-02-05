@@ -13,8 +13,8 @@ import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import ru.quoridor.app.QuoridorGame.Env
-import ru.quoridor.{ExceptionResponse, User}
-import ru.quoridor.game.{Game, Move}
+import ru.quoridor.model.User
+import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
 import ru.utils.Typed.ID
 import ru.utils.Typed.Implicits.TypedOps

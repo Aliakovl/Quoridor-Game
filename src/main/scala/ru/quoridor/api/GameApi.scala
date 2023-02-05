@@ -5,8 +5,8 @@ import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
-import ru.quoridor.game.{Game, Move}
-import ru.quoridor._
+import ru.quoridor.model.{GamePreView, ProtoGame, User}
+import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameCreator.{createGame, joinPlayer, startGame}
 import ru.quoridor.services.GameService.{findGame, gameHistory, makeMove}

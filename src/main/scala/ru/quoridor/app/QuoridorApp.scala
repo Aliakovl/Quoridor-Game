@@ -8,8 +8,7 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.{HttpRoutes, Response}
-import ru.quoridor.ExceptionResponse
-import ru.quoridor.api.WSGameApi
+import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.Env
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.storage.{

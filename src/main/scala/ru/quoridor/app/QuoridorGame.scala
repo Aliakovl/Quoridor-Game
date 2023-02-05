@@ -4,7 +4,7 @@ import io.circe.generic.auto._
 import org.http4s.HttpRoutes
 import pureconfig._
 import pureconfig.generic.auto._
-import ru.quoridor.ExceptionResponse
+import ru.quoridor.api.ExceptionResponse
 import ru.quoridor.api.GameApi._
 import ru.quoridor.api.UserApi._
 import ru.quoridor.services.{GameCreator, GameService, UserService}

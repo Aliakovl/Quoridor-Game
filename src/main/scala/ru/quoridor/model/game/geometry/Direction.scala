@@ -1,4 +1,4 @@
-package ru.quoridor.game.geometry
+package ru.quoridor.model.game.geometry
 
 import Orientation._
 import Direction._

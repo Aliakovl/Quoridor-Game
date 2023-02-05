@@ -1,9 +1,12 @@
-package ru.quoridor
+package ru.quoridor.model
 
 import cats.data.NonEmptyList
-import GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
-import ru.quoridor.game.geometry.{Board, Side}
-import ru.quoridor.game.{Game, Player, Players}
+import ru.quoridor.model.GameException.{
+  NotEnoughPlayersException,
+  PlayersNumberLimitException
+}
+import ru.quoridor.model.game.geometry.{Board, Side}
+import ru.quoridor.model.game.{Game, Player, Players}
 import ru.utils.Typed.ID
 
 case class ProtoGame(id: ID[Game], players: ProtoPlayers)
@@ -37,7 +40,7 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
   private def toPlayer(playersNumber: Int)(protoPlayer: ProtoPlayer): Player =
     protoPlayer match {
       case ProtoPlayer(id, login, target) =>
-        game.Player(
+        Player(
           id,
           login,
           Board.initPosition(target.opposite),

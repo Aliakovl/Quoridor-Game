@@ -4,7 +4,7 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
-import ru.quoridor.{ExceptionResponse, User}
+import ru.quoridor.model.User
 import ru.quoridor.services.UserService
 import ru.quoridor.services.UserService.findUser
 import sttp.model.StatusCode

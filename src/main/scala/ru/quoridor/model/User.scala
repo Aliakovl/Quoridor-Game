@@ -1,4 +1,4 @@
-package ru.quoridor
+package ru.quoridor.model
 
 import ru.utils.Typed.ID
 

@@ -1,7 +1,7 @@
 package ru.quoridor.services
 
 import ru.quoridor.storage.{GameStorage, UserStorage}
-import ru.quoridor.{GamePreView, User}
+import ru.quoridor.model.{GamePreView, User}
 import ru.utils.Typed.ID
 import zio.{RIO, Task, ZIO, ZLayer}
 

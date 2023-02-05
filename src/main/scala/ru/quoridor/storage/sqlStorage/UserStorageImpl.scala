@@ -1,8 +1,8 @@
 package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
-import ru.quoridor.User
-import ru.quoridor.game.Game
+import ru.quoridor.model.User
+import ru.quoridor.model.game.Game
 import ru.quoridor.storage.{DataBase, UserStorage}
 import ru.utils.Typed.ID
 import zio.Task

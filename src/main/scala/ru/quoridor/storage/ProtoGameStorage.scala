@@ -1,8 +1,8 @@
 package ru.quoridor.storage
 
-import ru.quoridor.{ProtoGame, User}
-import ru.quoridor.game.Game
-import ru.quoridor.game.geometry.Side
+import ru.quoridor.model.game.Game
+import ru.quoridor.model.{ProtoGame, User}
+import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.sqlStorage.ProtoGameStorageImpl
 import ru.utils.Typed.ID
 import zio.{RLayer, Task, ZLayer}
