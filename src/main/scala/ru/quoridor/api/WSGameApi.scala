@@ -13,18 +13,15 @@ import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import ru.quoridor.app.QuoridorGame.Env
-import ru.quoridor.model.User
-import ru.quoridor.model.game.{Game, Move}
+import ru.quoridor.model.game.Move
 import ru.quoridor.services.GameService
-import ru.utils.Typed.ID
-import ru.utils.Typed.Implicits.TypedOps
 import zio.interop.catz._
 import zio.{RIO, ZIO}
 
 import java.util.UUID
 import scala.collection.concurrent.TrieMap
 
-case class UserMove(userId: ID[User], move: Move)
+case class UserMove(userId: UUID, move: Move)
 
 class WSGameApi(
     wsb: WebSocketBuilder2[RIO[Env, _]]
@@ -59,8 +56,8 @@ class WSGameApi(
             .fromOption(SessionsMap.gameStates.get(sessionId))
             .orElseFail(new Exception("There is no such session"))
           gameService <- ZIO.service[GameService]
-          game <- gameService.makeMove(gameId.typed[Game], userId, move)
-          _ = SessionsMap.gameStates.update(sessionId, game.gameId.unType)
+          game <- gameService.makeMove(gameId, userId, move)
+          _ = SessionsMap.gameStates.update(sessionId, game.gameId)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
         ws.handleError { er =>
@@ -95,8 +92,8 @@ class WSGameApi(
       SessionsMap.gameStates.update(sessionId, gameId)
       for {
         gameService <- ZIO.service[GameService]
-        game <- gameService.findGame(gameId.typed[Game])
-        players = game.state.players.toList.map(_.userId.unType)
+        game <- gameService.findGame(gameId)
+        players = game.state.players.toList.map(_.userId)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
       } yield Response(Created).withEntity(
         parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)
@@ -107,7 +104,7 @@ class WSGameApi(
       val gameId = SessionsMap.gameStates.get(sessionId)
       for {
         gameService <- ZIO.service[GameService]
-        game <- gameService.findGame(gameId.get.typed[Game])
+        game <- gameService.findGame(gameId.get)
       } yield Response(Ok).withEntity(game)
 
     case GET -> Root / "current-sessions" / UUIDVar(userId) =>

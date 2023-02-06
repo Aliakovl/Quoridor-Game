@@ -6,12 +6,13 @@ import ru.quoridor.model.GameException.{
   PlayersNumberLimitException
 }
 import ru.quoridor.model.game.geometry.{Board, Side}
-import ru.quoridor.model.game.{Game, Player, Players}
-import ru.utils.Typed.ID
+import ru.quoridor.model.game.{Player, Players}
 
-case class ProtoGame(gameId: ID[Game], players: ProtoPlayers)
+import java.util.UUID
 
-case class ProtoPlayer(userId: ID[User], login: String, target: Side) {
+case class ProtoGame(gameId: UUID, players: ProtoPlayers)
+
+case class ProtoPlayer(userId: UUID, login: String, target: Side) {
   def toUser: User = User(userId, login)
 }
 

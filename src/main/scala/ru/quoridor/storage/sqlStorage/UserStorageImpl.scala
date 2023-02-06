@@ -2,18 +2,18 @@ package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
 import ru.quoridor.model.User
-import ru.quoridor.model.game.Game
 import ru.quoridor.storage.{DataBase, UserStorage}
-import ru.utils.Typed.ID
 import zio.Task
 import zio.interop.catz._
+
+import java.util.UUID
 
 class UserStorageImpl(dataBase: DataBase) extends UserStorage {
   override def findByLogin(login: String): Task[User] = {
     dataBase.transact(queries.findUserByLogin(login).transact[Task])
   }
 
-  override def find(userId: ID[User]): Task[User] = {
+  override def find(userId: UUID): Task[User] = {
     dataBase.transact(queries.findUserById(userId).transact[Task])
   }
 
@@ -21,7 +21,7 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
     dataBase.transact(queries.registerUser(login).transact[Task])
   }
 
-  override def history(userId: ID[User]): Task[List[ID[Game]]] = {
+  override def history(userId: UUID): Task[List[UUID]] = {
     val query = for {
       _ <- queries.findUserById(userId)
       userHistory <- queries.findGameLeavesByUserId(userId)
