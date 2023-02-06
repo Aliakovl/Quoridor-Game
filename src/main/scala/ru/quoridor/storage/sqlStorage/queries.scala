@@ -226,8 +226,8 @@ object queries {
 
     Update[PP](sql)
       .updateMany(players.map {
-        case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
-          (gameId, id, wallsAmount, row, column)
+        case Player(userId, _, PawnPosition(row, column), wallsAmount, _) =>
+          (gameId, userId, wallsAmount, row, column)
       })
       .map(_ => ())
       .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>

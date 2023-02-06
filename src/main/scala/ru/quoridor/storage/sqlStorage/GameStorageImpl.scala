@@ -42,8 +42,8 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         gameId,
         previousGameId,
         protoGameId,
-        activePlayer.id,
-        winner.map(_.id)
+        activePlayer.userId,
+        winner.map(_.userId)
       )
       _ <- queries.recordPlayers(gameId, state.players.toList)
       _ <- queries.recordWalls(gameId, state.walls)
@@ -60,7 +60,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         gameId,
         protoGameId,
         protoGameId,
-        activePlayer.id,
+        activePlayer.userId,
         None
       )
       _ <- queries.recordPlayers(gameId, state.players.toList)

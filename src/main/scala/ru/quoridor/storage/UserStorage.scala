@@ -9,11 +9,11 @@ import zio.{RLayer, Task, ZLayer}
 trait UserStorage {
   def findByLogin(login: String): Task[User]
 
-  def find(id: ID[User]): Task[User]
+  def find(userId: ID[User]): Task[User]
 
   def insert(login: String): Task[User]
 
-  def history(id: ID[User]): Task[List[ID[Game]]]
+  def history(userId: ID[User]): Task[List[ID[Game]]]
 }
 
 object UserStorage {

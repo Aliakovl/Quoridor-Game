@@ -28,12 +28,12 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
       either = for {
         _ <- Either.cond(
-          game.state.players.toList.exists(_.id == userId),
+          game.state.players.toList.exists(_.userId == userId),
           (),
           GameInterloperException(userId, gameId)
         )
         _ <- Either.cond(
-          game.state.players.activePlayer.id == userId,
+          game.state.players.activePlayer.userId == userId,
           (),
           WrongPlayersTurnException(gameId)
         )
@@ -64,7 +64,7 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
     for {
       game <- gameStorage.find(gameId)
       _ <- ZIO.cond(
-        game.state.players.toList.exists(_.id == userId),
+        game.state.players.toList.exists(_.userId == userId),
         (),
         GameInterloperException(userId, gameId)
       )

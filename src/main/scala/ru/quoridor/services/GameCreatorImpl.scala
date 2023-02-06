@@ -40,7 +40,7 @@ class GameCreatorImpl(
     for {
       protoGame <- protoGameStorage.find(gameId)
       _ <- ZIO.cond(
-        protoGame.players.creator.id == userId,
+        protoGame.players.creator.userId == userId,
         (),
         NotGameCreatorException(userId, gameId)
       )

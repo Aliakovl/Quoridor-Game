@@ -7,7 +7,7 @@ import ru.utils.Typed.ID
 import zio.{RLayer, Task, ZLayer}
 
 trait GameStorage {
-  def find(id: ID[Game]): Task[Game]
+  def find(gameId: ID[Game]): Task[Game]
 
   def insert(
       previousGameId: ID[Game],

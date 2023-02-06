@@ -24,7 +24,7 @@ import zio.{RIO, ZIO}
 import java.util.UUID
 import scala.collection.concurrent.TrieMap
 
-case class UserMove(id: ID[User], move: Move)
+case class UserMove(userId: ID[User], move: Move)
 
 class WSGameApi(
     wsb: WebSocketBuilder2[RIO[Env, _]]
@@ -60,7 +60,7 @@ class WSGameApi(
             .orElseFail(new Exception("There is no such session"))
           gameService <- ZIO.service[GameService]
           game <- gameService.makeMove(gameId.typed[Game], userId, move)
-          _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
+          _ = SessionsMap.gameStates.update(sessionId, game.gameId.unType)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
         ws.handleError { er =>
@@ -96,7 +96,7 @@ class WSGameApi(
       for {
         gameService <- ZIO.service[GameService]
         game <- gameService.findGame(gameId.typed[Game])
-        players = game.state.players.toList.map(_.id.unType)
+        players = game.state.players.toList.map(_.userId.unType)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
       } yield Response(Created).withEntity(
         parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)

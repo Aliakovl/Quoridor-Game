@@ -9,10 +9,10 @@ import ru.quoridor.model.game.geometry.{Board, Side}
 import ru.quoridor.model.game.{Game, Player, Players}
 import ru.utils.Typed.ID
 
-case class ProtoGame(id: ID[Game], players: ProtoPlayers)
+case class ProtoGame(gameId: ID[Game], players: ProtoPlayers)
 
-case class ProtoPlayer(id: ID[User], login: String, target: Side) {
-  def toUser: User = User(id, login)
+case class ProtoPlayer(userId: ID[User], login: String, target: Side) {
+  def toUser: User = User(userId, login)
 }
 
 case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
@@ -39,9 +39,9 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
 
   private def toPlayer(playersNumber: Int)(protoPlayer: ProtoPlayer): Player =
     protoPlayer match {
-      case ProtoPlayer(id, login, target) =>
+      case ProtoPlayer(userId, login, target) =>
         Player(
-          id,
+          userId,
           login,
           Board.initPosition(target.opposite),
           21 / playersNumber,
