@@ -77,7 +77,7 @@ object GameApi {
     .in(query[UUID]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[Game])
-    .zServerLogic { case (userId, gameId) =>
+    .zServerLogic { case (_, gameId) =>
       findGame(gameId)
         .mapError(ExceptionResponse.apply)
     }
