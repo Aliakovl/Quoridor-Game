@@ -1,18 +1,17 @@
 package ru.quoridor.services
 
 import ru.quoridor.model.game.Game
-import ru.quoridor.model.ProtoGame
+import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
+import ru.utils.Typed.ID
 import zio.{RIO, Task, ZIO, ZLayer}
 
-import java.util.UUID
-
 trait GameCreator {
-  def createGame(userId: UUID): Task[ProtoGame]
+  def createGame(userId: ID[User]): Task[ProtoGame]
 
-  def joinPlayer(gameId: UUID, playerId: UUID): Task[ProtoGame]
+  def joinPlayer(gameId: ID[Game], playerId: ID[User]): Task[ProtoGame]
 
-  def startGame(gameId: UUID, userId: UUID): Task[Game]
+  def startGame(gameId: ID[Game], userId: ID[User]): Task[Game]
 }
 
 object GameCreator {
@@ -20,15 +19,15 @@ object GameCreator {
       : ZLayer[ProtoGameStorage with GameStorage, Nothing, GameCreatorImpl] =
     ZLayer.fromFunction(GameCreatorImpl.apply _)
 
-  def createGame(userId: UUID): RIO[GameCreator, ProtoGame] =
+  def createGame(userId: ID[User]): RIO[GameCreator, ProtoGame] =
     ZIO.serviceWithZIO[GameCreator](_.createGame(userId))
 
   def joinPlayer(
-      gameId: UUID,
-      playerId: UUID
+      gameId: ID[Game],
+      playerId: ID[User]
   ): RIO[GameCreator, ProtoGame] =
     ZIO.serviceWithZIO[GameCreator](_.joinPlayer(gameId, playerId))
 
-  def startGame(gameId: UUID, userId: UUID): RIO[GameCreator, Game] =
+  def startGame(gameId: ID[Game], userId: ID[User]): RIO[GameCreator, Game] =
     ZIO.serviceWithZIO[GameCreator](_.startGame(gameId, userId))
 }

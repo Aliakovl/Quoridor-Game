@@ -2,16 +2,15 @@ package ru.quoridor.services
 
 import ru.quoridor.storage.{GameStorage, UserStorage}
 import ru.quoridor.model.{GamePreView, User}
+import ru.utils.Typed.ID
 import zio.{RIO, Task, ZIO, ZLayer}
-
-import java.util.UUID
 
 trait UserService {
   def findUser(login: String): Task[User]
 
   def createUser(login: String): Task[User]
 
-  def usersHistory(userId: UUID): Task[List[GamePreView]]
+  def usersHistory(userId: ID[User]): Task[List[GamePreView]]
 }
 
 object UserService {
@@ -24,6 +23,6 @@ object UserService {
   def createUser(login: String): RIO[UserService, User] =
     ZIO.serviceWithZIO[UserService](_.createUser(login))
 
-  def usersHistory(userId: UUID): RIO[UserService, List[GamePreView]] =
+  def usersHistory(userId: ID[User]): RIO[UserService, List[GamePreView]] =
     ZIO.serviceWithZIO[UserService](_.usersHistory(userId))
 }

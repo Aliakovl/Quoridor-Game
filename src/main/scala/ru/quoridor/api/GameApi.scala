@@ -1,10 +1,11 @@
 package ru.quoridor.api
 
+import ru.utils.Typed.Implicits._
 import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
-import ru.quoridor.model.{GamePreView, ProtoGame}
+import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameCreator.{createGame, joinPlayer, startGame}
@@ -24,7 +25,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(statusCode(StatusCode.Created).and(jsonBody[ProtoGame]))
     .zServerLogic { uuid =>
-      createGame(uuid).mapError(ExceptionResponse.apply)
+      createGame(uuid.typed[User]).mapError(ExceptionResponse.apply)
     }
 
   val joinPlayerEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
@@ -34,7 +35,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[ProtoGame])
     .zServerLogic { case (userId, gameId) =>
-      joinPlayer(gameId, userId)
+      joinPlayer(gameId.typed[Game], userId.typed[User])
         .mapError(ExceptionResponse.apply)
     }
 
@@ -45,7 +46,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(statusCode(StatusCode.Created).and(jsonBody[Game]))
     .zServerLogic { case (userId, gameId) =>
-      startGame(gameId, userId)
+      startGame(gameId.typed[Game], userId.typed[User])
         .mapError(ExceptionResponse.apply)
     }
 
@@ -57,7 +58,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[List[Game]])
     .zServerLogic { case (userId, gameId) =>
-      gameHistory(gameId, userId)
+      gameHistory(gameId.typed[Game], userId.typed[User])
         .mapError(ExceptionResponse.apply)
     }
 
@@ -67,7 +68,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[List[GamePreView]])
     .zServerLogic { userId =>
-      usersHistory(userId)
+      usersHistory(userId.typed[User])
         .mapError(ExceptionResponse.apply)
     }
 
@@ -77,8 +78,8 @@ object GameApi {
     .in(query[UUID]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[Game])
-    .zServerLogic { case (_, gameId) =>
-      findGame(gameId)
+    .zServerLogic { case (userId, gameId) =>
+      findGame(gameId.typed[Game])
         .mapError(ExceptionResponse.apply)
     }
 
@@ -90,7 +91,7 @@ object GameApi {
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[Game])
     .zServerLogic { case (userId, gameId, move) =>
-      makeMove(gameId, userId, move)
+      makeMove(gameId.typed[Game], userId.typed[User], move)
         .mapError(ExceptionResponse.apply)
     }
 

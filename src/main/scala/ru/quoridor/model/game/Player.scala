@@ -2,17 +2,16 @@ package ru.quoridor.model.game
 
 import ru.quoridor.model.User
 import ru.quoridor.model.game.geometry.{PawnPosition, Side}
-
-import java.util.UUID
+import ru.utils.Typed.ID
 
 case class Player(
-    userId: UUID,
+    id: ID[User],
     login: String,
     pawnPosition: PawnPosition,
     wallsAmount: Int,
     target: Side
 ) {
-  def toUser: User = User(userId, login)
+  def toUser: User = User(id, login)
 }
 
 object Player {

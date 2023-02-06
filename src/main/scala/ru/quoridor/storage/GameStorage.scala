@@ -3,26 +3,25 @@ package ru.quoridor.storage
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.storage.sqlStorage.GameStorageImpl
+import ru.utils.Typed.ID
 import zio.{RLayer, Task, ZLayer}
 
-import java.util.UUID
-
 trait GameStorage {
-  def find(gameId: UUID): Task[Game]
+  def find(id: ID[Game]): Task[Game]
 
   def insert(
-      previousGameId: UUID,
+      previousGameId: ID[Game],
       state: State,
       winner: Option[User]
   ): Task[Game]
 
-  def create(protoGameId: UUID, state: State): Task[Game]
+  def create(protoGameId: ID[Game], state: State): Task[Game]
 
-  def exists(gameId: UUID): Task[Boolean]
+  def exists(gameId: ID[Game]): Task[Boolean]
 
-  def gameHistory(gameId: UUID): Task[List[UUID]]
+  def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]]
 
-  def findParticipants(gameId: UUID): Task[GamePreView]
+  def findParticipants(gameId: ID[Game]): Task[GamePreView]
 }
 
 object GameStorage {

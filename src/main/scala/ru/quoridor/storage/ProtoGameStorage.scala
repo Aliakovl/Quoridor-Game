@@ -1,18 +1,18 @@
 package ru.quoridor.storage
 
-import ru.quoridor.model.ProtoGame
+import ru.quoridor.model.game.Game
+import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.sqlStorage.ProtoGameStorageImpl
+import ru.utils.Typed.ID
 import zio.{RLayer, Task, ZLayer}
 
-import java.util.UUID
-
 trait ProtoGameStorage {
-  def find(gameId: UUID): Task[ProtoGame]
+  def find(gameId: ID[Game]): Task[ProtoGame]
 
-  def insert(userId: UUID): Task[ProtoGame]
+  def insert(userId: ID[User]): Task[ProtoGame]
 
-  def update(gameId: UUID, userId: UUID, target: Side): Task[ProtoGame]
+  def update(gameId: ID[Game], userId: ID[User], target: Side): Task[ProtoGame]
 }
 
 object ProtoGameStorage {

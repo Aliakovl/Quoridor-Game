@@ -9,19 +9,18 @@ import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
+import ru.utils.Typed.ID
 import zio.{Task, ZIO}
-
-import java.util.UUID
 
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
-  override def findGame(gameId: UUID): Task[Game] = {
+  override def findGame(gameId: ID[Game]): Task[Game] = {
     gameStorage.find(gameId)
   } // TODO: вернуть проверку на принадлежность игрока игре
 
   override def makeMove(
-      gameId: UUID,
-      userId: UUID,
+      gameId: ID[Game],
+      userId: ID[User],
       move: Move
   ): Task[Game] = {
     for {
@@ -29,12 +28,12 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
       either = for {
         _ <- Either.cond(
-          game.state.players.toList.exists(_.userId == userId),
+          game.state.players.toList.exists(_.id == userId),
           (),
           GameInterloperException(userId, gameId)
         )
         _ <- Either.cond(
-          game.state.players.activePlayer.userId == userId,
+          game.state.players.activePlayer.id == userId,
           (),
           WrongPlayersTurnException(gameId)
         )
@@ -59,13 +58,13 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
   }
 
   override def gameHistory(
-      gameId: UUID,
-      userId: UUID
+      gameId: ID[Game],
+      userId: ID[User]
   ): Task[List[Game]] = {
     for {
       game <- gameStorage.find(gameId)
       _ <- ZIO.cond(
-        game.state.players.toList.exists(_.userId == userId),
+        game.state.players.toList.exists(_.id == userId),
         (),
         GameInterloperException(userId, gameId)
       )

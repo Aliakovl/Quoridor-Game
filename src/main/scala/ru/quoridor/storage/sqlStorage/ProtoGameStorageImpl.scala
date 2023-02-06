@@ -2,20 +2,23 @@ package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.model.game.Game
 import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.{DataBase, ProtoGameStorage}
+import ru.utils.Typed.ID
+import ru.utils.Typed.Implicits._
 import zio.Task
 import zio.interop.catz._
 
 import java.util.UUID
 
 class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
-  override def find(gameId: UUID): Task[ProtoGame] =
+  override def find(gameId: ID[Game]): Task[ProtoGame] =
     dataBase.transact(queries.findProtoGameByGameId(gameId).transact[Task])
 
-  override def insert(userId: UUID): Task[ProtoGame] = {
-    lazy val gameId = UUID.randomUUID()
+  override def insert(userId: ID[User]): Task[ProtoGame] = {
+    lazy val gameId = UUID.randomUUID().typed[Game]
     val target = North
     val query = for {
       user <- queries.findUserById(userId)
@@ -29,8 +32,8 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
   }
 
   override def update(
-      gameId: UUID,
-      userId: UUID,
+      gameId: ID[Game],
+      userId: ID[User],
       target: Side
   ): Task[ProtoGame] = {
     val query = for {

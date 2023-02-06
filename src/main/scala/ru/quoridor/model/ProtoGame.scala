@@ -6,14 +6,13 @@ import ru.quoridor.model.GameException.{
   PlayersNumberLimitException
 }
 import ru.quoridor.model.game.geometry.{Board, Side}
-import ru.quoridor.model.game.{Player, Players}
+import ru.quoridor.model.game.{Game, Player, Players}
+import ru.utils.Typed.ID
 
-import java.util.UUID
+case class ProtoGame(id: ID[Game], players: ProtoPlayers)
 
-case class ProtoGame(gameId: UUID, players: ProtoPlayers)
-
-case class ProtoPlayer(userId: UUID, login: String, target: Side) {
-  def toUser: User = User(userId, login)
+case class ProtoPlayer(id: ID[User], login: String, target: Side) {
+  def toUser: User = User(id, login)
 }
 
 case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
@@ -40,9 +39,9 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
 
   private def toPlayer(playersNumber: Int)(protoPlayer: ProtoPlayer): Player =
     protoPlayer match {
-      case ProtoPlayer(userId, login, target) =>
+      case ProtoPlayer(id, login, target) =>
         Player(
-          userId,
+          id,
           login,
           Board.initPosition(target.opposite),
           21 / playersNumber,
