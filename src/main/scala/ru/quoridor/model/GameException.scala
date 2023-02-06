@@ -1,25 +1,26 @@
 package ru.quoridor.model
 
-import java.util.UUID
+import ru.quoridor.model.game.Game
+import ru.utils.Typed.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)
 
 object GameException {
-  case class UserNotFoundException(userId: UUID)
+  case class UserNotFoundException(userId: ID[User])
       extends GameException(s"User with id=$userId not found")
 
   case class LoginNotFoundException(login: String)
       extends GameException(s"User with login=$login not found")
 
-  case class GameNotFoundException(gameId: UUID)
+  case class GameNotFoundException(gameId: ID[Game])
       extends GameException(s"Game with id=$gameId not found")
 
-  case class WrongPlayersTurnException(gameId: UUID)
+  case class WrongPlayersTurnException(gameId: ID[Game])
       extends GameException(
         s"It is another player`s turn in the game with id=$gameId"
       )
 
-  case class GameInterloperException(userId: UUID, gameId: UUID)
+  case class GameInterloperException(userId: ID[User], gameId: ID[Game])
       extends GameException(
         s"User with id=$userId does not belong to the game with id=$gameId"
       )
@@ -33,20 +34,20 @@ object GameException {
   case class LoginOccupiedException(login: String)
       extends GameException(s"User with login $login already exists")
 
-  case class SamePlayerException(userId: UUID, gameId: UUID)
+  case class SamePlayerException(userId: ID[User], gameId: ID[Game])
       extends GameException(
         s"User with id=$userId already belong to the game with id=$gameId"
       )
 
-  case class NotGameCreatorException(userId: UUID, gameId: UUID)
+  case class NotGameCreatorException(userId: ID[User], gameId: ID[Game])
       extends GameException(
         s"User with id=$userId did not create the game with id=$gameId"
       )
 
-  case class GameAlreadyStartedException(gameId: UUID)
+  case class GameAlreadyStartedException(gameId: ID[Game])
       extends GameException(s"Game with id=$gameId has already started")
 
-  case class GameHasFinishedException(gameId: UUID)
+  case class GameHasFinishedException(gameId: ID[Game])
       extends GameException(s"Game with id=$gameId has already finished")
 }
 
@@ -75,7 +76,7 @@ object GameMoveException {
         "Illegal attempt to completely block off way to target for some pawls"
       )
 
-  case class NotEnoughWall(userId: UUID)
+  case class NotEnoughWall(userId: ID[User])
       extends GameMoveException(
         s"Player with id=$userId does not have walls to place"
       )

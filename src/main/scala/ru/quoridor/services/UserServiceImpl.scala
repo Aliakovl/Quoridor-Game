@@ -2,9 +2,8 @@ package ru.quoridor.services
 
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.storage.{GameStorage, UserStorage}
+import ru.utils.Typed.ID
 import zio.{Task, ZIO}
-
-import java.util.UUID
 
 class UserServiceImpl(userStorage: UserStorage, gameStorage: GameStorage)
     extends UserService {
@@ -17,7 +16,7 @@ class UserServiceImpl(userStorage: UserStorage, gameStorage: GameStorage)
     userStorage.insert(login)
   }
 
-  override def usersHistory(userId: UUID): Task[List[GamePreView]] = {
+  override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
     for {
       gameIds <- userStorage.history(userId)
       gamePreViews <-
