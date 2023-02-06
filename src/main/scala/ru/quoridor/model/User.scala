@@ -1,5 +1,5 @@
 package ru.quoridor.model
 
-import ru.utils.Typed.ID
+import java.util.UUID
 
-case class User(id: ID[User], login: String)
+case class User(userId: UUID, login: String)

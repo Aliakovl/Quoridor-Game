@@ -48,7 +48,7 @@ trait MoveValidator { self: Move =>
       _ <- Either.cond(
         state.players.activePlayer.wallsAmount > 0,
         (),
-        NotEnoughWall(state.players.activePlayer.id)
+        NotEnoughWall(state.players.activePlayer.userId)
       )
       _ <- Either.cond(
         Board.isWallOnBoard(wallPosition),

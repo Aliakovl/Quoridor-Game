@@ -3,23 +3,24 @@ package ru.quoridor.services
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
-import ru.quoridor.model.{ProtoGame, User}
+import ru.quoridor.model.ProtoGame
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
-import ru.utils.Typed.ID
 import zio.{Task, ZIO}
+
+import java.util.UUID
 
 class GameCreatorImpl(
     protoGameStorage: ProtoGameStorage,
     gameStorage: GameStorage
 ) extends GameCreator {
 
-  override def createGame(userId: ID[User]): Task[ProtoGame] = {
+  override def createGame(userId: UUID): Task[ProtoGame] = {
     protoGameStorage.insert(userId)
   }
 
   override def joinPlayer(
-      gameId: ID[Game],
-      userId: ID[User]
+      gameId: UUID,
+      userId: UUID
   ): Task[ProtoGame] = {
     for {
       gameAlreadyStarted <- gameStorage.exists(gameId)
@@ -36,11 +37,11 @@ class GameCreatorImpl(
     } yield pg
   }
 
-  override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
+  override def startGame(gameId: UUID, userId: UUID): Task[Game] = {
     for {
       protoGame <- protoGameStorage.find(gameId)
       _ <- ZIO.cond(
-        protoGame.players.creator.id == userId,
+        protoGame.players.creator.userId == userId,
         (),
         NotGameCreatorException(userId, gameId)
       )

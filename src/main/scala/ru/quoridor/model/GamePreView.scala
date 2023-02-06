@@ -1,6 +1,9 @@
 package ru.quoridor.model
 
-import ru.quoridor.model.game.Game
-import ru.utils.Typed.ID
+import java.util.UUID
 
-case class GamePreView(id: ID[Game], players: List[User], winner: Option[User])
+case class GamePreView(
+    gameId: UUID,
+    players: List[User],
+    winner: Option[User]
+)
