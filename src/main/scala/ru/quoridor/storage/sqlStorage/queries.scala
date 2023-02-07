@@ -18,14 +18,14 @@ import ru.quoridor.model.game.geometry.{
   Side,
   WallPosition
 }
-import ru.utils.Typed.Implicits._
-import ru.utils.Typed.ID
+import ru.utils.tagging.Tagged.Implicits._
+import ru.utils.tagging.ID
 
 import java.util.UUID
 
 object queries {
 
-  implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.typed[T])(_.unType)
+  implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.tag[T])(_.untag)
 
   def findUserByLogin(login: String): ConnectionIO[User] = {
     sql"""
@@ -54,7 +54,7 @@ object queries {
   }
 
   def registerUser(login: String): ConnectionIO[User] = {
-    lazy val userId = UUID.randomUUID().typed[User]
+    lazy val userId = UUID.randomUUID().tag[User]
     sql"""
     INSERT INTO "user" (id, login)
     VALUES ($userId, $login)

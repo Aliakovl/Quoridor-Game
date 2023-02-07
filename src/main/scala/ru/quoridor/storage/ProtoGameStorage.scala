@@ -4,7 +4,7 @@ import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.sqlStorage.ProtoGameStorageImpl
-import ru.utils.Typed.ID
+import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
 trait ProtoGameStorage {

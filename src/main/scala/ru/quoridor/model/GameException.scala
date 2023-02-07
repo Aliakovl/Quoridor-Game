@@ -1,7 +1,7 @@
 package ru.quoridor.model
 
 import ru.quoridor.model.game.Game
-import ru.utils.Typed.ID
+import ru.utils.tagging.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)
 

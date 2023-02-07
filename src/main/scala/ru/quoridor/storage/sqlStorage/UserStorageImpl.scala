@@ -4,7 +4,7 @@ import doobie.implicits._
 import ru.quoridor.model.User
 import ru.quoridor.model.game.Game
 import ru.quoridor.storage.{DataBase, UserStorage}
-import ru.utils.Typed.ID
+import ru.utils.tagging.ID
 import zio.Task
 import zio.interop.catz._
 

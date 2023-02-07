@@ -2,7 +2,7 @@ package ru.quoridor.services
 
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.storage.{GameStorage, UserStorage}
-import ru.utils.Typed.ID
+import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
 class UserServiceImpl(userStorage: UserStorage, gameStorage: GameStorage)
