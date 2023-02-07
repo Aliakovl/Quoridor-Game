@@ -16,7 +16,9 @@ import sttp.model.StatusCode
 
 object GameApi {
 
-  val createGameEndpoint: ZServerEndpoint[GameCreator, Any] = endpoint.post
+  private val en = endpoint.in("api")
+
+  val createGameEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
     .in(path[ID[User]]("userId"))
     .in("create-game")
     .errorOut(jsonBody[ExceptionResponse])
@@ -25,7 +27,7 @@ object GameApi {
       createGame(uuid).mapError(ExceptionResponse.apply)
     }
 
-  val joinPlayerEndpoint: ZServerEndpoint[GameCreator, Any] = endpoint.post
+  val joinPlayerEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
     .in(path[ID[User]]("userId"))
     .in("join-game")
     .in(query[ID[Game]]("gameId"))
@@ -36,7 +38,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val startGameEndpoint: ZServerEndpoint[GameCreator, Any] = endpoint.post
+  val startGameEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
     .in(path[ID[User]]("userId"))
     .in("start-game")
     .in(query[ID[Game]]("gameId"))
@@ -47,7 +49,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val gameHistoryEndpoint: ZServerEndpoint[GameService, Any] = endpoint.get
+  val gameHistoryEndpoint: ZServerEndpoint[GameService, Any] = en.get
     .in(path[ID[User]]("userId"))
     .in("game")
     .in("history")
@@ -59,7 +61,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val historyEndpoint: ZServerEndpoint[UserService, Any] = endpoint.get
+  val historyEndpoint: ZServerEndpoint[UserService, Any] = en.get
     .in(path[ID[User]]("userId"))
     .in("history")
     .errorOut(jsonBody[ExceptionResponse])
@@ -69,7 +71,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val getGameEndpoint: ZServerEndpoint[GameService, Any] = endpoint.get
+  val getGameEndpoint: ZServerEndpoint[GameService, Any] = en.get
     .in(path[ID[User]]("userId"))
     .in("game")
     .in(query[ID[Game]]("gameId"))
@@ -80,7 +82,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val moveEndpoint: ZServerEndpoint[GameService, Any] = endpoint.post
+  val moveEndpoint: ZServerEndpoint[GameService, Any] = en.post
     .in(path[ID[User]]("userId"))
     .in("move")
     .in(query[ID[Game]]("gameId"))
