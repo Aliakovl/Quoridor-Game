@@ -9,7 +9,7 @@ import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
-import ru.utils.Typed.ID
+import ru.utils.Tagged.ID
 import zio.{Task, ZIO}
 
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {

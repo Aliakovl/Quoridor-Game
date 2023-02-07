@@ -3,7 +3,7 @@ package ru.quoridor.services
 import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.storage.GameStorage
-import ru.utils.Typed.ID
+import ru.utils.Tagged.ID
 import zio.{RIO, Task, ZIO, ZLayer}
 
 trait GameService {

@@ -6,8 +6,8 @@ import ru.quoridor.model.game.Game
 import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.{DataBase, ProtoGameStorage}
-import ru.utils.Typed.ID
-import ru.utils.Typed.Implicits._
+import ru.utils.Tagged.ID
+import ru.utils.Tagged.Implicits._
 import zio.Task
 import zio.interop.catz._
 
@@ -18,7 +18,7 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
     dataBase.transact(queries.findProtoGameByGameId(gameId).transact[Task])
 
   override def insert(userId: ID[User]): Task[ProtoGame] = {
-    lazy val gameId = UUID.randomUUID().typed[Game]
+    lazy val gameId = UUID.randomUUID().tag[Game]
     val target = North
     val query = for {
       user <- queries.findUserById(userId)

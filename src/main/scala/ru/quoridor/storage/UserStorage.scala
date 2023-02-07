@@ -3,7 +3,7 @@ package ru.quoridor.storage
 import ru.quoridor.model.User
 import ru.quoridor.model.game.Game
 import ru.quoridor.storage.sqlStorage.UserStorageImpl
-import ru.utils.Typed.ID
+import ru.utils.Tagged.ID
 import zio.{RLayer, Task, ZLayer}
 
 trait UserStorage {

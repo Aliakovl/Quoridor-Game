@@ -5,8 +5,8 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model
 import ru.quoridor.model.game.{Game, Players, State}
 import ru.quoridor.storage.{DataBase, GameStorage}
-import ru.utils.Typed.Implicits._
-import ru.utils.Typed.ID
+import ru.utils.Tagged.Implicits._
+import ru.utils.Tagged.ID
 import zio.Task
 import zio.interop.catz._
 
@@ -35,7 +35,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
       winner: Option[User]
   ): Task[Game] = {
     lazy val activePlayer = state.players.activePlayer
-    lazy val gameId = UUID.randomUUID().typed[Game]
+    lazy val gameId = UUID.randomUUID().tag[Game]
     val query = for {
       protoGameId <- queries.findProtoGameIdByGameId(previousGameId)
       _ <- queries.recordNextState(

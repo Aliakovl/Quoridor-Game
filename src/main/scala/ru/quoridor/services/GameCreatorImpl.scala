@@ -5,7 +5,7 @@ import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
-import ru.utils.Typed.ID
+import ru.utils.Tagged.ID
 import zio.{Task, ZIO}
 
 class GameCreatorImpl(

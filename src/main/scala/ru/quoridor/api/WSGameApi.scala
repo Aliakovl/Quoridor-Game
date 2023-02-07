@@ -16,8 +16,8 @@ import ru.quoridor.app.QuoridorGame.Env
 import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
-import ru.utils.Typed.ID
-import ru.utils.Typed.Implicits.TypedOps
+import ru.utils.Tagged.ID
+import ru.utils.Tagged.Implicits.TaggedOps
 import zio.interop.catz._
 import zio.{RIO, ZIO}
 
@@ -59,8 +59,8 @@ class WSGameApi(
             .fromOption(SessionsMap.gameStates.get(sessionId))
             .orElseFail(new Exception("There is no such session"))
           gameService <- ZIO.service[GameService]
-          game <- gameService.makeMove(gameId.typed[Game], userId, move)
-          _ = SessionsMap.gameStates.update(sessionId, game.id.unType)
+          game <- gameService.makeMove(gameId.tag[Game], userId, move)
+          _ = SessionsMap.gameStates.update(sessionId, game.id.untag)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
         ws.handleError { er =>
@@ -95,8 +95,8 @@ class WSGameApi(
       SessionsMap.gameStates.update(sessionId, gameId)
       for {
         gameService <- ZIO.service[GameService]
-        game <- gameService.findGame(gameId.typed[Game])
-        players = game.state.players.toList.map(_.id.unType)
+        game <- gameService.findGame(gameId.tag[Game])
+        players = game.state.players.toList.map(_.id.untag)
         _ = SessionsMap.sessionPlayers.update(sessionId, players)
       } yield Response(Created).withEntity(
         parser.parse(s"""{"sessionId": "$sessionId"}""").getOrElse(Json.Null)
@@ -107,7 +107,7 @@ class WSGameApi(
       val gameId = SessionsMap.gameStates.get(sessionId)
       for {
         gameService <- ZIO.service[GameService]
-        game <- gameService.findGame(gameId.get.typed[Game])
+        game <- gameService.findGame(gameId.get.tag[Game])
       } yield Response(Ok).withEntity(game)
 
     case GET -> Root / "current-sessions" / UUIDVar(userId) =>

@@ -1,6 +1,5 @@
 package ru.quoridor.api
 
-import ru.utils.Typed.Implicits._
 import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
@@ -12,86 +11,85 @@ import ru.quoridor.services.GameCreator.{createGame, joinPlayer, startGame}
 import ru.quoridor.services.GameService.{findGame, gameHistory, makeMove}
 import ru.quoridor.services.UserService.usersHistory
 import sttp.model.StatusCode
-
-import java.util.UUID
+import ru.utils.Tagged._
 
 object GameApi {
 
   private val en = endpoint.in("api")
 
   val createGameEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("create-game")
     .errorOut(jsonBody[ExceptionResponse])
     .out(statusCode(StatusCode.Created).and(jsonBody[ProtoGame]))
     .zServerLogic { uuid =>
-      createGame(uuid.typed[User]).mapError(ExceptionResponse.apply)
+      createGame(uuid).mapError(ExceptionResponse.apply)
     }
 
   val joinPlayerEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("join-game")
-    .in(query[UUID]("gameId"))
+    .in(query[ID[Game]]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[ProtoGame])
     .zServerLogic { case (userId, gameId) =>
-      joinPlayer(gameId.typed[Game], userId.typed[User])
+      joinPlayer(gameId, userId)
         .mapError(ExceptionResponse.apply)
     }
 
   val startGameEndpoint: ZServerEndpoint[GameCreator, Any] = en.post
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("start-game")
-    .in(query[UUID]("gameId"))
+    .in(query[ID[Game]]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(statusCode(StatusCode.Created).and(jsonBody[Game]))
     .zServerLogic { case (userId, gameId) =>
-      startGame(gameId.typed[Game], userId.typed[User])
+      startGame(gameId, userId)
         .mapError(ExceptionResponse.apply)
     }
 
   val gameHistoryEndpoint: ZServerEndpoint[GameService, Any] = en.get
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("game")
     .in("history")
-    .in(query[UUID]("gameId"))
+    .in(query[ID[Game]]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[List[Game]])
     .zServerLogic { case (userId, gameId) =>
-      gameHistory(gameId.typed[Game], userId.typed[User])
+      gameHistory(gameId, userId)
         .mapError(ExceptionResponse.apply)
     }
 
   val historyEndpoint: ZServerEndpoint[UserService, Any] = en.get
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("history")
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[List[GamePreView]])
     .zServerLogic { userId =>
-      usersHistory(userId.typed[User])
+      usersHistory(userId)
         .mapError(ExceptionResponse.apply)
     }
 
   val getGameEndpoint: ZServerEndpoint[GameService, Any] = en.get
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("game")
-    .in(query[UUID]("gameId"))
+    .in(query[ID[Game]]("gameId"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[Game])
     .zServerLogic { case (userId, gameId) =>
-      findGame(gameId.typed[Game])
+      findGame(gameId)
         .mapError(ExceptionResponse.apply)
     }
 
   val moveEndpoint: ZServerEndpoint[GameService, Any] = en.post
-    .in(path[UUID]("userId"))
+    .in(path[ID[User]]("userId"))
     .in("move")
-    .in(query[UUID]("gameId"))
+    .in(query[ID[Game]]("gameId"))
     .in(jsonBody[Move])
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[Game])
     .zServerLogic { case (userId, gameId, move) =>
-      makeMove(gameId.typed[Game], userId.typed[User], move)
+      makeMove(gameId, userId, move)
         .mapError(ExceptionResponse.apply)
     }
 

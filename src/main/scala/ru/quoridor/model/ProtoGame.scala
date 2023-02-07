@@ -7,7 +7,7 @@ import ru.quoridor.model.GameException.{
 }
 import ru.quoridor.model.game.geometry.{Board, Side}
 import ru.quoridor.model.game.{Game, Player, Players}
-import ru.utils.Typed.ID
+import ru.utils.Tagged.ID
 
 case class ProtoGame(id: ID[Game], players: ProtoPlayers)
 
