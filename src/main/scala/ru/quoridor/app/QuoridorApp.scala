@@ -51,7 +51,7 @@ object QuoridorApp extends ZIOAppDefault {
         )
         .withHttpWebSocketApp({ wsb =>
           Router[RIO[Env, _]](
-            "/" -> httpApp,
+            "api" -> httpApp,
             "ws" -> new WSGameApi(wsb).routeWs
               .handleError { _ =>
                 Response(InternalServerError).withEntity(

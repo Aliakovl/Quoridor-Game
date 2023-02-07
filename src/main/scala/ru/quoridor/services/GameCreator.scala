@@ -3,7 +3,7 @@ package ru.quoridor.services
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
-import ru.utils.Tagged.ID
+import ru.utils.tagging.ID
 import zio.{RIO, Task, ZIO, ZLayer}
 
 trait GameCreator {

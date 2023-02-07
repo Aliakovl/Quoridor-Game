@@ -18,8 +18,8 @@ import ru.quoridor.model.game.geometry.{
   Side,
   WallPosition
 }
-import ru.utils.Tagged.Implicits._
-import ru.utils.Tagged.ID
+import ru.utils.tagging.Tagged.Implicits._
+import ru.utils.tagging.ID
 
 import java.util.UUID
 

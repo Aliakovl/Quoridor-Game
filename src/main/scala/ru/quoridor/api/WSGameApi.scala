@@ -16,8 +16,8 @@ import ru.quoridor.app.QuoridorGame.Env
 import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
-import ru.utils.Tagged.ID
-import ru.utils.Tagged.Implicits.TaggedOps
+import ru.utils.tagging.ID
+import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.interop.catz._
 import zio.{RIO, ZIO}
 

@@ -13,9 +13,7 @@ case class Login(login: String)
 
 object UserApi {
 
-  private val en = endpoint.in("api")
-
-  val createUser: ZServerEndpoint[UserService, Any] = en.post
+  val createUser: ZServerEndpoint[UserService, Any] = endpoint.post
     .in("register")
     .in(jsonBody[Login])
     .errorOut(jsonBody[ExceptionResponse])
@@ -24,7 +22,7 @@ object UserApi {
       UserService.createUser(login).mapError(ExceptionResponse.apply)
     }
 
-  val loginUser: ZServerEndpoint[UserService, Any] = en.post
+  val loginUser: ZServerEndpoint[UserService, Any] = endpoint.post
     .in("login")
     .in(jsonBody[Login])
     .errorOut(jsonBody[ExceptionResponse])
@@ -33,7 +31,7 @@ object UserApi {
       findUser(login).mapError(ExceptionResponse.apply)
     }
 
-  val getUser: ZServerEndpoint[UserService, Any] = en.get
+  val getUser: ZServerEndpoint[UserService, Any] = endpoint.get
     .in("user" / path[String]("Login"))
     .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[User])

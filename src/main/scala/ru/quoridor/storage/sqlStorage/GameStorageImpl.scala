@@ -5,8 +5,8 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model
 import ru.quoridor.model.game.{Game, Players, State}
 import ru.quoridor.storage.{DataBase, GameStorage}
-import ru.utils.Tagged.Implicits._
-import ru.utils.Tagged.ID
+import ru.utils.tagging.Tagged.Implicits._
+import ru.utils.tagging.ID
 import zio.Task
 import zio.interop.catz._
 

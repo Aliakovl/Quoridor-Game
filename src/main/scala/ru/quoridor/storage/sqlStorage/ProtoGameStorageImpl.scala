@@ -6,8 +6,8 @@ import ru.quoridor.model.game.Game
 import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.{DataBase, ProtoGameStorage}
-import ru.utils.Tagged.ID
-import ru.utils.Tagged.Implicits._
+import ru.utils.tagging.ID
+import ru.utils.tagging.Tagged.Implicits._
 import zio.Task
 import zio.interop.catz._
 
