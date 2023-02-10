@@ -1,10 +1,10 @@
 ThisBuild / scalaVersion := "2.13.8"
 
-lazy val circeVersion = "0.14.3"
-lazy val tapirVersion = "1.2.7"
+lazy val circeVersion = "0.14.4"
+lazy val tapirVersion = "1.2.8"
 lazy val http4sVersion = "0.23.18"
 lazy val doobieVersion = "1.0.0-RC1"
-lazy val zioVersion = "2.0.6"
+lazy val zioVersion = "2.0.7"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -30,8 +30,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-interop-cats" % "23.0.0.1",
-  "org.scalatest" %% "scalatest" % "3.2.15" % Test,
-  "org.typelevel" %% "cats-effect-testing-scalatest" % "1.4.0" % Test
+  "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
+  "org.postgresql" % "postgresql" % "42.5.3"
 )
 
 lazy val root = (project in file("."))
@@ -47,10 +47,8 @@ lazy val root = (project in file("."))
       "-unchecked",
       "-Werror",
       "-Xlint",
-      "-Xlint:-byname-implicit",
-      "-P:kind-projector:underscore-placeholders"
+      "-Xlint:-byname-implicit"
     ),
-    Compile / doc / sources := Nil,
-    addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
+    Compile / doc / sources := Nil
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)

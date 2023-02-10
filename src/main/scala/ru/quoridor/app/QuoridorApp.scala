@@ -9,7 +9,7 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
-import ru.quoridor.app.QuoridorGame.Env
+import ru.quoridor.app.QuoridorGame.EnvTask
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.storage.{
   DataBase,
@@ -22,21 +22,21 @@ import sttp.tapir.swagger.SwaggerUI
 import sttp.apispec.openapi.circe.yaml._
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import zio.interop.catz._
-import zio.{ExitCode, RIO, ZIO, ZIOAppDefault}
+import zio.{ExitCode, ZIO, ZIOAppDefault}
 
 object QuoridorApp extends ZIOAppDefault {
   private val openApi =
-    OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[RIO[Env, _]](
+    OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[EnvTask](
       QuoridorGame.api,
       "Quoridor game server",
       "0.0.1"
     )
 
   private val swagger =
-    Http4sServerInterpreter[RIO[Env, _]]()
-      .toRoutes(SwaggerUI[RIO[Env, _]](openApi.toYaml))
+    Http4sServerInterpreter[EnvTask]()
+      .toRoutes(SwaggerUI[EnvTask](openApi.toYaml))
 
-  private val httpApp: HttpRoutes[RIO[Env, _]] =
+  private val httpApp: HttpRoutes[EnvTask] =
     QuoridorGame.apiRoutes <+> swagger
 
   implicit val jsonEncode: Encoder[ExceptionResponse] =
@@ -44,13 +44,13 @@ object QuoridorApp extends ZIOAppDefault {
 
   override def run: ZIO[Any, Any, ExitCode] = ZIO
     .serviceWithZIO[AppConfig] { appConfig =>
-      BlazeServerBuilder[RIO[Env, _]]
+      BlazeServerBuilder[EnvTask]
         .bindHttp(
           appConfig.address.port,
           appConfig.address.host
         )
         .withHttpWebSocketApp({ wsb =>
-          Router[RIO[Env, _]](
+          Router[EnvTask](
             "/" -> httpApp,
             "ws" -> new WSGameApi(wsb).routeWs
               .handleError { _ =>
