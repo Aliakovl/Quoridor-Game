@@ -2,9 +2,9 @@ package ru.quoridor.services
 
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
+import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import ru.utils.tagging.ID
-import zio.{RIO, Task, ZIO, ZLayer}
+import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
 trait GameCreator {
   def createGame(userId: ID[User]): Task[ProtoGame]
@@ -15,9 +15,11 @@ trait GameCreator {
 }
 
 object GameCreator {
-  val live
-      : ZLayer[ProtoGameStorage with GameStorage, Nothing, GameCreatorImpl] =
-    ZLayer.fromFunction(GameCreatorImpl.apply _)
+  val live: URLayer[
+    UserStorage with ProtoGameStorage with GameStorage,
+    GameCreatorImpl
+  ] =
+    ZLayer.fromFunction(new GameCreatorImpl(_, _, _))
 
   def createGame(userId: ID[User]): RIO[GameCreator, ProtoGame] =
     ZIO.serviceWithZIO[GameCreator](_.createGame(userId))

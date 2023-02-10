@@ -19,18 +19,7 @@ class UserServiceImpl(userStorage: UserStorage, gameStorage: GameStorage)
   override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
     for {
       gameIds <- userStorage.history(userId)
-      gamePreViews <-
-        if (gameIds.isEmpty) { ZIO.succeed(List.empty[GamePreView]) }
-        else {
-          ZIO.foreachPar(gameIds)(gameStorage.findParticipants)
-        }
+      gamePreViews <- ZIO.foreachPar(gameIds)(gameStorage.findParticipants)
     } yield gamePreViews
   }
-}
-
-object UserServiceImpl {
-  def apply(
-      userStorage: UserStorage,
-      gameStorage: GameStorage
-  ): UserServiceImpl = new UserServiceImpl(userStorage, gameStorage)
 }

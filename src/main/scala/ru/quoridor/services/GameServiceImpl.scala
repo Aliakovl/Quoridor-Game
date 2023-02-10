@@ -70,16 +70,7 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
       )
 
       gameIds <- gameStorage.gameHistory(gameId)
-      history <-
-        if (gameIds.isEmpty) { ZIO.succeed(List.empty[Game]) }
-        else {
-          ZIO.foreachPar(gameIds)(gameStorage.find)
-        }
+      history <- ZIO.foreachPar(gameIds)(gameStorage.find)
     } yield history
   }
-}
-
-object GameServiceImpl {
-  def apply(gameStorage: GameStorage): GameServiceImpl =
-    new GameServiceImpl(gameStorage)
 }

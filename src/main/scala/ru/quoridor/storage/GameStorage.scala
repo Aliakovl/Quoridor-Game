@@ -26,5 +26,5 @@ trait GameStorage {
 
 object GameStorage {
   val live: RLayer[DataBase, GameStorage] =
-    ZLayer.fromFunction(GameStorageImpl.apply _)
+    ZLayer.fromFunction(new GameStorageImpl(_))
 }

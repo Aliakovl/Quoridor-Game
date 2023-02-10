@@ -4,7 +4,7 @@ import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.storage.GameStorage
 import ru.utils.tagging.ID
-import zio.{RIO, Task, ZIO, ZLayer}
+import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
 trait GameService {
   def findGame(gameId: ID[Game]): Task[Game]
@@ -15,8 +15,8 @@ trait GameService {
 }
 
 object GameService {
-  val live: ZLayer[GameStorage, Nothing, GameServiceImpl] =
-    ZLayer.fromFunction(GameServiceImpl.apply _)
+  val live: URLayer[GameStorage, GameServiceImpl] =
+    ZLayer.fromFunction(new GameServiceImpl(_))
 
   def findGame(gameId: ID[Game]): RIO[GameService, Game] =
     ZIO.serviceWithZIO[GameService](_.findGame(gameId))

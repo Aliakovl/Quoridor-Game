@@ -27,30 +27,22 @@ object queries {
 
   implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.tag[T])(_.untag)
 
-  def findUserByLogin(login: String): ConnectionIO[User] = {
+  def findUserByLogin(login: String): ConnectionIO[Option[User]] = {
     sql"""
     SELECT * FROM "user"
     WHERE login = $login
     """
       .query[User]
       .option
-      .map {
-        case Some(v) => v
-        case None    => throw LoginNotFoundException(login)
-      }
   }
 
-  def findUserById(userId: ID[User]): ConnectionIO[User] = {
+  def findUserById(userId: ID[User]): ConnectionIO[Option[User]] = {
     sql"""
     SELECT * FROM "user"
     WHERE id = $userId
     """
       .query[User]
       .option
-      .map {
-        case Some(v) => v
-        case None    => throw UserNotFoundException(userId)
-      }
   }
 
   def registerUser(login: String): ConnectionIO[User] = {

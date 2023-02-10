@@ -4,7 +4,7 @@ import doobie.Transactor
 import doobie.hikari.HikariTransactor
 import ru.quoridor.app.AppConfig
 import zio.interop.catz._
-import zio.{Scope, Task, ZIO, ZLayer}
+import zio.{Scope, Task, URLayer, ZIO, ZLayer}
 
 class DataBase(appConfig: AppConfig) {
   private val resourceTransactor: ZIO[Scope, Throwable, Transactor[Task]] =
@@ -28,9 +28,6 @@ class DataBase(appConfig: AppConfig) {
 }
 
 object DataBase {
-  def apply(appConfig: AppConfig): DataBase =
-    new DataBase(appConfig)
-
-  val live: ZLayer[AppConfig, Nothing, DataBase] =
-    ZLayer.fromFunction(DataBase.apply _)
+  val live: URLayer[AppConfig, DataBase] =
+    ZLayer.fromFunction(new DataBase(_))
 }

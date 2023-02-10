@@ -18,5 +18,5 @@ trait UserStorage {
 
 object UserStorage {
   val live: RLayer[DataBase, UserStorage] =
-    ZLayer.fromFunction(UserStorageImpl.apply _)
+    ZLayer.fromFunction(new UserStorageImpl(_))
 }

@@ -3,18 +3,31 @@ package ru.quoridor.services
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
-import ru.quoridor.model.{ProtoGame, User}
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage}
+import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import ru.utils.tagging.ID
+import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
 
+import java.util.UUID
+
 class GameCreatorImpl(
+    userStorage: UserStorage,
     protoGameStorage: ProtoGameStorage,
     gameStorage: GameStorage
 ) extends GameCreator {
 
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
-    protoGameStorage.insert(userId)
+    lazy val gameId = UUID.randomUUID().tag[Game]
+    val target = North
+    userStorage.find(userId).flatMap { user =>
+      protoGameStorage
+        .insert(gameId, userId)
+        .as {
+          val protoPlayer = ProtoPlayer(userId, user.login, target)
+          ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
+        }
+    }
   }
 
   override def joinPlayer(
@@ -49,11 +62,4 @@ class GameCreatorImpl(
       game <- gameStorage.create(gameId, state)
     } yield game
   }
-}
-
-object GameCreatorImpl {
-  def apply(
-      protoGameStorage: ProtoGameStorage,
-      gameStorage: GameStorage
-  ): GameCreatorImpl = new GameCreatorImpl(protoGameStorage, gameStorage)
 }

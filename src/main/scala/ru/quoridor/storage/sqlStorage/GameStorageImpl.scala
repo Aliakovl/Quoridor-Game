@@ -94,8 +94,3 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
     dataBase.transact(query.transact[Task])
   }
 }
-
-object GameStorageImpl {
-  def apply(dataBase: DataBase): GameStorageImpl =
-    new GameStorageImpl(dataBase)
-}

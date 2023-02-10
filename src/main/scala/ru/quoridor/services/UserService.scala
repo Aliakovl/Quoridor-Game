@@ -3,7 +3,7 @@ package ru.quoridor.services
 import ru.quoridor.storage.{GameStorage, UserStorage}
 import ru.quoridor.model.{GamePreView, User}
 import ru.utils.tagging.ID
-import zio.{RIO, Task, ZIO, ZLayer}
+import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
 trait UserService {
   def findUser(login: String): Task[User]
@@ -14,8 +14,8 @@ trait UserService {
 }
 
 object UserService {
-  val live: ZLayer[UserStorage with GameStorage, Nothing, UserServiceImpl] =
-    ZLayer.fromFunction(UserServiceImpl.apply _)
+  val live: URLayer[UserStorage with GameStorage, UserServiceImpl] =
+    ZLayer.fromFunction(new UserServiceImpl(_, _))
 
   def findUser(login: String): RIO[UserService, User] =
     ZIO.serviceWithZIO[UserService](_.findUser(login))
