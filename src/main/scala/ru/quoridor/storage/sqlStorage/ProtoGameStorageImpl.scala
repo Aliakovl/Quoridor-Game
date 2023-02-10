@@ -32,7 +32,7 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
       target: Side
   ): Task[ProtoGame] = {
     val query = for {
-      _ <- queries.findUserById(userId)
+      _ <- queries.findUserById(userId).option
       _ <- queries.addUserIntoProtoGame(gameId, userId, target)
       protoGame <- queries.findProtoGameByGameId(gameId)
     } yield protoGame

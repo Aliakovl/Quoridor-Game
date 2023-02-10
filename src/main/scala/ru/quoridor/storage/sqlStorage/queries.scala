@@ -1,13 +1,14 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.data.NonEmptyList
-import doobie.{ConnectionIO, Meta, Update}
+import doobie.{ConnectionIO, Meta, Update, Update0}
 import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.postgres.sqlstate.class23.{
   FOREIGN_KEY_VIOLATION,
   UNIQUE_VIOLATION
 }
+import doobie.util.query.Query0
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import ru.quoridor.model.game.geometry.Side.North
@@ -21,42 +22,32 @@ import ru.quoridor.model.game.geometry.{
 import ru.utils.tagging.Tagged.Implicits._
 import ru.utils.tagging.ID
 
-import java.util.UUID
-
 object queries {
 
   implicit def MetaID[T]: Meta[ID[T]] = UuidType.imap(_.tag[T])(_.untag)
 
-  def findUserByLogin(login: String): ConnectionIO[Option[User]] = {
+  def findUserByLogin(login: String): Query0[User] = {
     sql"""
     SELECT * FROM "user"
     WHERE login = $login
-    """
-      .query[User]
-      .option
+    """.query[User]
   }
 
-  def findUserById(userId: ID[User]): ConnectionIO[Option[User]] = {
+  def findUserById(userId: ID[User]): Query0[User] = {
     sql"""
     SELECT * FROM "user"
     WHERE id = $userId
-    """
-      .query[User]
-      .option
+    """.query[User]
   }
 
-  def registerUser(login: String): ConnectionIO[User] = {
-    lazy val userId = UUID.randomUUID().tag[User]
-    sql"""
-    INSERT INTO "user" (id, login)
-    VALUES ($userId, $login)
-    """.update.run
-      .exceptSomeSqlState { case UNIQUE_VIOLATION =>
-        throw LoginOccupiedException(login)
-      }
-      .map { _ =>
-        User(userId, login)
-      }
+  def registerUser(user: User): Update0 = {
+    user match {
+      case User(id, login) =>
+        sql"""
+        INSERT INTO "user" (id, login)
+        VALUES ($id, $login)
+        """.update
+    }
   }
 
   def findProtoGameByGameId(gameId: ID[Game]): ConnectionIO[ProtoGame] = {

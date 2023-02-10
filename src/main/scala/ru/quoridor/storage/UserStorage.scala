@@ -11,7 +11,7 @@ trait UserStorage {
 
   def find(id: ID[User]): Task[User]
 
-  def insert(login: String): Task[User]
+  def insert(user: User): Task[Unit]
 
   def history(id: ID[User]): Task[List[ID[Game]]]
 }

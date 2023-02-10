@@ -1,8 +1,10 @@
 package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
+import doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION
 import ru.quoridor.model.GameException.{
   LoginNotFoundException,
+  LoginOccupiedException,
   UserNotFoundException
 }
 import ru.quoridor.model.User
@@ -18,6 +20,7 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
       .transact {
         queries
           .findUserByLogin(login)
+          .option
           .transact[Task]
       }
       .someOrFail(LoginNotFoundException(login))
@@ -28,18 +31,27 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
       .transact {
         queries
           .findUserById(id)
+          .option
           .transact[Task]
       }
       .someOrFail(UserNotFoundException(id))
   }
 
-  override def insert(login: String): Task[User] = {
-    dataBase.transact(queries.registerUser(login).transact[Task])
+  override def insert(user: User): Task[Unit] = {
+    dataBase.transact {
+      queries
+        .registerUser(user)
+        .run
+        .exceptSomeSqlState { case UNIQUE_VIOLATION =>
+          throw LoginOccupiedException(user.login)
+        }
+        .transact[Task]
+    }.unit
   }
 
   override def history(id: ID[User]): Task[List[ID[Game]]] = {
     val query = for {
-      _ <- queries.findUserById(id)
+      _ <- queries.findUserById(id).option
       userHistory <- queries.findGameLeavesByUserId(id)
     } yield userHistory
 
