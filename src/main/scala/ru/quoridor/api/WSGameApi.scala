@@ -12,7 +12,7 @@ import org.http4s.dsl.io._
 import org.http4s.{HttpRoutes, Response}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import ru.quoridor.app.QuoridorGame.Env
+import ru.quoridor.app.QuoridorGame.{EnvTask, Env}
 import ru.quoridor.model.User
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
@@ -27,17 +27,17 @@ import scala.collection.concurrent.TrieMap
 case class UserMove(id: ID[User], move: Move)
 
 class WSGameApi(
-    wsb: WebSocketBuilder2[RIO[Env, _]]
+    wsb: WebSocketBuilder2[EnvTask]
 ) {
 
   private def logic(
       sessionId: UUID,
-      topic: Topic[RIO[Env, _], WebSocketFrame]
-  ): RIO[Env, Response[RIO[Env, _]]] = {
-    def toClient: Stream[RIO[Env, _], WebSocketFrame] =
+      topic: Topic[EnvTask, WebSocketFrame]
+  ): RIO[Env, Response[EnvTask]] = {
+    def toClient: Stream[EnvTask, WebSocketFrame] =
       topic.subscribe(1000)
 
-    def fromClient: Pipe[RIO[Env, _], WebSocketFrame, Unit] =
+    def fromClient: Pipe[EnvTask, WebSocketFrame, Unit] =
       handle(sessionId, topic)
 
     wsb.build(toClient, fromClient)
@@ -48,8 +48,8 @@ class WSGameApi(
 
   private def handle(
       sessionId: UUID,
-      topic: Topic[RIO[Env, _], WebSocketFrame]
-  ): Pipe[RIO[Env, _], WebSocketFrame, Unit] = in =>
+      topic: Topic[EnvTask, WebSocketFrame]
+  ): Pipe[EnvTask, WebSocketFrame, Unit] = in =>
     in.collect({ case WebSocketFrame.Text(text, _) =>
       parser.parse(text).flatMap(_.as[UserMove])
     }).evalMap {
@@ -76,7 +76,7 @@ class WSGameApi(
 
     }.through(topic.publish)
 
-  def routeWs: HttpRoutes[RIO[Env, _]] = HttpRoutes.of[RIO[Env, _]] {
+  def routeWs: HttpRoutes[EnvTask] = HttpRoutes.of[EnvTask] {
     case GET -> Root / "session" / UUIDVar(sessionId)
         if SessionsMap.gameStates.contains(sessionId) =>
       SessionsMap.sessions.get(sessionId) match {
@@ -84,7 +84,7 @@ class WSGameApi(
           logic(sessionId, topic)
         case None =>
           for {
-            topic <- Topic[RIO[Env, _], WebSocketFrame]
+            topic <- Topic[EnvTask, WebSocketFrame]
             _ = SessionsMap.sessions.update(sessionId, topic)
             l <- logic(sessionId, topic)
           } yield l
@@ -123,8 +123,8 @@ class WSGameApi(
 }
 
 object SessionsMap {
-  val sessions: TrieMap[UUID, Topic[RIO[Env, _], WebSocketFrame]] =
-    TrieMap[UUID, Topic[RIO[Env, _], WebSocketFrame]]().empty
+  val sessions: TrieMap[UUID, Topic[EnvTask, WebSocketFrame]] =
+    TrieMap[UUID, Topic[EnvTask, WebSocketFrame]]().empty
 
   val gameStates: TrieMap[UUID, UUID] = TrieMap[UUID, UUID]().empty
 

@@ -25,6 +25,7 @@ object QuoridorGame {
     ZLayer.fromFunction(() => ConfigSource.default.loadOrThrow[AppConfig])
 
   type Env = GameService with GameCreator with UserService
+  type EnvTask[A] = RIO[Env, A]
 
   val api: List[ZServerEndpoint[Env, Any]] = List(
     createUser.widen[Env],
@@ -40,8 +41,8 @@ object QuoridorGame {
   )
 
   private val serverOptions = Http4sServerOptions
-    .customiseInterceptors[RIO[Env, _]]
-    .exceptionHandler(ExceptionHandler.pure[RIO[Env, _]] { ctx =>
+    .customiseInterceptors[EnvTask]
+    .exceptionHandler(ExceptionHandler.pure[EnvTask] { ctx =>
       Some(
         ValuedEndpointOutput(
           jsonBody[ExceptionResponse],
@@ -51,6 +52,6 @@ object QuoridorGame {
     })
     .options
 
-  val apiRoutes: HttpRoutes[RIO[Env, _]] =
+  val apiRoutes: HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter(serverOptions).from(api).toRoutes
 }
