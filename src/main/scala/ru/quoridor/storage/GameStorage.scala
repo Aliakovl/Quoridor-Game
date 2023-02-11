@@ -20,6 +20,8 @@ trait GameStorage {
 
   def exists(gameId: ID[Game]): Task[Boolean]
 
+  def history(id: ID[User]): Task[List[ID[Game]]]
+
   def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]]
 
   def findParticipants(gameId: ID[Game]): Task[GamePreView]

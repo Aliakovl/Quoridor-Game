@@ -5,7 +5,7 @@ import ru.quoridor.model.GameException.{
   GameInterloperException,
   WrongPlayersTurnException
 }
-import ru.quoridor.model.User
+import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
@@ -59,6 +59,13 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
       id = UUID.randomUUID().tag[Game]
       newGame <- gameStorage.insert(id, gameId, newState, winner)
     } yield newGame
+  }
+
+  override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
+    for {
+      gameIds <- gameStorage.history(userId)
+      gamePreViews <- ZIO.foreachPar(gameIds)(gameStorage.findParticipants)
+    } yield gamePreViews
   }
 
   override def gameHistory(

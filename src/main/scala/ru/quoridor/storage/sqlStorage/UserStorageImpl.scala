@@ -8,7 +8,6 @@ import ru.quoridor.model.GameException.{
   UserNotFoundException
 }
 import ru.quoridor.model.User
-import ru.quoridor.model.game.Game
 import ru.quoridor.storage.{DataBase, UserStorage}
 import ru.utils.tagging.ID
 import zio.Task
@@ -47,14 +46,5 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
         }
         .transact[Task]
     }.unit
-  }
-
-  override def history(id: ID[User]): Task[List[ID[Game]]] = {
-    dataBase.transact {
-      queries
-        .findGameLeavesByUserId(id)
-        .to[List]
-        .transact[Task]
-    }
   }
 }

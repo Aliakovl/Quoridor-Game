@@ -1,7 +1,6 @@
 package ru.quoridor.storage
 
 import ru.quoridor.model.User
-import ru.quoridor.model.game.Game
 import ru.quoridor.storage.sqlStorage.UserStorageImpl
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
@@ -12,8 +11,6 @@ trait UserStorage {
   def find(id: ID[User]): Task[User]
 
   def insert(user: User): Task[Unit]
-
-  def history(id: ID[User]): Task[List[ID[Game]]]
 }
 
 object UserStorage {

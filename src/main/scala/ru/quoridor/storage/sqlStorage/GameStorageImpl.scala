@@ -70,16 +70,27 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
     dataBase.transact(query.transact[Task])
   }
 
-  override def exists(gameId: ID[Game]): Task[Boolean] = dataBase
-    .transact { transactor =>
-      queries
-        .existsGameWithId(gameId)
-        .option
-        .transact(transactor)
-    }
-    .map(_.nonEmpty)
+  override def exists(gameId: ID[Game]): Task[Boolean] = {
+    dataBase
+      .transact { transactor =>
+        queries
+          .existsGameWithId(gameId)
+          .option
+          .transact(transactor)
+      }
+      .map(_.nonEmpty)
+  }
 
-  override def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]] =
+  override def history(id: ID[User]): Task[List[ID[Game]]] = {
+    dataBase.transact {
+      queries
+        .findGameLeavesByUserId(id)
+        .to[List]
+        .transact[Task]
+    }
+  }
+
+  override def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]] = {
     dataBase
       .transact { transactor =>
         queries
@@ -91,6 +102,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         case Nil => throw GameNotFoundException(gameId)
         case xs  => xs.reverse
       }
+  }
 
   override def findParticipants(gameId: ID[Game]): Task[GamePreView] = {
     val query = for {
@@ -126,7 +138,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
 
   private def findProtoGameIdByGameId(
       gameId: ID[Game]
-  ): ConnectionIO[ID[Game]] =
+  ): ConnectionIO[ID[Game]] = {
     queries
       .findProtoGameIdByGameId(gameId)
       .option
@@ -134,6 +146,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         case Some(v) => v
         case None    => throw GameNotFoundException(gameId)
       }
+  }
 
   private def recordNextState(
       gameId: ID[Game],
@@ -157,7 +170,10 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
       }
   }
 
-  private def recordPlayers(gameId: ID[Game], players: List[Player]) = {
+  private def recordPlayers(
+      gameId: ID[Game],
+      players: List[Player]
+  ): ConnectionIO[Unit] = {
     queries.recordPlayers
       .updateMany(players.map {
         case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
