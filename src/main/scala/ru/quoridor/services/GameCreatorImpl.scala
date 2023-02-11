@@ -45,7 +45,12 @@ class GameCreatorImpl(
       playersNumber = protoGame.players.guests.size + 1
       _ <- ZIO.cond(playersNumber < 4, (), PlayersNumberLimitException)
       target = allSides(playersNumber)
-      pg <- protoGameStorage.update(gameId, userId, target)
+      _ <- protoGameStorage.addPlayer(gameId, userId, target)
+      user <- userStorage.find(userId)
+      newPlayer = ProtoPlayer(user.id, user.login, target)
+      pg = protoGame.copy(players =
+        protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
+      )
     } yield pg
   }
 

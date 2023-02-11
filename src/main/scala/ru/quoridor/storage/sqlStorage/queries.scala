@@ -4,13 +4,10 @@ import cats.data.NonEmptyList
 import doobie.{ConnectionIO, Meta, Update, Update0}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.{
-  FOREIGN_KEY_VIOLATION,
-  UNIQUE_VIOLATION
-}
+import doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION
 import doobie.util.query.Query0
 import ru.quoridor.model.GameException._
-import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.model.{ProtoPlayer, User}
 import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.{Game, Player}
 import ru.quoridor.model.game.geometry.{
@@ -50,7 +47,7 @@ object queries {
     }
   }
 
-  def findProtoGameByGameId(gameId: ID[Game]): ConnectionIO[ProtoGame] = {
+  def findProtoGameByGameId(gameId: ID[Game]): Query0[ProtoPlayer] = {
     sql"""
     SELECT "user".id, login, target
     FROM game
@@ -60,12 +57,6 @@ object queries {
     ORDER BY user_id = game.creator DESC
     """
       .query[ProtoPlayer]
-      .to[List]
-      .map {
-        case Nil => throw GameNotFoundException(gameId)
-        case creator :: guests =>
-          ProtoGame(gameId, ProtoPlayers(creator, guests))
-      }
   }
 
   def createProtoGameByUser(
@@ -86,16 +77,11 @@ object queries {
       gameId: ID[Game],
       userId: ID[User],
       target: Side
-  ): ConnectionIO[Unit] = {
+  ): Update0 = {
     sql"""
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
-    """.update.run
-      .exceptSomeSqlState {
-        case UNIQUE_VIOLATION      => throw SamePlayerException(userId, gameId)
-        case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
-      }
-      .map(_ => ())
+    """.update
   }
 
   def findWallsByGameId(gameId: ID[Game]): ConnectionIO[Set[WallPosition]] = {

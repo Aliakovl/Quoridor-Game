@@ -12,7 +12,7 @@ trait ProtoGameStorage {
 
   def insert(gameId: ID[Game], userId: ID[User]): Task[Unit]
 
-  def update(gameId: ID[Game], userId: ID[User], target: Side): Task[ProtoGame]
+  def addPlayer(gameId: ID[Game], userId: ID[User], target: Side): Task[Unit]
 }
 
 object ProtoGameStorage {
