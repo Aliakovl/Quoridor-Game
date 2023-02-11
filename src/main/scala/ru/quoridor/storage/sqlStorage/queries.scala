@@ -240,7 +240,7 @@ object queries {
       }
   }
 
-  def findGameLeavesByUserId(userId: ID[User]): ConnectionIO[List[ID[Game]]] = {
+  def findGameLeavesByUserId(userId: ID[User]): Query0[ID[Game]] = {
     sql"""
     SELECT
     g.id
@@ -253,7 +253,7 @@ object queries {
     WHERE p.id IS NULL OR g.id = g.game_id
     GROUP BY g.id
 	  HAVING sum(1) = 1
-    """.query[ID[Game]].to[List]
+    """.query[ID[Game]]
   }
 
   def findGameBranchEndedOnGameId(

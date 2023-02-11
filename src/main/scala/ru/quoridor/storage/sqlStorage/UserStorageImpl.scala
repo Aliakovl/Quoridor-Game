@@ -50,11 +50,11 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
   }
 
   override def history(id: ID[User]): Task[List[ID[Game]]] = {
-    val query = for {
-      _ <- queries.findUserById(id).option
-      userHistory <- queries.findGameLeavesByUserId(id)
-    } yield userHistory
-
-    dataBase.transact(query.transact[Task])
+    dataBase.transact {
+      queries
+        .findGameLeavesByUserId(id)
+        .to[List]
+        .transact[Task]
+    }
   }
 }
