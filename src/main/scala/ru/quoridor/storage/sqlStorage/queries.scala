@@ -62,15 +62,14 @@ object queries {
   def createProtoGameByUser(
       gameId: ID[Game],
       userId: ID[User]
-  ): ConnectionIO[Unit] = {
+  ): Update0 = {
     val target = North
     sql"""
     INSERT INTO game (id, creator)
     VALUES ($gameId, $userId);
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
-    """.update.run
-      .map(_ => ())
+    """.update
   }
 
   def addUserIntoProtoGame(

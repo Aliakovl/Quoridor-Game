@@ -37,8 +37,9 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
     dataBase.transact {
       queries
         .createProtoGameByUser(gameId, userId)
+        .run
         .transact[Task]
-    }
+    }.unit
   }
 
   override def addPlayer(
