@@ -145,7 +145,7 @@ object queries {
     """.update
   }
 
-  def recordPlayers: Update[(ID[Game], ID[User], Int, Int, Int)] = {
+  val recordPlayers: Update[(ID[Game], ID[User], Int, Int, Int)] = {
     val sql = """
         INSERT INTO pawn_position (game_state_id, user_id, walls_amount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
@@ -155,7 +155,7 @@ object queries {
     Update[PP](sql)
   }
 
-  def recordWalls: Update[(ID[Game], Orientation, Int, Int)] = {
+  val recordWalls: Update[(ID[Game], Orientation, Int, Int)] = {
     val sql = """
         INSERT INTO wall_position (game_state_id, orient, "row", "column")
         VALUES (?, ?, ?, ?)
