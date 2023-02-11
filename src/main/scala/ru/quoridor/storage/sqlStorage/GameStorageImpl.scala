@@ -1,7 +1,9 @@
 package ru.quoridor.storage.sqlStorage
 
 import cats.data.NonEmptyList
+import cats.free.Free
 import doobie.ConnectionIO
+import doobie.free.connection.ConnectionOp
 import doobie.implicits._
 import doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION
 import ru.quoridor.model.{GamePreView, User}
@@ -42,9 +44,12 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         gameId,
         previousGameId,
         protoGameId,
-        activePlayer.id,
-        winner.map(_.id)
+        activePlayer.id
       )
+      _ <- winner match {
+        case Some(user) => recordWinner(protoGameId, user.id)
+        case None       => Free.pure[ConnectionOp, Unit](())
+      }
       _ <- recordPlayers(gameId, state.players.toList)
       _ <- recordWalls(gameId, state.walls)
     } yield Game(gameId, state, winner)
@@ -60,8 +65,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
         gameId,
         protoGameId,
         protoGameId,
-        activePlayer.id,
-        None
+        activePlayer.id
       )
       _ <- recordPlayers(gameId, state.players.toList)
       _ <- recordWalls(gameId, state.walls)
@@ -152,22 +156,30 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
       gameId: ID[Game],
       previousGameId: ID[Game],
       protoGameId: ID[Game],
-      activePlayerId: ID[User],
-      winner: Option[ID[User]]
+      activePlayerId: ID[User]
   ): ConnectionIO[Unit] = {
     queries
       .recordNextState(
         gameId,
         previousGameId,
         protoGameId,
-        activePlayerId,
-        winner
+        activePlayerId
       )
       .run
       .map(_ => ())
       .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
         throw GameNotFoundException(gameId)
       }
+  }
+
+  private def recordWinner(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): ConnectionIO[Unit] = {
+    queries
+      .recordWinner(gameId, userId)
+      .run
+      .map(_ => ())
   }
 
   private def recordPlayers(
