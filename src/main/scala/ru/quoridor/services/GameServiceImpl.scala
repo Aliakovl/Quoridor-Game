@@ -10,7 +10,10 @@ import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
 import ru.utils.tagging.ID
+import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
+
+import java.util.UUID
 
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
@@ -53,7 +56,8 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
             User(id, login)
         }
       }.flatten
-      newGame <- gameStorage.insert(gameId, newState, winner)
+      id = UUID.randomUUID().tag[Game]
+      newGame <- gameStorage.insert(id, gameId, newState, winner)
     } yield newGame
   }
 

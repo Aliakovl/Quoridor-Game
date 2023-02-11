@@ -1,21 +1,13 @@
 package ru.quoridor.storage.sqlStorage
 
-import cats.data.NonEmptyList
-import doobie.{ConnectionIO, Meta, Update, Update0}
+import doobie.{Meta, Update, Update0}
 import doobie.implicits._
 import doobie.postgres.implicits._
-import doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION
 import doobie.util.query.Query0
-import ru.quoridor.model.GameException._
 import ru.quoridor.model.{ProtoPlayer, User}
 import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.{Game, Player}
-import ru.quoridor.model.game.geometry.{
-  Orientation,
-  PawnPosition,
-  Side,
-  WallPosition
-}
+import ru.quoridor.model.game.geometry.{Orientation, Side, WallPosition}
 import ru.utils.tagging.Tagged.Implicits._
 import ru.utils.tagging.ID
 
@@ -55,8 +47,7 @@ object queries {
     JOIN "user" ON player.user_id = "user".id
     WHERE game.id = $gameId
     ORDER BY user_id = game.creator DESC
-    """
-      .query[ProtoPlayer]
+    """.query[ProtoPlayer]
   }
 
   def createProtoGameByUser(
@@ -83,7 +74,7 @@ object queries {
     """.update
   }
 
-  def findWallsByGameId(gameId: ID[Game]): ConnectionIO[Set[WallPosition]] = {
+  def findWallsByGameId(gameId: ID[Game]): Query0[WallPosition] = {
     sql"""
     SELECT
     orient,
@@ -91,10 +82,10 @@ object queries {
     "column"
     FROM wall_position
     WHERE game_state_id = $gameId
-    """.query[WallPosition].to[Set]
+    """.query[WallPosition]
   }
 
-  def findActivePlayerByGameId(gameId: ID[Game]): ConnectionIO[Player] = {
+  def findActivePlayerByGameId(gameId: ID[Game]): Query0[Player] = {
     sql"""
     SELECT
     active_player,
@@ -110,12 +101,12 @@ object queries {
     JOIN player p ON p.game_id = game_state.game_id
     AND p.user_id = active_player
     WHERE game_state.id = $gameId
-    """.query[Player].unique
+    """.query[Player]
   }
 
   def findEnemiesByGameId(
       gameId: ID[Game]
-  ): ConnectionIO[NonEmptyList[Player]] = {
+  ): Query0[Player] = {
     sql"""
     SELECT
     pp.user_id,
@@ -131,38 +122,14 @@ object queries {
     AND p.user_id = pp.user_id
     WHERE pp.game_state_id = $gameId
     AND NOT pp.user_id = gs.active_player
-    """.query[Player].to[List].map {
-      case List()  => throw GameNotFoundException(gameId)
-      case x :: xs => NonEmptyList(x, xs)
-    }
+    """.query[Player]
   }
 
-  def previousGameId(gameId: ID[Game]): ConnectionIO[ID[Game]] = {
-    sql"""
-    SELECT
-    previous_state
-    FROM game_state
-    WHERE id = $gameId
-    """
-      .query[ID[Game]]
-      .option
-      .map {
-        case Some(v) => v
-        case None    => throw GameNotFoundException(gameId)
-      }
-  }
-
-  def findProtoGameIdByGameId(gameId: ID[Game]): ConnectionIO[ID[Game]] = {
+  def findProtoGameIdByGameId(gameId: ID[Game]): Query0[ID[Game]] = {
     sql"""
     SELECT game_id FROM game_state
     WHERE id = $gameId
-    """
-      .query[ID[Game]]
-      .option
-      .map {
-        case Some(v) => v
-        case None    => throw GameNotFoundException(gameId)
-      }
+    """.query[ID[Game]]
   }
 
   def recordNextState(
@@ -171,21 +138,14 @@ object queries {
       protoGameId: ID[Game],
       activePlayerId: ID[User],
       winner: Option[ID[User]]
-  ): ConnectionIO[Unit] = {
+  ): Update0 = {
     sql"""
     INSERT INTO game_state (id, game_id, previous_state, active_player, winner)
     VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
-    """.update.run
-      .map(_ => ())
-      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
-        throw GameNotFoundException(gameId)
-      }
+    """.update
   }
 
-  def recordPlayers(
-      gameId: ID[Game],
-      players: List[Player]
-  ): ConnectionIO[Unit] = {
+  def recordPlayers: Update[(ID[Game], ID[User], Int, Int, Int)] = {
     val sql = """
         INSERT INTO pawn_position (game_state_id, user_id, walls_amount, "row", "column")
         VALUES (?, ?, ?, ?, ?)
@@ -193,20 +153,9 @@ object queries {
     type PP = (ID[Game], ID[User], Int, Int, Int)
 
     Update[PP](sql)
-      .updateMany(players.map {
-        case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
-          (gameId, id, wallsAmount, row, column)
-      })
-      .map(_ => ())
-      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
-        throw GameNotFoundException(gameId)
-      }
   }
 
-  def recordWalls(
-      gameId: ID[Game],
-      wallPositions: Set[WallPosition]
-  ): ConnectionIO[Unit] = {
+  def recordWalls: Update[(ID[Game], Orientation, Int, Int)] = {
     val sql = """
         INSERT INTO wall_position (game_state_id, orient, "row", "column")
         VALUES (?, ?, ?, ?)
@@ -215,14 +164,6 @@ object queries {
     type PP = (ID[Game], Orientation, Int, Int)
 
     Update[PP](sql)
-      .updateMany(wallPositions.map {
-        case WallPosition(orientation, row, column) =>
-          (gameId, orientation, row, column)
-      }.toList)
-      .map(_ => ())
-      .exceptSomeSqlState { case FOREIGN_KEY_VIOLATION =>
-        throw GameNotFoundException(gameId)
-      }
   }
 
   def findGameLeavesByUserId(userId: ID[User]): Query0[ID[Game]] = {
@@ -243,7 +184,7 @@ object queries {
 
   def findGameBranchEndedOnGameId(
       gameId: ID[Game]
-  ): ConnectionIO[List[ID[Game]]] = {
+  ): Query0[ID[Game]] = {
     sql"""
     WITH RECURSIVE game_branch AS (
     SELECT gs.id, gs.previous_state
@@ -257,23 +198,17 @@ object queries {
     )
 
     SELECT id FROM game_branch
-    """
-      .query[ID[Game]]
-      .to[List]
-      .map {
-        case Nil => throw GameNotFoundException(gameId)
-        case xs  => xs
-      }
+    """.query[ID[Game]]
   }
 
-  def existsGameWithId(gameId: ID[Game]): ConnectionIO[Boolean] = {
+  def existsGameWithId(gameId: ID[Game]): Query0[Unit] = {
     sql"""
     SELECT * FROM game_state
     WHERE id = $gameId
-    """.query.option.map(_.nonEmpty)
+    """.query
   }
 
-  def findWinnerByGameId(gameId: ID[Game]): ConnectionIO[Option[User]] = {
+  def findWinnerByGameId(gameId: ID[Game]): Query0[User] = {
     sql"""
     SELECT
     "user".id,
@@ -282,10 +217,10 @@ object queries {
     JOIN "user"
     ON "user".id = winner
     WHERE game_state.id = $gameId
-    """.query[User].option
+    """.query[User]
   }
 
-  def findUsersByGameId(gameId: ID[Game]): ConnectionIO[List[User]] = {
+  def findUsersByGameId(gameId: ID[Game]): Query0[User] = {
     sql"""
     SELECT
     "user".id,
@@ -298,12 +233,6 @@ object queries {
     JOIN game g
     ON gs.game_id = g.id
     WHERE gs.id = $gameId
-    """
-      .query[User]
-      .to[List]
-      .map {
-        case Nil => throw GameNotFoundException(gameId)
-        case xs  => xs
-      }
+    """.query[User]
   }
 }

@@ -10,6 +10,7 @@ trait GameStorage {
   def find(id: ID[Game]): Task[Game]
 
   def insert(
+      gameId: ID[Game],
       previousGameId: ID[Game],
       state: State,
       winner: Option[User]
