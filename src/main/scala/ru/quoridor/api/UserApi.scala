@@ -9,8 +9,6 @@ import ru.quoridor.services.UserService
 import ru.quoridor.services.UserService.findUser
 import sttp.model.StatusCode
 
-case class Login(login: String)
-
 object UserApi {
 
   private val en = endpoint.in("api")

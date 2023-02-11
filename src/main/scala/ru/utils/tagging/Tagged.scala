@@ -10,8 +10,8 @@ case class Tagged[+A, B](untag: A) extends AnyVal {
 
 object Tagged {
   object Implicits {
-    implicit class TaggedOps[A](private val v: A) extends AnyVal {
-      def tag[B]: Tagged[A, B] = Tagged[A, B](v)
+    implicit class TaggedOps[A](private val a: A) extends AnyVal {
+      def tag[B]: A @@ B = Tagged[A, B](a)
     }
   }
 
