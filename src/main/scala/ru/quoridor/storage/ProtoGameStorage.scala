@@ -10,12 +10,12 @@ import zio.{RLayer, Task, ZLayer}
 trait ProtoGameStorage {
   def find(gameId: ID[Game]): Task[ProtoGame]
 
-  def insert(userId: ID[User]): Task[ProtoGame]
+  def insert(gameId: ID[Game], userId: ID[User]): Task[Unit]
 
-  def update(gameId: ID[Game], userId: ID[User], target: Side): Task[ProtoGame]
+  def addPlayer(gameId: ID[Game], userId: ID[User], target: Side): Task[Unit]
 }
 
 object ProtoGameStorage {
   val live: RLayer[DataBase, ProtoGameStorage] =
-    ZLayer.fromFunction(ProtoGameStorageImpl.apply _)
+    ZLayer.fromFunction(new ProtoGameStorageImpl(_))
 }

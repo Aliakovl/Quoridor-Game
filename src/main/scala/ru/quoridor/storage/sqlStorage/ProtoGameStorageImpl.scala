@@ -1,52 +1,61 @@
 package ru.quoridor.storage.sqlStorage
 
 import doobie.implicits._
-import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import doobie.postgres.sqlstate.class23.{
+  FOREIGN_KEY_VIOLATION,
+  UNIQUE_VIOLATION
+}
+import ru.quoridor.model.GameException.{
+  GameNotFoundException,
+  SamePlayerException
+}
+import ru.quoridor.model.{ProtoGame, ProtoPlayers, User}
 import ru.quoridor.model.game.Game
-import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.storage.{DataBase, ProtoGameStorage}
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.Implicits._
 import zio.Task
 import zio.interop.catz._
 
-import java.util.UUID
-
 class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
-  override def find(gameId: ID[Game]): Task[ProtoGame] =
-    dataBase.transact(queries.findProtoGameByGameId(gameId).transact[Task])
-
-  override def insert(userId: ID[User]): Task[ProtoGame] = {
-    lazy val gameId = UUID.randomUUID().tag[Game]
-    val target = North
-    val query = for {
-      user <- queries.findUserById(userId)
-      _ <- queries.createProtoGameByUser(gameId, userId)
-      protoPlayer = user match {
-        case User(id, login) => ProtoPlayer(id, login, target)
+  override def find(gameId: ID[Game]): Task[ProtoGame] = {
+    dataBase
+      .transact {
+        queries
+          .findProtoGameByGameId(gameId)
+          .to[List]
+          .transact[Task]
       }
-    } yield ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
-
-    dataBase.transact(query.transact[Task])
+      .map {
+        case Nil => throw GameNotFoundException(gameId)
+        case creator :: guests =>
+          ProtoGame(gameId, ProtoPlayers(creator, guests))
+      }
   }
 
-  override def update(
+  override def insert(gameId: ID[Game], userId: ID[User]): Task[Unit] = {
+    dataBase.transact {
+      queries
+        .createProtoGameByUser(gameId, userId)
+        .run
+        .transact[Task]
+    }.unit
+  }
+
+  override def addPlayer(
       gameId: ID[Game],
       userId: ID[User],
       target: Side
-  ): Task[ProtoGame] = {
-    val query = for {
-      _ <- queries.findUserById(userId)
-      _ <- queries.addUserIntoProtoGame(gameId, userId, target)
-      protoGame <- queries.findProtoGameByGameId(gameId)
-    } yield protoGame
-
-    dataBase.transact(query.transact[Task])
+  ): Task[Unit] = {
+    dataBase.transact {
+      queries
+        .addUserIntoProtoGame(gameId, userId, target)
+        .run
+        .exceptSomeSqlState {
+          case UNIQUE_VIOLATION      => throw SamePlayerException(userId, gameId)
+          case FOREIGN_KEY_VIOLATION => throw GameNotFoundException(gameId)
+        }
+        .transact[Task]
+    }.unit
   }
-}
-
-object ProtoGameStorageImpl {
-  def apply(dataBase: DataBase): ProtoGameStorageImpl =
-    new ProtoGameStorageImpl(dataBase)
 }

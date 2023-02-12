@@ -16,12 +16,12 @@ import sttp.tapir.server.interceptor.exception.ExceptionHandler
 import sttp.tapir.server.model.ValuedEndpointOutput
 import sttp.tapir.statusCode
 import sttp.tapir.ztapir._
-import zio.{RIO, ZLayer}
+import zio.{RIO, URLayer, ZLayer}
 import zio.interop.catz._
 
 object QuoridorGame {
 
-  val appConfigLayer: ZLayer[Any, Nothing, AppConfig] =
+  val appConfigLayer: URLayer[Any, AppConfig] =
     ZLayer.fromFunction(() => ConfigSource.default.loadOrThrow[AppConfig])
 
   type Env = GameService with GameCreator with UserService

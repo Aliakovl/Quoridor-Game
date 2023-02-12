@@ -10,6 +10,7 @@ trait GameStorage {
   def find(id: ID[Game]): Task[Game]
 
   def insert(
+      gameId: ID[Game],
       previousGameId: ID[Game],
       state: State,
       winner: Option[User]
@@ -19,6 +20,8 @@ trait GameStorage {
 
   def exists(gameId: ID[Game]): Task[Boolean]
 
+  def history(id: ID[User]): Task[List[ID[Game]]]
+
   def gameHistory(gameId: ID[Game]): Task[List[ID[Game]]]
 
   def findParticipants(gameId: ID[Game]): Task[GamePreView]
@@ -26,5 +29,5 @@ trait GameStorage {
 
 object GameStorage {
   val live: RLayer[DataBase, GameStorage] =
-    ZLayer.fromFunction(GameStorageImpl.apply _)
+    ZLayer.fromFunction(new GameStorageImpl(_))
 }

@@ -6,10 +6,9 @@ import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
-import ru.quoridor.services.{GameCreator, GameService, UserService}
-import ru.quoridor.services.GameCreator.{createGame, joinPlayer, startGame}
-import ru.quoridor.services.GameService.{findGame, gameHistory, makeMove}
-import ru.quoridor.services.UserService.usersHistory
+import ru.quoridor.services.{GameCreator, GameService}
+import ru.quoridor.services.GameCreator._
+import ru.quoridor.services.GameService._
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged._
 import sttp.model.StatusCode
@@ -61,7 +60,7 @@ object GameApi {
         .mapError(ExceptionResponse.apply)
     }
 
-  val historyEndpoint: ZServerEndpoint[UserService, Any] = en.get
+  val historyEndpoint: ZServerEndpoint[GameService, Any] = en.get
     .in(path[ID[User]]("userId"))
     .in("history")
     .errorOut(jsonBody[ExceptionResponse])

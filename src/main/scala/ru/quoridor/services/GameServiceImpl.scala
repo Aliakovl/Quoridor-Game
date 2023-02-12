@@ -5,12 +5,15 @@ import ru.quoridor.model.GameException.{
   GameInterloperException,
   WrongPlayersTurnException
 }
-import ru.quoridor.model.User
+import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
 import ru.utils.tagging.ID
+import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
+
+import java.util.UUID
 
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
@@ -53,8 +56,16 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
             User(id, login)
         }
       }.flatten
-      newGame <- gameStorage.insert(gameId, newState, winner)
+      id = UUID.randomUUID().tag[Game]
+      newGame <- gameStorage.insert(id, gameId, newState, winner)
     } yield newGame
+  }
+
+  override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
+    for {
+      gameIds <- gameStorage.history(userId)
+      gamePreViews <- ZIO.foreachPar(gameIds)(gameStorage.findParticipants)
+    } yield gamePreViews
   }
 
   override def gameHistory(
@@ -70,16 +81,7 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
       )
 
       gameIds <- gameStorage.gameHistory(gameId)
-      history <-
-        if (gameIds.isEmpty) { ZIO.succeed(List.empty[Game]) }
-        else {
-          ZIO.foreachPar(gameIds)(gameStorage.find)
-        }
+      history <- ZIO.foreachPar(gameIds)(gameStorage.find)
     } yield history
   }
-}
-
-object GameServiceImpl {
-  def apply(gameStorage: GameStorage): GameServiceImpl =
-    new GameServiceImpl(gameStorage)
 }
