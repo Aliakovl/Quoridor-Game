@@ -33,9 +33,7 @@ CREATE TABLE game_state (
     game_id UUID NOT NULL,
     previous_state UUID NOT NULL REFERENCES game_state,
     active_player UUID NOT NULL,
-    winner UUID,
-    FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id),
-    FOREIGN KEY (game_id, winner) REFERENCES player(game_id, user_id)
+    FOREIGN KEY (game_id, active_player) REFERENCES player(game_id, user_id)
 );
 
 CREATE TABLE pawn_position (
@@ -52,4 +50,10 @@ CREATE TABLE wall_position (
     orient orientation NOT NULL,
     "row" smallint NOT NULL CHECK ("row" BETWEEN 0 AND 7),
     "column" smallint NOT NULL CHECK ("column" BETWEEN 0 AND 7)
+);
+
+CREATE TABLE winner (
+    game_id UUID NOT NULL PRIMARY KEY REFERENCES game,
+    user_id UUID NOT NULL REFERENCES "user",
+    FOREIGN KEY (game_id, user_id) REFERENCES player(game_id, user_id)
 );

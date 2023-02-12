@@ -136,12 +136,21 @@ object queries {
       gameId: ID[Game],
       previousGameId: ID[Game],
       protoGameId: ID[Game],
-      activePlayerId: ID[User],
-      winner: Option[ID[User]]
+      activePlayerId: ID[User]
   ): Update0 = {
     sql"""
-    INSERT INTO game_state (id, game_id, previous_state, active_player, winner)
-    VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId, $winner);
+    INSERT INTO game_state (id, game_id, previous_state, active_player)
+    VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId);
+    """.update
+  }
+
+  def recordWinner(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): Update0 = {
+    sql"""
+    INSERT INTO winner (game_id, user_id)
+    VALUES ($gameId, $userId)
     """.update
   }
 
@@ -213,9 +222,13 @@ object queries {
     SELECT
     "user".id,
     "user".login
-    FROM game_state
+    FROM winner
     JOIN "user"
-    ON "user".id = winner
+    ON "user".id = winner.user_id
+    JOIN game
+    ON game.id = winner.game_id
+    JOIN game_state
+    ON game_state.game_id = winner.game_id
     WHERE game_state.id = $gameId
     """.query[User]
   }
