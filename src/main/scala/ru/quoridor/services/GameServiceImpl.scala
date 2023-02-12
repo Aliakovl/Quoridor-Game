@@ -10,10 +10,7 @@ import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
 import ru.quoridor.storage.GameStorage
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
-
-import java.util.UUID
 
 class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
@@ -28,7 +25,6 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
   ): Task[Game] = {
     for {
       game <- gameStorage.find(gameId)
-
       either = for {
         _ <- Either.cond(
           game.state.players.toList.exists(_.id == userId),
@@ -56,9 +52,13 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
             User(id, login)
         }
       }.flatten
-      id = UUID.randomUUID().tag[Game]
-      newGame <- gameStorage.insert(id, gameId, newState, winner)
-    } yield newGame
+      _ <- gameStorage.insert(gameId, game.step + 1, newState, move, winner)
+    } yield Game(
+      gameId,
+      step = game.step + 1,
+      state = newState,
+      winner = winner
+    )
   }
 
   override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
@@ -80,8 +80,10 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
         GameInterloperException(userId, gameId)
       )
 
-      gameIds <- gameStorage.gameHistory(gameId)
-      history <- ZIO.foreachPar(gameIds)(gameStorage.find)
+      lastStep <- gameStorage.lastStep(gameId)
+      history <- ZIO.foreachPar((0 to lastStep).toList)(
+        gameStorage.find(gameId, _)
+      )
     } yield history
   }
 }

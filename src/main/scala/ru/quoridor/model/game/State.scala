@@ -1,6 +1,5 @@
 package ru.quoridor.model.game
 
-import cats.data.NonEmptyList
 import ru.quoridor.model.game.geometry.Direction._
 import ru.quoridor.model.game.geometry.{
   Board,
@@ -8,7 +7,6 @@ import ru.quoridor.model.game.geometry.{
   PawnPosition,
   WallPosition
 }
-import ru.utils.Shifting
 
 case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {
@@ -38,16 +36,6 @@ case class State(players: Players, walls: Set[WallPosition]) {
                 possibleStep(enemy, left) ++ possibleStep(enemy, right)
             }
         }
-    }
-  }
-}
-
-case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
-  lazy val toList: List[Player] = activePlayer +: enemies.toList
-
-  def shift: Players = {
-    Shifting[Player](activePlayer, enemies).shift match {
-      case Shifting(p, pp) => Players(p, pp)
     }
   }
 }

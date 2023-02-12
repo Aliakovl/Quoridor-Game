@@ -60,7 +60,6 @@ class WSGameApi(
             .orElseFail(new Exception("There is no such session"))
           gameService <- ZIO.service[GameService]
           game <- gameService.makeMove(gameId.tag[Game], userId, move)
-          _ = SessionsMap.gameStates.update(sessionId, game.id.untag)
         } yield WebSocketFrame.Text(game.asJson.toString())
 
         ws.handleError { er =>
