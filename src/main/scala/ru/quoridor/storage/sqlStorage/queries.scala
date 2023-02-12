@@ -25,7 +25,7 @@ object queries {
   def findUserById(userId: ID[User]): Query0[User] = {
     sql"""
     SELECT * FROM "user"
-    WHERE id = $userId
+    WHERE user_id = $userId
     """.query[User]
   }
 
@@ -33,7 +33,7 @@ object queries {
     user match {
       case User(id, login) =>
         sql"""
-        INSERT INTO "user" (id, login)
+        INSERT INTO "user" (user_id, login)
         VALUES ($id, $login)
         """.update
     }
@@ -41,12 +41,12 @@ object queries {
 
   def findProtoGameByGameId(gameId: ID[Game]): Query0[ProtoPlayer] = {
     sql"""
-    SELECT "user".id, login, target
+    SELECT "user".user_id, login, target
     FROM game
-    JOIN player ON player.game_id = game.id
-    JOIN "user" ON player.user_id = "user".id
-    WHERE game.id = $gameId
-    ORDER BY user_id = game.creator DESC
+    JOIN player USING (game_id)
+    JOIN "user" USING (user_id)
+    WHERE game.game_id = $gameId
+    ORDER BY player.user_id = game.creator DESC
     """.query[ProtoPlayer]
   }
 
@@ -56,7 +56,7 @@ object queries {
   ): Update0 = {
     val target = North
     sql"""
-    INSERT INTO game (id, creator)
+    INSERT INTO game (game_id, creator)
     VALUES ($gameId, $userId);
     INSERT INTO player (game_id, user_id, target)
     VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
@@ -74,18 +74,19 @@ object queries {
     """.update
   }
 
-  def findWallsByGameId(gameId: ID[Game]): Query0[WallPosition] = {
+  def findWallsByGameId(gameId: ID[Game], step: Int): Query0[WallPosition] = {
     sql"""
     SELECT
     orient,
     "row",
     "column"
     FROM wall_position
-    WHERE game_state_id = $gameId
+    WHERE game_id = $gameId
+    AND step <= $step
     """.query[WallPosition]
   }
 
-  def findActivePlayerByGameId(gameId: ID[Game]): Query0[Player] = {
+  def findActivePlayerByGameId(gameId: ID[Game], step: Int): Query0[Player] = {
     sql"""
     SELECT
     active_player,
@@ -95,17 +96,20 @@ object queries {
     walls_amount,
     target
     from game_state
-    JOIN "user" ON active_player = "user".id
-    JOIN pawn_position pp ON pp.game_state_id = game_state.id
+    JOIN "user" ON active_player = "user".user_id
+    JOIN pawn_position pp ON pp.game_id = game_state.game_id
+    AND pp.step = game_state.step
     AND pp.user_id = active_player
     JOIN player p ON p.game_id = game_state.game_id
     AND p.user_id = active_player
-    WHERE game_state.id = $gameId
+    WHERE game_state.game_id = $gameId
+    AND game_state.step = $step
     """.query[Player]
   }
 
   def findEnemiesByGameId(
-      gameId: ID[Game]
+      gameId: ID[Game],
+      step: Int
   ): Query0[Player] = {
     sql"""
     SELECT
@@ -116,31 +120,23 @@ object queries {
     walls_amount,
     target
     FROM pawn_position pp
-    JOIN "user" u ON pp.user_id = u.id
-    JOIN game_state gs ON gs.id = pp.game_state_id
-    JOIN player p ON p.game_id = gs.game_id
-    AND p.user_id = pp.user_id
-    WHERE pp.game_state_id = $gameId
+    NATURAL JOIN "user" u
+    NATURAL JOIN game_state gs
+    JOIN player p USING (game_id, user_id)
+    WHERE pp.game_id = $gameId
+    AND pp.step = $step
     AND NOT pp.user_id = gs.active_player
     """.query[Player]
   }
 
-  def findProtoGameIdByGameId(gameId: ID[Game]): Query0[ID[Game]] = {
-    sql"""
-    SELECT game_id FROM game_state
-    WHERE id = $gameId
-    """.query[ID[Game]]
-  }
-
   def recordNextState(
       gameId: ID[Game],
-      previousGameId: ID[Game],
-      protoGameId: ID[Game],
+      step: Int,
       activePlayerId: ID[User]
   ): Update0 = {
     sql"""
-    INSERT INTO game_state (id, game_id, previous_state, active_player)
-    VALUES ($gameId, $protoGameId, $previousGameId, $activePlayerId);
+    INSERT INTO game_state (game_id, step, active_player)
+    VALUES ($gameId, $step, $activePlayerId);
     """.update
   }
 
@@ -154,98 +150,76 @@ object queries {
     """.update
   }
 
-  val recordPlayers: Update[(ID[Game], ID[User], Int, Int, Int)] = {
+  val recordPlayers: Update[(ID[Game], Int, ID[User], Int, Int, Int)] = {
     val sql = """
-        INSERT INTO pawn_position (game_state_id, user_id, walls_amount, "row", "column")
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO pawn_position (game_id, step, user_id, walls_amount, "row", "column")
+        VALUES (?, ?, ?, ?, ?, ?)
         """
-    type PP = (ID[Game], ID[User], Int, Int, Int)
+    type PP = (ID[Game], Int, ID[User], Int, Int, Int)
 
     Update[PP](sql)
   }
 
-  val recordWalls: Update[(ID[Game], Orientation, Int, Int)] = {
-    val sql = """
-        INSERT INTO wall_position (game_state_id, orient, "row", "column")
-        VALUES (?, ?, ?, ?)
-        """
-
-    type PP = (ID[Game], Orientation, Int, Int)
-
-    Update[PP](sql)
+  def recordWall(
+      gameId: ID[Game],
+      step: Int,
+      orientation: Orientation,
+      row: Int,
+      column: Int
+  ): Update0 = {
+    sql"""
+    INSERT INTO wall_position (game_id, step, orient, "row", "column")
+    VALUES ($gameId, $step, $orientation, $row, $column)
+    """.update
   }
 
-  def findGameLeavesByUserId(userId: ID[User]): Query0[ID[Game]] = {
+  def findUserGames(userId: ID[User]): Query0[ID[Game]] = {
     sql"""
     SELECT
-    g.id
-    FROM game_state g
-    LEFT JOIN game_state p
-    ON g.id = p.previous_state
-    JOIN player
-    ON g.game_id = player.game_id
-    AND player.user_id = $userId
-    WHERE p.id IS NULL OR g.id = g.game_id
-    GROUP BY g.id
-	  HAVING sum(1) = 1
+    game_id
+    FROM player
+    WHERE user_id = $userId
     """.query[ID[Game]]
   }
 
-  def findGameBranchEndedOnGameId(
+  def lastStep(
       gameId: ID[Game]
-  ): Query0[ID[Game]] = {
+  ): Query0[Int] = {
     sql"""
-    WITH RECURSIVE game_branch AS (
-    SELECT gs.id, gs.previous_state
-    FROM game_state gs
-    WHERE gs.id = $gameId
-    UNION ALL
-    SELECT gs.id, gs.previous_state FROM game_state gs
-    JOIN game_branch
-    ON gs.id = game_branch.previous_state
-    WHERE NOT game_branch.id = game_branch.previous_state
-    )
-
-    SELECT id FROM game_branch
-    """.query[ID[Game]]
+    SELECT
+    MAX(step)
+    FROM game_state
+    WHERE game_id = $gameId
+    """.query[Int]
   }
 
-  def existsGameWithId(gameId: ID[Game]): Query0[Unit] = {
+  def hasStarted(gameId: ID[Game]): Query0[Unit] = {
     sql"""
     SELECT * FROM game_state
-    WHERE id = $gameId
+    WHERE game_id = $gameId
+    AND step = 0
     """.query
   }
 
   def findWinnerByGameId(gameId: ID[Game]): Query0[User] = {
     sql"""
     SELECT
-    "user".id,
+    "user".user_id,
     "user".login
     FROM winner
-    JOIN "user"
-    ON "user".id = winner.user_id
-    JOIN game
-    ON game.id = winner.game_id
-    JOIN game_state
-    ON game_state.game_id = winner.game_id
-    WHERE game_state.id = $gameId
+    NATURAL JOIN "user"
+    WHERE game_id = $gameId
     """.query[User]
   }
 
   def findUsersByGameId(gameId: ID[Game]): Query0[User] = {
     sql"""
     SELECT
-    "user".id,
+    "user".user_id,
     "user".login
     FROM player
-    JOIN "user"
-    ON player.user_id = "user".id
-    JOIN game_state gs
-    ON player.game_id = gs.game_id
-    JOIN game g
-    ON gs.game_id = g.id
-    WHERE gs.id = $gameId
+    NATURAL JOIN "user"
+    WHERE game_id = $gameId
     """.query[User]
   }
 }

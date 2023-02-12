@@ -35,7 +35,7 @@ class GameCreatorImpl(
       userId: ID[User]
   ): Task[ProtoGame] = {
     for {
-      gameAlreadyStarted <- gameStorage.exists(gameId)
+      gameAlreadyStarted <- gameStorage.hasStarted(gameId)
       _ <- ZIO.cond(
         !gameAlreadyStarted,
         (),

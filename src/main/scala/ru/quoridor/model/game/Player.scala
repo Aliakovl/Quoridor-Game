@@ -10,9 +10,7 @@ case class Player(
     pawnPosition: PawnPosition,
     wallsAmount: Int,
     target: Side
-) {
-  def toUser: User = User(id, login)
-}
+)
 
 object Player {
   implicit val ord: Ordering[Player] = Ordering.by[Player, Side](_.target)
