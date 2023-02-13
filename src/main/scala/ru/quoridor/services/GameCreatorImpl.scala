@@ -48,14 +48,19 @@ class GameCreatorImpl(
       _ <- protoGameStorage.addPlayer(gameId, userId, target)
       user <- userStorage.find(userId)
       newPlayer = ProtoPlayer(user.id, user.login, target)
-      pg = protoGame.copy(players =
-        protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
-      )
-    } yield pg
+    } yield protoGame.copy(players =
+      protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
+    )
   }
 
   override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
     for {
+      gameAlreadyStarted <- gameStorage.hasStarted(gameId)
+      _ <- ZIO.cond(
+        !gameAlreadyStarted,
+        (),
+        GameAlreadyStartedException(gameId)
+      )
       protoGame <- protoGameStorage.find(gameId)
       _ <- ZIO.cond(
         protoGame.players.creator.id == userId,

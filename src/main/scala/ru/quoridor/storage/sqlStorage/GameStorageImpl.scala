@@ -194,7 +194,7 @@ class GameStorageImpl(dataBase: DataBase) extends GameStorage {
   ): ConnectionIO[Unit] = {
     queries.recordPlayers
       .updateMany(
-        players.map { // (game_id, step, user_id, walls_amount, "row", "column")
+        players.map {
           case Player(id, _, PawnPosition(row, column), wallsAmount, _) =>
             (gameId, step, id, wallsAmount, row, column)
         }
