@@ -11,29 +11,27 @@ import sttp.model.StatusCode
 
 object UserApi {
 
-  private val en = endpoint.in("api")
+  private val baseEndpoint =
+    endpoint.in("api").errorOut(jsonBody[ExceptionResponse])
 
-  val createUser: ZServerEndpoint[UserService, Any] = en.post
+  val createUser: ZServerEndpoint[UserService, Any] = baseEndpoint.post
     .in("register")
     .in(jsonBody[Login])
-    .errorOut(jsonBody[ExceptionResponse])
     .out(statusCode(StatusCode.Created).and(jsonBody[User]))
     .zServerLogic { case Login(login) =>
       UserService.createUser(login).mapError(ExceptionResponse.apply)
     }
 
-  val loginUser: ZServerEndpoint[UserService, Any] = en.post
+  val loginUser: ZServerEndpoint[UserService, Any] = baseEndpoint.post
     .in("login")
     .in(jsonBody[Login])
-    .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[User])
     .zServerLogic { case Login(login) =>
       findUser(login).mapError(ExceptionResponse.apply)
     }
 
-  val getUser: ZServerEndpoint[UserService, Any] = en.get
+  val getUser: ZServerEndpoint[UserService, Any] = baseEndpoint.get
     .in("user" / path[String]("Login"))
-    .errorOut(jsonBody[ExceptionResponse])
     .out(jsonBody[User])
     .zServerLogic { login =>
       findUser(login).mapError(ExceptionResponse.apply)
