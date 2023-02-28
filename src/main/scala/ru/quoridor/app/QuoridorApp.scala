@@ -19,27 +19,12 @@ import ru.quoridor.storage.{
   ProtoGameStorage,
   UserStorage
 }
-import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
-import sttp.tapir.swagger.SwaggerUI
-import sttp.apispec.openapi.circe.yaml._
-import sttp.tapir.server.http4s.Http4sServerInterpreter
 import zio.interop.catz._
 import zio.{ExitCode, ZIO, ZIOAppDefault}
 
 object QuoridorApp extends ZIOAppDefault {
-  private val openApi =
-    OpenAPIDocsInterpreter().serverEndpointsToOpenAPI[EnvTask](
-      QuoridorGame.api,
-      "Quoridor game server",
-      "0.0.1"
-    )
-
-  private val swagger =
-    Http4sServerInterpreter[EnvTask]()
-      .toRoutes(SwaggerUI[EnvTask](openApi.toYaml))
-
   private val httpApp: HttpRoutes[EnvTask] =
-    QuoridorGame.apiRoutes <+> swagger
+    QuoridorGame.apiRoutes <+> Swagger.routes
 
   implicit val jsonEncode: Encoder[ExceptionResponse] =
     Encoder.forProduct1("errorMessage")(_.errorMessage)
