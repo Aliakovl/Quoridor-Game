@@ -1,10 +1,10 @@
 ThisBuild / scalaVersion := "2.13.8"
 
 lazy val circeVersion = "0.14.4"
-lazy val tapirVersion = "1.2.8"
+lazy val tapirVersion = "1.2.9"
 lazy val http4sVersion = "0.23.18"
 lazy val doobieVersion = "1.0.0-RC1"
-lazy val zioVersion = "2.0.7"
+lazy val zioVersion = "2.0.9"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -32,7 +32,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-interop-cats" % "23.0.0.1",
   "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
-  "org.postgresql" % "postgresql" % "42.5.3"
+  "org.postgresql" % "postgresql" % "42.5.4"
 )
 
 lazy val root = (project in file("."))
