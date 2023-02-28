@@ -17,7 +17,7 @@ trait GameCreator {
 object GameCreator {
   val live: URLayer[
     UserStorage with ProtoGameStorage with GameStorage,
-    GameCreatorImpl
+    GameCreator
   ] =
     ZLayer.fromFunction(new GameCreatorImpl(_, _, _))
 

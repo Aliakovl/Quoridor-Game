@@ -25,7 +25,7 @@ class UserStorageImpl(dataBase: DataBase) extends UserStorage {
       .someOrFail(LoginNotFoundException(login))
   }
 
-  override def find(id: ID[User]): Task[User] = {
+  override def findById(id: ID[User]): Task[User] = {
     dataBase
       .transact {
         queries

@@ -17,7 +17,7 @@ trait GameService {
 }
 
 object GameService {
-  val live: URLayer[GameStorage, GameServiceImpl] =
+  val live: URLayer[GameStorage, GameService] =
     ZLayer.fromFunction(new GameServiceImpl(_))
 
   def findGame(gameId: ID[Game]): RIO[GameService, Game] =

@@ -11,7 +11,7 @@ trait UserService {
 }
 
 object UserService {
-  val live: URLayer[UserStorage with GameStorage, UserServiceImpl] =
+  val live: URLayer[UserStorage with GameStorage, UserService] =
     ZLayer.fromFunction(new UserServiceImpl(_))
 
   def findUser(login: String): RIO[UserService, User] =

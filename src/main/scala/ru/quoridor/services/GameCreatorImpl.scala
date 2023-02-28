@@ -20,7 +20,7 @@ class GameCreatorImpl(
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
     val target = North
-    userStorage.find(userId).flatMap { user =>
+    userStorage.findById(userId).flatMap { user =>
       protoGameStorage
         .insert(gameId, userId)
         .as {
@@ -46,7 +46,7 @@ class GameCreatorImpl(
       _ <- ZIO.cond(playersNumber < 4, (), PlayersNumberLimitException)
       target = allSides(playersNumber)
       _ <- protoGameStorage.addPlayer(gameId, userId, target)
-      user <- userStorage.find(userId)
+      user <- userStorage.findById(userId)
       newPlayer = ProtoPlayer(user.id, user.login, target)
     } yield protoGame.copy(players =
       protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
