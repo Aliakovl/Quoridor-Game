@@ -12,7 +12,7 @@ function appendPseudoRow(table, row) {
                 td.classList.add("empty-place")
             } else {
                 td.id = `wh${row}${column}`
-                td.setAttribute("orientation", "Horizontal")
+                td.setAttribute("orientation", "horizontal")
                 if (column < 8) {
                     td.onmouseover = _ => {
                         td.classList.add("pointed-wall")
@@ -64,7 +64,7 @@ function appendRow(table, row) {
                 td.setAttribute("row", `${column}`)
                 td.setAttribute("column", `${row}`)
                 td.id = `wv${column}${row}`
-                td.setAttribute("orientation", "Vertical")
+                td.setAttribute("orientation", "vertical")
                 if (row < 8) {
                     td.onmouseover = _ => {
                         td.classList.add("pointed-wall")
@@ -99,7 +99,7 @@ function createGameField(parent) {
 }
 
 function setWall(gameField, wall) {
-    if (wall.orientation === "Horizontal") {
+    if (wall.orientation === "horizontal") {
         document.getElementById(`wh${wall.row}${wall.column}`).classList.add("placed-wall")
         document.getElementById(`i${wall.row}${wall.column}`).classList.add("placed-wall")
         document.getElementById(`wh${wall.row}${wall.column + 1}`).classList.add("placed-wall")
@@ -112,26 +112,26 @@ function setWall(gameField, wall) {
 
 function sideOrder(side) {
     switch (side) {
-        case "North":
+        case "north":
             return 0
-        case "East":
+        case "east":
             return 1
-        case "South":
+        case "south":
             return 2
-        case "West":
+        case "west":
             return 3
     }
 }
 
 function sideArrow(side) {
     switch (side) {
-        case "North":
+        case "north":
             return '\u2191'
-        case "East":
+        case "east":
             return '\u2192'
-        case "South":
+        case "south":
             return '\u2193'
-        case "West":
+        case "west":
             return '\u2190'
     }
 }

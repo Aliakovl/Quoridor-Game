@@ -1,16 +1,16 @@
 package ru.quoridor.dao.quill
 
-import io.getquill.context.jdbc.{Decoders, Encoders}
+import io.getquill.context.jdbc.JdbcContextTypes
 import org.postgresql.util.PGobject
 import ru.quoridor.model.game.geometry.{Orientation, Side}
 
-import java.sql.{PreparedStatement, ResultSet, Types}
+import java.sql.Types
 
-trait PostgresExtensions { this: Encoders with Decoders =>
+trait PostgresExtensions { this: JdbcContextTypes[_, _] =>
   implicit val sideEncoder: Encoder[Side] =
     encoder[Side](
       Types.OTHER,
-      (index: Int, value: Side, row: PreparedStatement) => {
+      (index: Index, value: Side, row: PrepareRow) => {
         val pgObj = new PGobject()
         pgObj.setType("side")
         pgObj.setValue(value.entryName)
@@ -19,14 +19,14 @@ trait PostgresExtensions { this: Encoders with Decoders =>
     )
 
   implicit val sideDecoder: Decoder[Side] =
-    decoder[Side] { row: ResultSet => index: Int =>
+    decoder[Side] { row: ResultRow => index: Int =>
       Side.withName(row.getObject(index, classOf[String]))
     }
 
   implicit val orientationEncoder: Encoder[Orientation] =
     encoder[Orientation](
       Types.OTHER,
-      (index: Int, value: Orientation, row: PreparedStatement) => {
+      (index: Index, value: Orientation, row: PrepareRow) => {
         val pgObj = new PGobject()
         pgObj.setType("orientation")
         pgObj.setValue(value.entryName)
@@ -35,7 +35,7 @@ trait PostgresExtensions { this: Encoders with Decoders =>
     )
 
   implicit val orientationDecoder: Decoder[Orientation] =
-    decoder[Orientation] { row: ResultSet => index: Int =>
+    decoder[Orientation] { row: ResultRow => index: Int =>
       Orientation.withName(row.getObject(index, classOf[String]))
     }
 }

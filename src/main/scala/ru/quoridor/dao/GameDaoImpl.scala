@@ -132,7 +132,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
         user <- query[dto.User].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
-          pawnPosition.gameId == player.gameId && pawnPosition.userId == player.userId
+          pawnPosition.gameId == gameState.gameId &&
+          pawnPosition.step == gameState.step &&
+          pawnPosition.userId == player.userId
         }
         if pawnPosition.gameId == lift(gameId) &&
           pawnPosition.step == lift(step) &&
@@ -160,7 +162,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
         user <- query[dto.User].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
-          pawnPosition.gameId == player.gameId && pawnPosition.userId == player.userId
+          pawnPosition.gameId == gameState.gameId &&
+          pawnPosition.step == gameState.step &&
+          pawnPosition.userId == player.userId
         }
         if pawnPosition.gameId == lift(gameId) &&
           pawnPosition.step == lift(step) &&
