@@ -13,12 +13,7 @@ import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.EnvTask
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.storage.quillInst.QuillContext
-import ru.quoridor.storage.{
-  DataBase,
-  GameStorage,
-  ProtoGameStorage,
-  UserStorage
-}
+import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
 import zio.interop.catz._
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.{ExitCode, ZIO, ZIOAppDefault}
@@ -55,7 +50,6 @@ object QuoridorApp extends ZIOAppDefault {
     }
     .provide(
       QuoridorGame.appConfigLayer,
-      DataBase.live,
       Quill.DataSource.fromPrefix("hikari"),
       QuillContext.live,
       ProtoGameStorage.live,
