@@ -1,7 +1,5 @@
 package ru.quoridor.model.game.geometry
 
-import doobie.Meta
-import doobie.postgres.implicits.pgEnumStringOpt
 import enumeratum.EnumEntry.Snakecase
 import enumeratum.{CirceEnum, Enum}
 
@@ -27,20 +25,6 @@ object Side extends Enum[Side] with CirceEnum[Side] {
   case object East extends Side
 
   val allSides: Seq[Side] = Seq(North, South, West, East)
-
-  implicit val sideMeta: Meta[Side] =
-    pgEnumStringOpt("side", Side.fromEnum, Side.toEnum)
-
-  def toEnum(side: Side): String = side.toString.toLowerCase
-
-  private def fromEnum(string: String): Option[Side] = {
-    Option(string.toLowerCase).collect {
-      case "north" => North
-      case "south" => South
-      case "west"  => West
-      case "east"  => East
-    }
-  }
 
   private def order(side: Side): Int = {
     side match {

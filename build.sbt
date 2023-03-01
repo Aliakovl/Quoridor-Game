@@ -1,18 +1,13 @@
-ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "2.13.10"
 
 lazy val circeVersion = "0.14.4"
 lazy val tapirVersion = "1.2.9"
 lazy val http4sVersion = "0.23.18"
-lazy val doobieVersion = "1.0.0-RC1"
 lazy val zioVersion = "2.0.9"
 lazy val zioLoggingVersion = "2.1.9"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
-  "org.tpolecat" %% "doobie-core" % doobieVersion,
-  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
-  "org.tpolecat" %% "doobie-hikari" % doobieVersion,
-  "ch.qos.logback" % "logback-classic" % "1.4.5",
   "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
