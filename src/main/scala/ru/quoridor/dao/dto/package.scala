@@ -1,4 +1,4 @@
-package ru.quoridor.storage
+package ru.quoridor.dao
 
 import ru.utils.tagging.ID
 import ru.quoridor.model

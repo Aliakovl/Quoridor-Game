@@ -1,6 +1,6 @@
 package ru.quoridor.services
 
-import ru.quoridor.storage.{GameDao, UserDao}
+import ru.quoridor.dao.{GameDao, UserDao}
 import ru.quoridor.model.User
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 

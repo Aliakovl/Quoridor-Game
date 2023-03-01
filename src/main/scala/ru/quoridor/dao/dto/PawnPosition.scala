@@ -1,4 +1,4 @@
-package ru.quoridor.storage.dto
+package ru.quoridor.dao.dto
 
 case class PawnPosition(
     gameId: GameId,

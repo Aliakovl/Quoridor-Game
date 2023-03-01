@@ -1,7 +1,7 @@
-package ru.quoridor.storage
+package ru.quoridor.dao
 
 import ru.quoridor.model.User
-import ru.quoridor.storage.quill.{QuillContext, UserDaoImpl}
+import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 

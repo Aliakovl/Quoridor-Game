@@ -4,7 +4,7 @@ import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
-import ru.quoridor.storage.{GameDao, ProtoGameDao, UserDao}
+import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}

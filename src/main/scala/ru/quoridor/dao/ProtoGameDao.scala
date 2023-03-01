@@ -1,9 +1,9 @@
-package ru.quoridor.storage
+package ru.quoridor.dao
 
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.model.game.geometry.Side
-import ru.quoridor.storage.quill.{ProtoGameDaoImpl, QuillContext}
+import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 

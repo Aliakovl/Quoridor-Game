@@ -2,7 +2,7 @@ package ru.quoridor.services
 
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move}
-import ru.quoridor.storage.GameDao
+import ru.quoridor.dao.GameDao
 import ru.utils.tagging.ID
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 

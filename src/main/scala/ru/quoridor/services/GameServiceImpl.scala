@@ -8,7 +8,7 @@ import ru.quoridor.model.GameException.{
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
-import ru.quoridor.storage.GameDao
+import ru.quoridor.dao.GameDao
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 

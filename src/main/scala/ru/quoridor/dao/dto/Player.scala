@@ -1,4 +1,4 @@
-package ru.quoridor.storage.dto
+package ru.quoridor.dao.dto
 
 import ru.quoridor.model.game.geometry.Side
 

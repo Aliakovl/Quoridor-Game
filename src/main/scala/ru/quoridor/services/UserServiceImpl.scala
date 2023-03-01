@@ -1,7 +1,7 @@
 package ru.quoridor.services
 
 import ru.quoridor.model.User
-import ru.quoridor.storage.UserDao
+import ru.quoridor.dao.UserDao
 import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.Task
 

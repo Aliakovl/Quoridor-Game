@@ -1,13 +1,13 @@
-package ru.quoridor.storage.quill
+package ru.quoridor.dao
 
 import org.postgresql.util.PSQLState
+import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException.{
   LoginNotFoundException,
   LoginOccupiedException,
   UserNotFoundException
 }
 import ru.quoridor.model.User
-import ru.quoridor.storage.{UserDao, dto}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 

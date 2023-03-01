@@ -1,12 +1,12 @@
-package ru.quoridor.storage.quill
+package ru.quoridor.dao
 
 import cats.data.NonEmptyList
 import org.postgresql.util.PSQLState
+import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException.GameNotFoundException
+import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
-import ru.quoridor.model.game._
-import ru.quoridor.storage.{GameDao, dto}
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
 

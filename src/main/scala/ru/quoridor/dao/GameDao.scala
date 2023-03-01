@@ -1,8 +1,8 @@
-package ru.quoridor.storage
+package ru.quoridor.dao
 
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, State}
-import ru.quoridor.storage.quill.{GameDaoImpl, QuillContext}
+import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
