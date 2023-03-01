@@ -1,16 +1,15 @@
-package ru.quoridor.storage.quillInst
+package ru.quoridor.storage.quill
 
 import io.getquill.Ord
 import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import ru.quoridor.model.game.geometry.Side
-import ru.quoridor.storage.{ProtoGameStorage, dto}
+import ru.quoridor.storage.{ProtoGameDao, dto}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
-class ProtoGameStorageImpl(quillContext: QuillContext)
-    extends ProtoGameStorage {
+class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   import quillContext._
 
   override def find(gameId: ID[Game]): Task[ProtoGame] = {

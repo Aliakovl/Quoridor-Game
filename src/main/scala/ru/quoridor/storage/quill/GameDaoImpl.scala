@@ -1,4 +1,4 @@
-package ru.quoridor.storage.quillInst
+package ru.quoridor.storage.quill
 
 import cats.data.NonEmptyList
 import org.postgresql.util.PSQLState
@@ -6,13 +6,13 @@ import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game._
-import ru.quoridor.storage.{GameStorage, dto}
+import ru.quoridor.storage.{GameDao, dto}
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
 
 import java.sql.SQLException
 
-class GameStorageImpl(quillContext: QuillContext) extends GameStorage {
+class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   import quillContext._
 
   override def find(gameId: ID[Game]): Task[Game] = transaction {

@@ -1,4 +1,4 @@
-package ru.quoridor.storage.quillInst
+package ru.quoridor.storage.quill
 
 import org.postgresql.util.PSQLState
 import ru.quoridor.model.GameException.{
@@ -7,13 +7,13 @@ import ru.quoridor.model.GameException.{
   UserNotFoundException
 }
 import ru.quoridor.model.User
-import ru.quoridor.storage.{UserStorage, dto}
+import ru.quoridor.storage.{UserDao, dto}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
 import java.sql.SQLException
 
-class UserStorageImpl(quillContext: QuillContext) extends UserStorage {
+class UserDaoImpl(quillContext: QuillContext) extends UserDao {
   import quillContext._
 
   override def findByLogin(login: String): Task[User] = {

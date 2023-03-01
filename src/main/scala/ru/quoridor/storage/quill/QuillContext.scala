@@ -1,4 +1,4 @@
-package ru.quoridor.storage.quillInst
+package ru.quoridor.storage.quill
 
 import io.getquill.{Escape, NamingStrategy, SnakeCase}
 import io.getquill.jdbczio.Quill

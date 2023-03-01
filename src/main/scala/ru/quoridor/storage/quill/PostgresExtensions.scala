@@ -1,4 +1,4 @@
-package ru.quoridor.storage.quillInst
+package ru.quoridor.storage.quill
 
 import io.getquill.context.jdbc.{Decoders, Encoders}
 import org.postgresql.util.PGobject

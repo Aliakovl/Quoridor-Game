@@ -1,6 +1,6 @@
 package ru.quoridor.services
 
-import ru.quoridor.storage.{GameStorage, UserStorage}
+import ru.quoridor.storage.{GameDao, UserDao}
 import ru.quoridor.model.User
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
@@ -11,7 +11,7 @@ trait UserService {
 }
 
 object UserService {
-  val live: URLayer[UserStorage with GameStorage, UserService] =
+  val live: URLayer[UserDao with GameDao, UserService] =
     ZLayer.fromFunction(new UserServiceImpl(_))
 
   def findUser(login: String): RIO[UserService, User] =

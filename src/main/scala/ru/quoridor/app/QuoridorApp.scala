@@ -12,8 +12,8 @@ import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.EnvTask
 import ru.quoridor.services.{GameCreator, GameService, UserService}
-import ru.quoridor.storage.quillInst.QuillContext
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
+import ru.quoridor.storage.quill.QuillContext
+import ru.quoridor.storage.{GameDao, ProtoGameDao, UserDao}
 import zio.interop.catz._
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.{ExitCode, ZIO, ZIOAppDefault}
@@ -52,9 +52,9 @@ object QuoridorApp extends ZIOAppDefault {
       QuoridorGame.appConfigLayer,
       Quill.DataSource.fromPrefix("hikari"),
       QuillContext.live,
-      ProtoGameStorage.live,
-      GameStorage.live,
-      UserStorage.live,
+      ProtoGameDao.live,
+      GameDao.live,
+      UserDao.live,
       GameCreator.live,
       GameService.live,
       UserService.live,
