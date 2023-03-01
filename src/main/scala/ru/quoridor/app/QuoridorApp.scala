@@ -3,7 +3,6 @@ package ru.quoridor.app
 import cats.implicits._
 import io.circe.Encoder
 import io.getquill.jdbczio.Quill
-import io.getquill.{CompositeNamingStrategy2, Escape, NamingStrategy, SnakeCase}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.io._
@@ -13,6 +12,7 @@ import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.EnvTask
 import ru.quoridor.services.{GameCreator, GameService, UserService}
+import ru.quoridor.storage.quillInst.QuillContext
 import ru.quoridor.storage.{
   DataBase,
   GameStorage,
@@ -29,9 +29,6 @@ object QuoridorApp extends ZIOAppDefault {
 
   implicit val jsonEncode: Encoder[ExceptionResponse] =
     Encoder.forProduct1("errorMessage")(_.errorMessage)
-
-  private val namingStrategy: CompositeNamingStrategy2[SnakeCase, Escape] =
-    NamingStrategy(SnakeCase, Escape)
 
   override def run: ZIO[Any, Any, ExitCode] = ZIO
     .serviceWithZIO[AppConfig] { appConfig =>
@@ -59,8 +56,8 @@ object QuoridorApp extends ZIOAppDefault {
     .provide(
       QuoridorGame.appConfigLayer,
       DataBase.live,
-      Quill.Postgres.fromNamingStrategy(namingStrategy),
       Quill.DataSource.fromPrefix("hikari"),
+      QuillContext.live,
       ProtoGameStorage.live,
       GameStorage.live,
       UserStorage.live,

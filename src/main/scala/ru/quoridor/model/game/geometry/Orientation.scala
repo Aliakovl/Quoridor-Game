@@ -3,7 +3,7 @@ package ru.quoridor.model.game.geometry
 import doobie.Meta
 import doobie.postgres.implicits.pgEnumStringOpt
 import enumeratum.EnumEntry.Snakecase
-import enumeratum.{CirceEnum, Enum, EnumEntry, QuillEnum}
+import enumeratum.{CirceEnum, Enum, EnumEntry}
 
 sealed trait Orientation
     extends Opposite[Orientation]
@@ -17,10 +17,7 @@ sealed trait Orientation
   }
 }
 
-object Orientation
-    extends Enum[Orientation]
-    with CirceEnum[Orientation]
-    with QuillEnum[Orientation] {
+object Orientation extends Enum[Orientation] with CirceEnum[Orientation] {
   case object Horizontal extends Orientation
   case object Vertical extends Orientation
 

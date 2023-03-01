@@ -1,7 +1,6 @@
 package ru.quoridor.storage.quillInst
 
-import io.getquill.{CompositeNamingStrategy2, Escape, Ord, SnakeCase}
-import io.getquill.jdbczio.Quill
+import io.getquill.Ord
 import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
@@ -10,13 +9,9 @@ import ru.quoridor.storage.{ProtoGameStorage, dto}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
-class ProtoGameStorageImpl(
-    override val quill: Quill.Postgres[
-      CompositeNamingStrategy2[SnakeCase, Escape]
-    ]
-) extends DataStore(quill)
-    with ProtoGameStorage {
-  import quill._
+class ProtoGameStorageImpl(quillContext: QuillContext)
+    extends ProtoGameStorage {
+  import quillContext._
 
   override def find(gameId: ID[Game]): Task[ProtoGame] = {
     val findProtoPlayersByGameId = quote {

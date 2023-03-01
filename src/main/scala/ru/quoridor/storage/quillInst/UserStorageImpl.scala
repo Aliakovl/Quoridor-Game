@@ -1,7 +1,5 @@
 package ru.quoridor.storage.quillInst
 
-import io.getquill.{CompositeNamingStrategy2, Escape, SnakeCase}
-import io.getquill.jdbczio.Quill
 import org.postgresql.util.PSQLState
 import ru.quoridor.model.GameException.{
   LoginNotFoundException,
@@ -15,10 +13,8 @@ import zio.{Task, ZIO}
 
 import java.sql.SQLException
 
-class UserStorageImpl(
-    quill: Quill.Postgres[CompositeNamingStrategy2[SnakeCase, Escape]]
-) extends UserStorage {
-  import quill._
+class UserStorageImpl(quillContext: QuillContext) extends UserStorage {
+  import quillContext._
 
   override def findByLogin(login: String): Task[User] = {
     val findUserByLogin = quote {

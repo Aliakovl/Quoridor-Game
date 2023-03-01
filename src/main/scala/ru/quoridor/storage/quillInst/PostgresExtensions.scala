@@ -1,21 +1,16 @@
 package ru.quoridor.storage.quillInst
 
-import io.getquill.{CompositeNamingStrategy2, Escape, SnakeCase}
-import io.getquill.jdbczio.Quill
+import io.getquill.context.jdbc.{Decoders, Encoders}
 import org.postgresql.util.PGobject
 import ru.quoridor.model.game.geometry.{Orientation, Side}
 
-import java.sql.Types
+import java.sql.{PreparedStatement, ResultSet, Types}
 
-class DataStore(
-    val quill: Quill.Postgres[CompositeNamingStrategy2[SnakeCase, Escape]]
-) {
-  import quill._
-
+trait PostgresExtensions { this: Encoders with Decoders =>
   implicit val sideEncoder: Encoder[Side] =
     encoder[Side](
       Types.OTHER,
-      (index: Index, value: Side, row: PrepareRow) => {
+      (index: Int, value: Side, row: PreparedStatement) => {
         val pgObj = new PGobject()
         pgObj.setType("side")
         pgObj.setValue(value.entryName)
@@ -24,14 +19,14 @@ class DataStore(
     )
 
   implicit val sideDecoder: Decoder[Side] =
-    decoder[Side]((row: ResultRow) =>
-      (index: Index) => Side.withName(row.getObject(index).toString)
-    )
+    decoder[Side] { row: ResultSet => index: Int =>
+      Side.withName(row.getObject(index, classOf[String]))
+    }
 
   implicit val orientationEncoder: Encoder[Orientation] =
     encoder[Orientation](
       Types.OTHER,
-      (index: Index, value: Orientation, row: PrepareRow) => {
+      (index: Int, value: Orientation, row: PreparedStatement) => {
         val pgObj = new PGobject()
         pgObj.setType("orientation")
         pgObj.setValue(value.entryName)
@@ -40,7 +35,7 @@ class DataStore(
     )
 
   implicit val orientationDecoder: Decoder[Orientation] =
-    decoder[Orientation]((row: ResultRow) =>
-      (index: Index) => Orientation.withName(row.getObject(index).toString)
-    )
+    decoder[Orientation] { row: ResultSet => index: Int =>
+      Orientation.withName(row.getObject(index, classOf[String]))
+    }
 }

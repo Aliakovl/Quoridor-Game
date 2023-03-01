@@ -1,11 +1,9 @@
 package ru.quoridor.storage
 
-import io.getquill.{CompositeNamingStrategy2, Escape, SnakeCase}
-import io.getquill.jdbczio.Quill
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
 import ru.quoridor.model.game.geometry.Side
-import ru.quoridor.storage.quillInst.ProtoGameStorageImpl
+import ru.quoridor.storage.quillInst.{ProtoGameStorageImpl, QuillContext}
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
@@ -18,8 +16,6 @@ trait ProtoGameStorage {
 }
 
 object ProtoGameStorage {
-  val live: RLayer[Quill.Postgres[
-    CompositeNamingStrategy2[SnakeCase, Escape]
-  ], ProtoGameStorageImpl] =
+  val live: RLayer[QuillContext, ProtoGameStorage] =
     ZLayer.fromFunction(new ProtoGameStorageImpl(_))
 }
