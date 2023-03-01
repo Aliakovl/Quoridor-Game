@@ -20,6 +20,7 @@ import ru.quoridor.storage.{
   UserStorage
 }
 import zio.interop.catz._
+import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.{ExitCode, ZIO, ZIOAppDefault}
 
 object QuoridorApp extends ZIOAppDefault {
@@ -65,7 +66,8 @@ object QuoridorApp extends ZIOAppDefault {
       UserStorage.live,
       GameCreator.live,
       GameService.live,
-      UserService.live
+      UserService.live,
+      Slf4jBridge.initialize
     )
 
 }

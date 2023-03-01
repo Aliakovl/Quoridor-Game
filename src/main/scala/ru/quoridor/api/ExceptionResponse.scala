@@ -8,11 +8,7 @@ final case class ExceptionResponse(errorMessage: String)
 
 object ExceptionResponse {
   def apply(throwable: Throwable): ExceptionResponse = {
-    exceptionCode(throwable) match {
-      case StatusCode.InternalServerError =>
-        ExceptionResponse("Oops! Something went wrong...")
-      case _ => ExceptionResponse(throwable.getMessage)
-    }
+    ExceptionResponse(throwable.getMessage)
   }
 
   def exceptionCode(throwable: Throwable): StatusCode = throwable match {

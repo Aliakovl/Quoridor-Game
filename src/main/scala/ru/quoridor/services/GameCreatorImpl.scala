@@ -22,7 +22,7 @@ class GameCreatorImpl(
     val target = North
     userStorage.findById(userId).flatMap { user =>
       protoGameStorage
-        .insert(gameId, userId)
+        .insert(gameId, userId, target)
         .as {
           val protoPlayer = ProtoPlayer(userId, user.login, target)
           ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))

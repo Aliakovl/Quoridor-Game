@@ -5,7 +5,6 @@ import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.util.query.Query0
 import ru.quoridor.model.{ProtoPlayer, User}
-import ru.quoridor.model.game.geometry.Side.North
 import ru.quoridor.model.game.{Game, Player}
 import ru.quoridor.model.game.geometry.{Orientation, Side, WallPosition}
 import ru.utils.tagging.Tagged.Implicits._
@@ -54,12 +53,9 @@ object queries {
       gameId: ID[Game],
       userId: ID[User]
   ): Update0 = {
-    val target = North
     sql"""
     INSERT INTO game (game_id, creator)
-    VALUES ($gameId, $userId);
-    INSERT INTO player (game_id, user_id, target)
-    VALUES ($gameId, $userId, ${Side.toEnum(target)}::side)
+    VALUES ($gameId, $userId)
     """.update
   }
 

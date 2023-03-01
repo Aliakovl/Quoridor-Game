@@ -33,11 +33,18 @@ class ProtoGameStorageImpl(dataBase: DataBase) extends ProtoGameStorage {
       }
   }
 
-  override def insert(gameId: ID[Game], userId: ID[User]): Task[Unit] = {
+  override def insert(
+      gameId: ID[Game],
+      userId: ID[User],
+      target: Side
+  ): Task[Unit] = {
     dataBase.transact {
       queries
         .createProtoGameByUser(gameId, userId)
         .run
+        .flatMap { _ =>
+          queries.addUserIntoProtoGame(gameId, userId, target).run
+        }
         .transact[Task]
     }.unit
   }

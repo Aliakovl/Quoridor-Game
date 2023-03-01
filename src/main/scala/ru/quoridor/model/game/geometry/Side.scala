@@ -2,9 +2,10 @@ package ru.quoridor.model.game.geometry
 
 import doobie.Meta
 import doobie.postgres.implicits.pgEnumStringOpt
-import enumeratum.{CirceEnum, Enum, EnumEntry}
+import enumeratum.EnumEntry.Snakecase
+import enumeratum.{CirceEnum, Enum}
 
-sealed trait Side extends Opposite[Side] with Ordered[Side] with EnumEntry {
+sealed trait Side extends Opposite[Side] with Ordered[Side] with Snakecase {
   self =>
   import Side._
 
