@@ -50,19 +50,19 @@ td.wall-place.horizontal {
     padding: 5px 10px 5px 10px;
 }
 
-td.pawn-place.North {
+td.pawn-place.north {
     background-color: darkred;
 }
 
-td.pawn-place.South {
+td.pawn-place.south {
     background-color: darkgreen;
 }
 
-td.pawn-place.East {
+td.pawn-place.east {
     background-color: cornflowerblue;
 }
 
-td.pawn-place.West {
+td.pawn-place.west {
     background-color: gold;
 }
 
@@ -103,20 +103,20 @@ ul li {
     border-collapse: collapse;
 }
 
-ul li.North:before {
+ul li.north:before {
     color: darkred;
 }
 
-ul li.South:before {
+ul li.south:before {
     color: darkgreen;
 }
 
 
-ul li.East:before {
+ul li.east:before {
     color: cornflowerblue;
 }
 
 
-ul li.West:before {
+ul li.west:before {
     color: gold;
 }

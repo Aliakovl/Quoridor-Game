@@ -8,14 +8,14 @@ import ru.quoridor.model.GameException.{
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.Board
-import ru.quoridor.storage.GameStorage
+import ru.quoridor.dao.GameDao
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
-class GameServiceImpl(gameStorage: GameStorage) extends GameService {
+class GameServiceImpl(gameDao: GameDao) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
-    gameStorage.find(gameId)
+    gameDao.find(gameId)
   } // TODO: вернуть проверку на принадлежность игрока игре
 
   override def makeMove(
@@ -24,7 +24,7 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
       move: Move
   ): Task[Game] = {
     for {
-      game <- gameStorage.find(gameId)
+      game <- gameDao.find(gameId)
       either = for {
         _ <- Either.cond(
           game.state.players.toList.exists(_.id == userId),
@@ -52,7 +52,7 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
             User(id, login)
         }
       }.flatten
-      _ <- gameStorage.insert(gameId, game.step + 1, newState, move, winner)
+      _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
     } yield Game(
       gameId,
       step = game.step + 1,
@@ -63,8 +63,8 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
 
   override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
     for {
-      gameIds <- gameStorage.history(userId)
-      gamePreViews <- ZIO.foreachPar(gameIds)(gameStorage.findParticipants)
+      gameIds <- gameDao.history(userId)
+      gamePreViews <- ZIO.foreachPar(gameIds)(gameDao.findParticipants)
     } yield gamePreViews
   }
 
@@ -73,16 +73,16 @@ class GameServiceImpl(gameStorage: GameStorage) extends GameService {
       userId: ID[User]
   ): Task[List[Game]] = {
     for {
-      game <- gameStorage.find(gameId)
+      game <- gameDao.find(gameId)
       _ <- ZIO.cond(
         game.state.players.toList.exists(_.id == userId),
         (),
         GameInterloperException(userId, gameId)
       )
 
-      lastStep <- gameStorage.lastStep(gameId)
+      lastStep <- gameDao.lastStep(gameId)
       history <- ZIO.foreachPar((0 to lastStep).toList)(
-        gameStorage.find(gameId, _)
+        gameDao.find(gameId, _)
       )
     } yield history
   }

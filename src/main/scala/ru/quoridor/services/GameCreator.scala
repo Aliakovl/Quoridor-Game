@@ -2,7 +2,7 @@ package ru.quoridor.services
 
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.{ProtoGame, User}
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
+import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.utils.tagging.ID
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
@@ -16,8 +16,8 @@ trait GameCreator {
 
 object GameCreator {
   val live: URLayer[
-    UserStorage with ProtoGameStorage with GameStorage,
-    GameCreatorImpl
+    UserDao with ProtoGameDao with GameDao,
+    GameCreator
   ] =
     ZLayer.fromFunction(new GameCreatorImpl(_, _, _))
 

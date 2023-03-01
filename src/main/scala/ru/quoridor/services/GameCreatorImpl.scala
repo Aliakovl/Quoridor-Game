@@ -4,7 +4,7 @@ import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
-import ru.quoridor.storage.{GameStorage, ProtoGameStorage, UserStorage}
+import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
@@ -12,17 +12,17 @@ import zio.{Task, ZIO}
 import java.util.UUID
 
 class GameCreatorImpl(
-    userStorage: UserStorage,
-    protoGameStorage: ProtoGameStorage,
-    gameStorage: GameStorage
+    userDao: UserDao,
+    protoGameDao: ProtoGameDao,
+    gameDao: GameDao
 ) extends GameCreator {
 
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
     val target = North
-    userStorage.find(userId).flatMap { user =>
-      protoGameStorage
-        .insert(gameId, userId)
+    userDao.findById(userId).flatMap { user =>
+      protoGameDao
+        .insert(gameId, userId, target)
         .as {
           val protoPlayer = ProtoPlayer(userId, user.login, target)
           ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
@@ -35,18 +35,18 @@ class GameCreatorImpl(
       userId: ID[User]
   ): Task[ProtoGame] = {
     for {
-      gameAlreadyStarted <- gameStorage.hasStarted(gameId)
+      gameAlreadyStarted <- gameDao.hasStarted(gameId)
       _ <- ZIO.cond(
         !gameAlreadyStarted,
         (),
         GameAlreadyStartedException(gameId)
       )
-      protoGame <- protoGameStorage.find(gameId)
+      protoGame <- protoGameDao.find(gameId)
       playersNumber = protoGame.players.guests.size + 1
       _ <- ZIO.cond(playersNumber < 4, (), PlayersNumberLimitException)
       target = allSides(playersNumber)
-      _ <- protoGameStorage.addPlayer(gameId, userId, target)
-      user <- userStorage.find(userId)
+      _ <- protoGameDao.addPlayer(gameId, userId, target)
+      user <- userDao.findById(userId)
       newPlayer = ProtoPlayer(user.id, user.login, target)
     } yield protoGame.copy(players =
       protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
@@ -55,13 +55,13 @@ class GameCreatorImpl(
 
   override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
     for {
-      gameAlreadyStarted <- gameStorage.hasStarted(gameId)
+      gameAlreadyStarted <- gameDao.hasStarted(gameId)
       _ <- ZIO.cond(
         !gameAlreadyStarted,
         (),
         GameAlreadyStartedException(gameId)
       )
-      protoGame <- protoGameStorage.find(gameId)
+      protoGame <- protoGameDao.find(gameId)
       _ <- ZIO.cond(
         protoGame.players.creator.id == userId,
         (),
@@ -69,7 +69,7 @@ class GameCreatorImpl(
       )
       players <- ZIO.fromEither(protoGame.players.toPlayers)
       state = State(players, Set.empty)
-      game <- gameStorage.create(gameId, state)
+      game <- gameDao.create(gameId, state)
     } yield game
   }
 }

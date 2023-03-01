@@ -7,9 +7,9 @@ import sttp.model.StatusCode
 final case class ExceptionResponse(errorMessage: String)
 
 object ExceptionResponse {
-  def apply(throwable: Throwable): ExceptionResponse = ExceptionResponse(
-    throwable.getMessage
-  )
+  def apply(throwable: Throwable): ExceptionResponse = {
+    ExceptionResponse(throwable.getMessage)
+  }
 
   def exceptionCode(throwable: Throwable): StatusCode = throwable match {
     case _: GameMoveException       => StatusCode.BadRequest

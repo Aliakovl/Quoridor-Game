@@ -1,12 +1,12 @@
-package ru.quoridor.storage
+package ru.quoridor.dao
 
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, State}
-import ru.quoridor.storage.sqlStorage.GameStorageImpl
+import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
-trait GameStorage {
+trait GameDao {
   def find(gameId: ID[Game]): Task[Game]
 
   def find(gameId: ID[Game], step: Int): Task[Game]
@@ -21,16 +21,16 @@ trait GameStorage {
       winner: Option[User]
   ): Task[Unit]
 
-  def create(protoGameId: ID[Game], state: State): Task[Game]
+  def create(gameId: ID[Game], state: State): Task[Game]
 
   def hasStarted(gameId: ID[Game]): Task[Boolean]
 
-  def history(id: ID[User]): Task[List[ID[Game]]]
+  def history(userId: ID[User]): Task[List[ID[Game]]]
 
   def findParticipants(gameId: ID[Game]): Task[GamePreView]
 }
 
-object GameStorage {
-  val live: RLayer[DataBase, GameStorage] =
-    ZLayer.fromFunction(new GameStorageImpl(_))
+object GameDao {
+  val live: RLayer[QuillContext, GameDao] =
+    ZLayer.fromFunction(new GameDaoImpl(_))
 }
