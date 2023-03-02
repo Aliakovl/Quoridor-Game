@@ -5,6 +5,7 @@ import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
 import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
+import ru.quoridor.model.game.geometry.Side
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.{Task, ZIO}
@@ -44,7 +45,7 @@ class GameCreatorImpl(
       protoGame <- protoGameDao.find(gameId)
       playersNumber = protoGame.players.guests.size + 1
       _ <- ZIO.cond(playersNumber < 4, (), PlayersNumberLimitException)
-      target = allSides(playersNumber)
+      target = Side.values(playersNumber)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       user <- userDao.findById(userId)
       newPlayer = ProtoPlayer(user.id, user.login, target)

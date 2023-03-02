@@ -41,6 +41,7 @@ lazy val root = (project in file("."))
     dockerBaseImage := "openjdk:17-alpine",
     dockerUpdateLatest := true,
     dockerExposedPorts := Seq(8080),
+    bashScriptConfigLocation := Some("/conf/application.ini"),
     scalacOptions ++= Seq(
       "-encoding", "utf8",
       "-feature",
