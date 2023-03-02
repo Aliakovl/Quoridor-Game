@@ -30,4 +30,7 @@ jobs:
            ./migrations ./nginx ./target ./static
            ./docker-compose.yml "aliakovl@quoridor.online:$HD"
     - run: ssh aliakovl@quoridor.online
-           "cd $HD && docker-compose up --build -d"
+           "cd $HD &&\
+            export DB_USER=${{ vars.DB_USER }} &&\
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }} &&\
+            docker-compose up --build -d"
