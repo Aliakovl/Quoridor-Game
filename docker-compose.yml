@@ -1,17 +1,28 @@
 version: "3"
 
 services:
+  quoridor-api-conf:
+    build: .
+    volumes:
+      - ./configs:/conf:ro
+
   quoridor-api:
     build: ./target/docker/stage/
     restart: on-failure
     ports:
       - "8080:8080"
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_USER: ${DB_USER}
+    volumes:
+      - ./configs:/conf:ro
     depends_on:
       - flyway
+      - quoridor-api-conf
 
   flyway:
     image: flyway/flyway
-    command: -url=jdbc:postgresql://db:5432/postgres -schemas=postgres -user=postgres -password=postgres -connectRetries=60 migrate
+    command: -url=jdbc:postgresql://db:5432/quoridor -user=${DB_USER} -password=${DB_PASSWORD} -connectRetries=60 migrate
     volumes:
       - ./migrations:/flyway/sql
     depends_on:
@@ -21,9 +32,9 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: quoridor
     ports:
       - "5432:5432"
 
@@ -34,10 +45,6 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/snippets:/etc/nginx/snippets
       - ./static:/var/static
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /etc/ssl/certs:/etc/ssl/certs
     depends_on:
       - quoridor-api

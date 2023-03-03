@@ -24,8 +24,6 @@ object Side extends Enum[Side] with CirceEnum[Side] {
   case object West extends Side
   case object East extends Side
 
-  val allSides: Seq[Side] = Seq(North, South, West, East)
-
   private def order(side: Side): Int = {
     side match {
       case North => 0
