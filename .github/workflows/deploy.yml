@@ -35,12 +35,13 @@ jobs:
 
   restart:
     name: Restart
+    needs: deployment
     runs-on: ubuntu-latest
     steps:
       - name: set env and restart
         uses: appleboy/ssh-action@v0.1.8
         with:
-          envs: DB_USER,DB_PASSWORD
+          envs: HD,DB_USER,DB_PASSWORD
           host: quoridor.online
           username: aliakovl
           key: ${{ secrets.ID_ED25519 }}
