@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 
     let sessionId = window.localStorage.getItem("sessionId")
 
-    let uri = `wss://${window.location.origin.split("://")[1]}/ws/session/${sessionId}`
+    let uri = `ws://${window.location.origin.split("://")[1]}/ws/session/${sessionId}`
 
     let webSocket = new WebSocket(uri)
 
