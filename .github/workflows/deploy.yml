@@ -35,6 +35,7 @@ jobs:
 
   restart:
     name: Restart
+    needs: deployment
     runs-on: ubuntu-latest
     steps:
       - name: set env and restart
@@ -47,6 +48,8 @@ jobs:
           port: 22
           script: |
             cd $HD
+            pwd
+            ls -l
             export DB_USER=$DB_USER
             export DB_PASSWORD=$DB_PASSWORD
             make prod
