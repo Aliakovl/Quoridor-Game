@@ -31,7 +31,7 @@ jobs:
            ./docker-compose.yml ./docker-compose.prod.yml
            ./Dockerfile ./Makefile "aliakovl@quoridor.online:$HD"
     - run: ssh aliakovl@quoridor.online
-           "cd $HD &&\
+           'bash -c "cd $HD &&\
             export DB_USER=${{ vars.DB_USER }} &&\
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }} &&\
-            make prod"
+            make prod"'
