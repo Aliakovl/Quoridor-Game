@@ -32,6 +32,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j-bridge" % zioLoggingVersion,
+  "com.github.jwt-scala" %% "jwt-core" % "9.2.0",
+  "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE"
 )
 
 lazy val root = (project in file("."))
