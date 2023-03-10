@@ -7,14 +7,14 @@ import io.lettuce.core.{RedisClient, RedisURI}
 import zio.{Task, ZIO}
 
 class RedisStore[K, V](private val connection: StatefulRedisConnection[K, V])
-    extends KVStore[K, V] {
+    extends KSetStore[K, V] {
 
   private val async: RedisAsyncCommands[K, V] = connection.async()
 
-  override def add(key: K, value: V): Task[Long] = {
+  override def sadd(key: K, value: V*): Task[Long] = {
     ZIO.async { cb =>
       async
-        .sadd(key, value)
+        .sadd(key, value: _*)
         .handleAsync { (value: java.lang.Long, error: Throwable) =>
           cb(ZIO.succeed(value))
           cb(ZIO.fail(error))
@@ -22,7 +22,7 @@ class RedisStore[K, V](private val connection: StatefulRedisConnection[K, V])
     }
   }
 
-  override def isMember(key: K, value: V): Task[Boolean] = {
+  override def sismember(key: K, value: V): Task[Boolean] = {
     ZIO.async { cb =>
       async
         .sismember(key, value)
@@ -33,10 +33,10 @@ class RedisStore[K, V](private val connection: StatefulRedisConnection[K, V])
     }
   }
 
-  override def remove(key: K, value: V): Task[Long] = {
+  override def srem(key: K, value: V*): Task[Long] = {
     ZIO.async { cb =>
       async
-        .srem(key, value)
+        .srem(key, value: _*)
         .handleAsync { (value: java.lang.Long, error: Throwable) =>
           cb(ZIO.succeed(value))
           cb(ZIO.fail(error))
