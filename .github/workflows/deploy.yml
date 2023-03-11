@@ -10,6 +10,7 @@ env:
   HD: ${{ vars.HD }}
   DB_USER: ${{ vars.DB_USER }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  PSWD_PEPPER: ${{ secrets.PSWD_PEPPER }}
 
 jobs:
   deployment:
@@ -41,7 +42,7 @@ jobs:
       - name: set env and restart
         uses: appleboy/ssh-action@v0.1.8
         with:
-          envs: HD,DB_USER,DB_PASSWORD
+          envs: HD,DB_USER,DB_PASSWORD,PSWD_PEPPER
           host: quoridor.online
           username: aliakovl
           key: ${{ secrets.ID_ED25519 }}
@@ -50,4 +51,5 @@ jobs:
             cd $HD
             export DB_USER=$DB_USER
             export DB_PASSWORD=$DB_PASSWORD
+            export PSWD_PEPPER=$PSWD_PEPPER
             make prod
