@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := "2.13.10"
 
-lazy val circeVersion = "0.14.4"
+lazy val circeVersion = "0.14.5"
 lazy val tapirVersion = "1.2.9"
 lazy val http4sVersion = "0.23.18"
 lazy val zioVersion = "2.0.9"
@@ -33,7 +33,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j-bridge" % zioLoggingVersion,
   "com.github.jwt-scala" %% "jwt-circe" % "9.2.0",
-  "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE"
+  "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE",
+  "com.password4j" % "password4j" % "1.7.0"
 )
 
 lazy val root = (project in file("."))
