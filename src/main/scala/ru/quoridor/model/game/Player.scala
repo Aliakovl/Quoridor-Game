@@ -1,12 +1,13 @@
 package ru.quoridor.model.game
 
+import ru.quoridor.auth.model.Username
 import ru.quoridor.model.User
 import ru.quoridor.model.game.geometry.{PawnPosition, Side}
 import ru.utils.tagging.ID
 
 case class Player(
     id: ID[User],
-    login: String,
+    username: Username,
     pawnPosition: PawnPosition,
     wallsAmount: Int,
     target: Side

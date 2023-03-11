@@ -1,13 +1,14 @@
 package ru.quoridor.dao
 
 import org.postgresql.util.PSQLState
+import ru.quoridor.auth.model.Username
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException.{
-  LoginNotFoundException,
-  LoginOccupiedException,
-  UserNotFoundException
+  UserNotFoundException,
+  UsernameNotFoundException,
+  UsernameOccupiedException
 }
-import ru.quoridor.model.User
+import ru.quoridor.model.{User, UserWithSecret}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
@@ -16,15 +17,15 @@ import java.sql.SQLException
 class UserDaoImpl(quillContext: QuillContext) extends UserDao {
   import quillContext._
 
-  override def findByLogin(login: String): Task[User] = {
-    val findUserByLogin = quote {
-      query[dto.`User`].filter(_.login == lift(login))
+  override def findByUsername(username: Username): Task[UserWithSecret] = {
+    val findUserByUsername = quote {
+      query[dto.Userdata].filter(_.username == lift(username))
     }
-    run(findUserByLogin)
+    run(findUserByUsername)
       .map(_.headOption)
-      .someOrFail(LoginNotFoundException(login))
-      .map { case dto.User(id, login) =>
-        User(id, login)
+      .someOrFail(UsernameNotFoundException(username))
+      .map { case dto.Userdata(id, username, secret) =>
+        UserWithSecret(id, username, secret)
       }
   }
 
@@ -35,16 +36,17 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
     run(findUserById)
       .map(_.headOption)
       .someOrFail(UserNotFoundException(id))
-      .map { case dto.User(id, login) =>
-        User(id, login)
+      .map { case dto.User(id, username) =>
+        User(id, username)
       }
   }
 
-  override def insert(user: User): Task[Unit] = {
+  override def insert(user: UserWithSecret): Task[Unit] = {
     val registerUser = quote {
-      query[dto.User].insert(
+      query[dto.Userdata].insert(
         _.userId -> lift(user.id),
-        _.login -> lift(user.login)
+        _.username -> lift(user.username),
+        _.userSecret -> lift(user.userSecret)
       )
     }
     run(registerUser)
@@ -55,8 +57,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       .catchSome {
         case x: SQLException
             if x.getSQLState == PSQLState.UNIQUE_VIOLATION.getState =>
-          ZIO.fail(LoginOccupiedException(user.login))
+          ZIO.fail(UsernameOccupiedException(user.username))
       }
   }
-
 }

@@ -7,8 +7,6 @@ import ru.quoridor.services.UserService
 import ru.utils.tagging.ID
 import zio.{Task, ZLayer}
 
-case class Credentials(username: Username, password: Password)
-
 trait AuthenticationService {
   def login(credentials: Credentials): Task[(AccessToken, RefreshToken)]
 
@@ -41,14 +39,14 @@ class AuthenticationServiceImpl(
   override def login(
       credentials: Credentials
   ): Task[(AccessToken, RefreshToken)] = for {
-    user <- userService.findUser(credentials.username.value)
+    user <- userService.getUserSecret(credentials.username)
     _ <- hashingService
-      .verifyPassword(credentials.password, secret = ???)
+      .verifyPassword(credentials.password, user.userSecret)
       .filterOrFail(identity)(new Throwable("Invalid password"))
     refreshToken = RefreshToken.generate()
     _ <- tokenStore.sadd(user.id, refreshToken)
     accessToken <- accessService.generateToken(
-      ClaimData(user.id, Username(user.login))
+      ClaimData(user.id, user.username)
     )
   } yield (accessToken, refreshToken)
 

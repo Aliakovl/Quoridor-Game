@@ -26,9 +26,8 @@ class HashingServiceImpl(pepper: String)
         .addRandomSalt()
         .addPepper(pepper)
         .withArgon2()
+        .getResultAsBytes
     }
-    .tap(x => ZIO.logInfo(x.toString))
-    .map(_.getResultAsBytes)
     .map(UserSecret)
 
   override def verifyPassword(

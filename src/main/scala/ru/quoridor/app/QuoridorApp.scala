@@ -11,6 +11,7 @@ import org.http4s.server.Router
 import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.EnvTask
+import ru.quoridor.auth.HashingService
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
@@ -58,6 +59,7 @@ object QuoridorApp extends ZIOAppDefault {
       GameCreator.live,
       GameService.live,
       UserService.live,
+      HashingService.live,
       Slf4jBridge.initialize
     )
 

@@ -1,21 +1,32 @@
 package ru.quoridor.services
 
-import ru.quoridor.model.User
+import ru.quoridor.auth.HashingService
+import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
+import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.UserDao
 import ru.utils.tagging.Tagged.Implicits.TaggedOps
 import zio.Task
 
 import java.util.UUID
 
-class UserServiceImpl(userDao: UserDao) extends UserService {
-
-  override def findUser(login: String): Task[User] = {
-    userDao.findByLogin(login)
+class UserServiceImpl(
+    userDao: UserDao,
+    hashingService: HashingService[Password, UserSecret]
+) extends UserService {
+  override def findUser(username: Username): Task[User] = {
+    userDao.findByUsername(username).map(_.toUser)
   }
 
-  override def createUser(login: String): Task[User] = {
-    val userId = UUID.randomUUID().tag[User]
-    val user = User(userId, login)
-    userDao.insert(user).as(user)
+  override def createUser(credentials: Credentials): Task[User] = {
+    for {
+      secret <- hashingService.hashPassword(credentials.password)
+      userId = UUID.randomUUID().tag[User]
+      user = UserWithSecret(userId, credentials.username, secret)
+      _ <- userDao.insert(user)
+    } yield user.toUser
+  }
+
+  override def getUserSecret(username: Username): Task[UserWithSecret] = {
+    userDao.findByUsername(username)
   }
 }

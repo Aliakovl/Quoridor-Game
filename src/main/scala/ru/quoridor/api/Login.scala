@@ -1,3 +1,5 @@
 package ru.quoridor.api
 
-case class Login(login: String)
+import ru.quoridor.auth.model.Username
+
+case class Login(login: Username)

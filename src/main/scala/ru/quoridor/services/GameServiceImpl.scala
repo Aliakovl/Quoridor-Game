@@ -47,9 +47,9 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
       newState <- ZIO.fromEither(either)
       winner = Some(move).collect { case PawnMove(pawnPosition) =>
         Some(game.state.players.activePlayer).collect {
-          case Player(id, login, _, _, target)
+          case Player(id, username, _, _, target)
               if Board.isPawnOnEdge(pawnPosition, target) =>
-            User(id, login)
+            User(id, username)
         }
       }.flatten
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
