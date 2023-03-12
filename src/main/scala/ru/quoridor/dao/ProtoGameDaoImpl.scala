@@ -17,7 +17,7 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
       {
         for {
           player <- query[dto.Player]
-          user <- query[dto.User].join(_.userId == player.userId)
+          user <- query[dto.Userdata].join(_.userId == player.userId)
           game <- query[dto.Game].join(_.gameId == player.gameId)
           if game.gameId == lift(gameId)
         } yield (

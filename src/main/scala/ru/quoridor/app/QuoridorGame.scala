@@ -5,7 +5,7 @@ import org.http4s.HttpRoutes
 import ru.quoridor.api.ExceptionResponse
 import ru.quoridor.api.GameApi._
 import ru.quoridor.api.Authorization._
-import ru.quoridor.auth.AuthenticationService
+import ru.quoridor.auth.{AuthenticationService, AuthorizationService}
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
@@ -23,6 +23,7 @@ object QuoridorGame {
     with GameCreator
     with UserService
     with AuthenticationService
+    with AuthorizationService
 
   type EnvTask[A] = RIO[Env, A]
 

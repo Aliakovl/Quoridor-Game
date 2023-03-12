@@ -9,17 +9,22 @@ import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
 import zio.ZIO.ifZIO
 import zio.nio.file.Path
-import zio.{RLayer, Task, ZIO, ZLayer}
+import zio.{RIO, RLayer, Task, ZIO, ZLayer}
 
 import java.security.interfaces.RSAPublicKey
 
 trait AuthorizationService {
   def validate(accessToken: AccessToken): Task[ClaimData]
 
-  def verifySign(accessToken: AccessToken): Task[ClaimData]
+  private[auth] def verifySign(accessToken: AccessToken): Task[ClaimData]
 }
 
 object AuthorizationService {
+  def validate(
+      accessToken: AccessToken
+  ): RIO[AuthorizationService, ClaimData] =
+    ZIO.serviceWithZIO[AuthorizationService](_.validate(accessToken))
+
   val live: RLayer[TokenKeys, AuthorizationService] = ZLayer {
     ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
       for {
@@ -41,7 +46,9 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
       )
     }
 
-  override def verifySign(accessToken: AccessToken): Task[ClaimData] =
+  private[auth] override def verifySign(
+      accessToken: AccessToken
+  ): Task[ClaimData] =
     getClaims(accessToken).map(_._1)
 
   private def getClaims(

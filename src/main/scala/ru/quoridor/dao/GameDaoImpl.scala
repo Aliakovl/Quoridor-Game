@@ -129,7 +129,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -159,7 +159,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -207,7 +207,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         winner <- query[dto.Winner]
-        user <- query[dto.User].join(_.userId == winner.userId)
+        user <- query[dto.Userdata].join(_.userId == winner.userId)
         if winner.gameId == lift(gameId)
       } yield User(user.userId, user.username)
     }).map(_.headOption)
@@ -279,7 +279,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         if player.gameId == lift(gameId)
       } yield User(user.userId, user.username)
     })

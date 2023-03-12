@@ -31,12 +31,12 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
 
   override def findById(id: ID[User]): Task[User] = {
     val findUserById = quote {
-      query[dto.User].filter(_.userId == lift(id))
+      query[dto.Userdata].filter(_.userId == lift(id))
     }
     run(findUserById)
       .map(_.headOption)
       .someOrFail(UserNotFoundException(id))
-      .map { case dto.User(id, username) =>
+      .map { case dto.Userdata(id, username, _) =>
         User(id, username)
       }
   }

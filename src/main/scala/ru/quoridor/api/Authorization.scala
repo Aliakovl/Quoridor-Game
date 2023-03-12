@@ -39,7 +39,7 @@ object Authorization {
       }
 
   val signInEndpoint: ZServerEndpoint[AuthenticationService, Any] =
-    baseEndpoint.post
+    baseEndpoint.put
       .in("sign-in")
       .in(jsonBody[Credentials])
       .out(jsonBody[AccessToken])
@@ -53,7 +53,7 @@ object Authorization {
       }
 
   val refreshEndpoint: ZServerEndpoint[AuthenticationService, Any] =
-    baseEndpoint.post
+    baseEndpoint.get
       .in("refresh")
       .in(cookie[RefreshToken]("refreshToken"))
       .securityIn(auth.bearer[AccessToken]())
