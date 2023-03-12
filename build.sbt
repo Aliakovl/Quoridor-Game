@@ -1,3 +1,5 @@
+import com.typesafe.sbt.packager.docker._
+
 ThisBuild / scalaVersion := "2.13.10"
 
 lazy val circeVersion = "0.14.5"

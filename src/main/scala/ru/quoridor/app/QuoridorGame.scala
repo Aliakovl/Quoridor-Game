@@ -6,7 +6,8 @@ import pureconfig._
 import pureconfig.generic.auto._
 import ru.quoridor.api.ExceptionResponse
 import ru.quoridor.api.GameApi._
-import ru.quoridor.api.UserApi._
+import ru.quoridor.api.Authorization._
+import ru.quoridor.auth.AuthenticationService
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
@@ -24,13 +25,18 @@ object QuoridorGame {
   val appConfigLayer: URLayer[Any, AppConfig] =
     ZLayer.fromFunction(() => ConfigSource.default.loadOrThrow[AppConfig])
 
-  type Env = GameService with GameCreator with UserService
+  type Env = GameService
+    with GameCreator
+    with UserService
+    with AuthenticationService
+
   type EnvTask[A] = RIO[Env, A]
 
   val api: List[ZServerEndpoint[Env, Any]] = List(
-    createUser.widen[Env],
-    loginUser.widen[Env],
-    getUser.widen[Env],
+    singOnEndpoint.widen[Env],
+    signInEndpoint.widen[Env],
+    refreshEndpoint.widen[Env],
+    signOutEndpoint.widen[Env],
     createGameEndpoint.widen[Env],
     joinPlayerEndpoint.widen[Env],
     startGameEndpoint.widen[Env],

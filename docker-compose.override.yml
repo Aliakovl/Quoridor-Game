@@ -3,6 +3,8 @@ version: "3"
 services:
   quoridor-api:
     restart: 'no'
+    volumes:
+      - ./keys/local/:/var/keys/
 
   nginx:
     image: nginx:latest

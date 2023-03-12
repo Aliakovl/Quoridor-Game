@@ -5,7 +5,7 @@ import ru.quoridor.auth.store.KSetStore
 import ru.quoridor.model.User
 import ru.quoridor.services.UserService
 import ru.utils.tagging.ID
-import zio.{Task, ZLayer}
+import zio.{RIO, RLayer, Task, ZIO, ZLayer}
 
 trait AuthenticationService {
   def login(credentials: Credentials): Task[(AccessToken, RefreshToken)]
@@ -15,18 +15,42 @@ trait AuthenticationService {
       refreshToken: RefreshToken
   ): Task[(AccessToken, RefreshToken)]
 
-  def logout(accessToken: AccessToken, refreshToken: RefreshToken): Task[Unit]
+  def logout(
+      accessToken: AccessToken,
+      refreshToken: RefreshToken
+  ): Task[Unit]
 }
 
 object AuthenticationService {
-  val live: ZLayer[UserService with AccessService with HashingService[
+  val live: RLayer[UserService with AccessService with HashingService[
     Password,
     UserSecret
   ] with AuthorizationService with KSetStore[
     ID[User],
     RefreshToken
-  ], Nothing, AuthenticationServiceImpl] =
+  ], AuthenticationServiceImpl] =
     ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _, _))
+
+  def login(
+      credentials: Credentials
+  ): RIO[AuthenticationService, (AccessToken, RefreshToken)] =
+    ZIO.serviceWithZIO[AuthenticationService](_.login(credentials))
+
+  def refresh(
+      accessToken: AccessToken,
+      refreshToken: RefreshToken
+  ): RIO[AuthenticationService, (AccessToken, RefreshToken)] =
+    ZIO.serviceWithZIO[AuthenticationService](
+      _.refresh(accessToken, refreshToken)
+    )
+
+  def logout(
+      accessToken: AccessToken,
+      refreshToken: RefreshToken
+  ): RIO[AuthenticationService, Unit] =
+    ZIO.serviceWithZIO[AuthenticationService](
+      _.logout(accessToken, refreshToken)
+    )
 }
 
 class AuthenticationServiceImpl(

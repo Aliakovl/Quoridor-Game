@@ -14,11 +14,13 @@ services:
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
+      PSWD_PEPPER: ${PSWD_PEPPER}
     volumes:
       - ./configs:/conf:ro
     depends_on:
       - flyway
       - quoridor-api-conf
+      - token-store
 
   flyway:
     image: flyway/flyway
@@ -48,3 +50,9 @@ services:
       - ./static:/var/static
     depends_on:
       - quoridor-api
+
+  token-store:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
