@@ -4,11 +4,12 @@ import io.circe.generic.auto._
 import io.circe.parser
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtTime}
 import ru.quoridor.auth.model.{AccessToken, ClaimData}
+import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
-import zio.{Task, TaskLayer, ZIO, ZLayer}
+import zio.nio.file.Path
+import zio.{RLayer, Task, ZIO, ZLayer}
 
-import java.nio.file.Path
 import java.security.interfaces.RSAPublicKey
 
 trait AuthorizationService {
@@ -16,13 +17,15 @@ trait AuthorizationService {
 }
 
 object AuthorizationService {
-  val live: TaskLayer[AuthorizationService] = ZLayer(
-    for {
-      privateKey <- ZIO.attempt(
-        RSAKeyReader.readPublicKey(Path.of("/var/keys/jwtRSA256.pem.pub").toFile)
-      )
-    } yield new AuthorizationServiceImpl(privateKey)
-  )
+  val live: RLayer[TokenKeys, AuthorizationService] = ZLayer {
+    ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
+      for {
+        publicKey <- RSAKeyReader.readPublicKey(
+          Path(tokenKeys.`public-key-path`)
+        )
+      } yield new AuthorizationServiceImpl(publicKey)
+    }
+  }
 }
 
 class AuthorizationServiceImpl(publicKey: RSAPublicKey)

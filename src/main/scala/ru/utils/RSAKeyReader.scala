@@ -1,44 +1,45 @@
 package ru.utils
 
-import java.io.File
-import java.nio.file.Files
+import zio.{Task, ZIO}
+import zio.nio.file.{Files, Path}
+
 import java.security.KeyFactory
 import java.security.interfaces.{RSAPrivateKey, RSAPublicKey}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.util.Base64
 
 object RSAKeyReader {
-  def readPublicKey(file: File): RSAPublicKey = {
-    val key = new String(Files.readAllBytes(file.toPath))
+  def readPublicKey(path: Path): Task[RSAPublicKey] = for {
+    publicKeyPEM <- Files
+      .lines(path)
+      .filterNot(_.startsWith("-----BEGIN PUBLIC KEY-----"))
+      .filterNot(_.startsWith("-----END PUBLIC KEY-----"))
+      .map(_.replaceAll(System.lineSeparator(), ""))
+      .mkString
+    encoded <- ZIO.attempt(Base64.getDecoder.decode(publicKeyPEM))
+    keySpec <- ZIO.attempt(new X509EncodedKeySpec(encoded))
+    publicKey <- ZIO.attempt(
+      KeyFactory
+        .getInstance("RSA")
+        .generatePublic(keySpec)
+        .asInstanceOf[RSAPublicKey]
+    )
+  } yield publicKey
 
-    val publicKeyPEM = key
-      .replace("-----BEGIN PUBLIC KEY-----", "")
-      .replaceAll(System.lineSeparator(), "")
-      .replace("-----END PUBLIC KEY-----", "")
-
-    val encoded = Base64.getDecoder.decode(publicKeyPEM)
-
-    val keyFactory = KeyFactory.getInstance("RSA")
-
-    val keySpec = new X509EncodedKeySpec(encoded)
-
-    keyFactory.generatePublic(keySpec).asInstanceOf[RSAPublicKey]
-  }
-
-  def readPrivateKey(file: File): RSAPrivateKey = {
-    val key = new String(Files.readAllBytes(file.toPath))
-
-    val privateKeyPEM = key
-      .replace("-----BEGIN PRIVATE KEY-----", "")
-      .replaceAll(System.lineSeparator(), "")
-      .replace("-----END PRIVATE KEY-----", "")
-
-    val encoded = Base64.getDecoder.decode(privateKeyPEM)
-
-    val keyFactory = KeyFactory.getInstance("RSA")
-
-    val keySpec = new PKCS8EncodedKeySpec(encoded)
-
-    keyFactory.generatePrivate(keySpec).asInstanceOf[RSAPrivateKey]
-  }
+  def readPrivateKey(path: Path): Task[RSAPrivateKey] = for {
+    privateKeyPEM <- Files
+      .lines(path)
+      .filterNot(_.startsWith("-----BEGIN PRIVATE KEY-----"))
+      .filterNot(_.startsWith("-----END PRIVATE KEY-----"))
+      .map(_.replaceAll(System.lineSeparator(), ""))
+      .mkString
+    encoded <- ZIO.attempt(Base64.getDecoder.decode(privateKeyPEM))
+    keySpec <- ZIO.attempt(new PKCS8EncodedKeySpec(encoded))
+    privateKey <- ZIO.attempt(
+      KeyFactory
+        .getInstance("RSA")
+        .generatePrivate(keySpec)
+        .asInstanceOf[RSAPrivateKey]
+    )
+  } yield privateKey
 }

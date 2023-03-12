@@ -2,11 +2,12 @@ package ru.quoridor.auth
 
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import ru.quoridor.auth.model.{AccessToken, ClaimData}
+import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
-import zio.{TaskLayer, UIO, ZIO, ZLayer, durationInt}
+import zio.nio.file.Path
+import zio.{RLayer, UIO, ZIO, ZLayer, durationInt}
 
-import java.nio.file.Path
 import java.security.interfaces.RSAPrivateKey
 import java.time.Clock
 
@@ -15,13 +16,15 @@ trait AccessService {
 }
 
 object AccessService {
-  val live: TaskLayer[AccessService] = ZLayer(
-    for {
-      privateKey <- ZIO.attempt(
-        RSAKeyReader.readPrivateKey(Path.of("/var/keys/jwtRSA256.pem").toFile)
-      )
-    } yield new AccessServiceImpl(privateKey)
-  )
+  val live: RLayer[TokenKeys, AccessService] = ZLayer {
+    ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
+      for {
+        privateKey <- RSAKeyReader.readPrivateKey(
+          Path(tokenKeys.`private-key-path`)
+        )
+      } yield new AccessServiceImpl(privateKey)
+    }
+  }
 }
 
 class AccessServiceImpl(private val privateKey: RSAPrivateKey)

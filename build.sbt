@@ -1,11 +1,9 @@
-import com.typesafe.sbt.packager.docker._
-
 ThisBuild / scalaVersion := "2.13.10"
 
 lazy val circeVersion = "0.14.5"
-lazy val tapirVersion = "1.2.9"
+lazy val tapirVersion = "1.2.10"
 lazy val http4sVersion = "0.23.18"
-lazy val zioVersion = "2.0.9"
+lazy val zioVersion = "2.0.10"
 lazy val zioLoggingVersion = "2.1.9"
 
 ThisBuild / libraryDependencies ++= Seq(
@@ -25,15 +23,18 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum-circe" % "1.7.2",
   "org.http4s" %% "http4s-blaze-server" % "0.23.13",
   "org.http4s" %% "http4s-circe" % http4sVersion,
-  "com.github.pureconfig" %% "pureconfig" % "0.17.2",
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-streams" % zioVersion,
+  "dev.zio" %% "zio-nio" % "2.0.1",
   "dev.zio" %% "zio-interop-cats" % "23.0.0.1",
   "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
   "org.postgresql" % "postgresql" % "42.5.4",
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j-bridge" % zioLoggingVersion,
+  "dev.zio" %% "zio-config" % "3.0.7",
+  "dev.zio" %% "zio-config-typesafe" % "3.0.7",
+  "dev.zio" %% "zio-config-magnolia" % "3.0.7",
   "com.github.jwt-scala" %% "jwt-circe" % "9.2.0",
   "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE",
   "com.password4j" % "password4j" % "1.7.0"

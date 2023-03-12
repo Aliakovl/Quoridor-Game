@@ -2,8 +2,6 @@ package ru.quoridor.app
 
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
-import pureconfig._
-import pureconfig.generic.auto._
 import ru.quoridor.api.ExceptionResponse
 import ru.quoridor.api.GameApi._
 import ru.quoridor.api.Authorization._
@@ -17,14 +15,10 @@ import sttp.tapir.server.interceptor.exception.ExceptionHandler
 import sttp.tapir.server.model.ValuedEndpointOutput
 import sttp.tapir.statusCode
 import sttp.tapir.ztapir._
-import zio.{RIO, URLayer, ZLayer}
+import zio.RIO
 import zio.interop.catz._
 
 object QuoridorGame {
-
-  val appConfigLayer: URLayer[Any, AppConfig] =
-    ZLayer.fromFunction(() => ConfigSource.default.loadOrThrow[AppConfig])
-
   type Env = GameService
     with GameCreator
     with UserService

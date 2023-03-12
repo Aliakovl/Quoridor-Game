@@ -12,12 +12,8 @@ import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
 import ru.quoridor.app.QuoridorGame.{Env, EnvTask}
 import ru.quoridor.auth.store.RefreshTokenStore
-import ru.quoridor.auth.{
-  AccessService,
-  AuthenticationService,
-  AuthorizationService,
-  HashingService
-}
+import ru.quoridor.auth._
+import ru.quoridor.config.{Address, TokenKeys}
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
@@ -34,6 +30,7 @@ object QuoridorApp extends ZIOAppDefault {
 
   private val layers: ULayer[Env] = ZLayer
     .make[Env](
+      TokenKeys.layer,
       Quill.DataSource.fromPrefix("hikari"),
       QuillContext.live,
       ProtoGameDao.live,
@@ -51,11 +48,11 @@ object QuoridorApp extends ZIOAppDefault {
     .orDie
 
   override def run: ZIO[Any, Any, ExitCode] = ZIO
-    .serviceWithZIO[AppConfig] { appConfig =>
+    .serviceWithZIO[Address] { address =>
       BlazeServerBuilder[EnvTask]
         .bindHttp(
-          appConfig.address.port,
-          appConfig.address.host
+          address.port,
+          address.host
         )
         .withHttpWebSocketApp({ wsb =>
           Router[EnvTask](
@@ -73,7 +70,8 @@ object QuoridorApp extends ZIOAppDefault {
         .drain
         .exitCode
     }
-    .provideLayer(
-      QuoridorGame.appConfigLayer ++ (Slf4jBridge.initialize >>> layers)
+    .provide(
+      Address.layer,
+      Slf4jBridge.initialize >>> layers
     )
 }
