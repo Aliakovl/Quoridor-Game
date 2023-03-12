@@ -8,14 +8,14 @@ import ru.utils.tagging.ID
 import zio.{RIO, RLayer, Task, ZIO, ZLayer}
 
 trait AuthenticationService {
-  def login(credentials: Credentials): Task[(AccessToken, RefreshToken)]
+  def signIn(credentials: Credentials): Task[(AccessToken, RefreshToken)]
 
   def refresh(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): Task[(AccessToken, RefreshToken)]
 
-  def logout(
+  def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): Task[Unit]
@@ -31,10 +31,10 @@ object AuthenticationService {
   ], AuthenticationServiceImpl] =
     ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _, _))
 
-  def login(
+  def signIn(
       credentials: Credentials
   ): RIO[AuthenticationService, (AccessToken, RefreshToken)] =
-    ZIO.serviceWithZIO[AuthenticationService](_.login(credentials))
+    ZIO.serviceWithZIO[AuthenticationService](_.signIn(credentials))
 
   def refresh(
       accessToken: AccessToken,
@@ -44,12 +44,12 @@ object AuthenticationService {
       _.refresh(accessToken, refreshToken)
     )
 
-  def logout(
+  def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): RIO[AuthenticationService, Unit] =
     ZIO.serviceWithZIO[AuthenticationService](
-      _.logout(accessToken, refreshToken)
+      _.signOut(accessToken, refreshToken)
     )
 }
 
@@ -60,7 +60,7 @@ class AuthenticationServiceImpl(
     authorizationService: AuthorizationService,
     tokenStore: KSetStore[ID[User], RefreshToken]
 ) extends AuthenticationService {
-  override def login(
+  override def signIn(
       credentials: Credentials
   ): Task[(AccessToken, RefreshToken)] = for {
     user <- userService.getUserSecret(credentials.username)
@@ -78,7 +78,7 @@ class AuthenticationServiceImpl(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): Task[(AccessToken, RefreshToken)] = for {
-    cd <- authorizationService.verified(accessToken)
+    cd <- authorizationService.verifySign(accessToken)
     _ <- tokenStore
       .srem(cd.userId, refreshToken)
       .filterOrFail(_ > 0)(new Throwable("Invalid token"))
@@ -87,11 +87,11 @@ class AuthenticationServiceImpl(
     accessToken <- accessService.generateToken(cd)
   } yield (accessToken, refreshToken)
 
-  override def logout(
+  override def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): Task[Unit] = for {
-    cd <- authorizationService.verified(accessToken)
+    cd <- authorizationService.validate(accessToken)
     _ <- tokenStore
       .srem(cd.userId, refreshToken)
       .filterOrFail(_ > 0)(new Throwable("Invalid token"))

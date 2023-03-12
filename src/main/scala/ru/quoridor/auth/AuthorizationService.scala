@@ -2,18 +2,21 @@ package ru.quoridor.auth
 
 import io.circe.generic.auto._
 import io.circe.parser
-import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtTime}
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import ru.quoridor.auth.model.{AccessToken, ClaimData}
 import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
+import zio.ZIO.ifZIO
 import zio.nio.file.Path
 import zio.{RLayer, Task, ZIO, ZLayer}
 
 import java.security.interfaces.RSAPublicKey
 
 trait AuthorizationService {
-  def verified(accessToken: AccessToken): Task[ClaimData]
+  def validate(accessToken: AccessToken): Task[ClaimData]
+
+  def verifySign(accessToken: AccessToken): Task[ClaimData]
 }
 
 object AuthorizationService {
@@ -30,28 +33,27 @@ object AuthorizationService {
 
 class AuthorizationServiceImpl(publicKey: RSAPublicKey)
     extends AuthorizationService {
-  override def verified(accessToken: AccessToken): Task[ClaimData] = ZIO
-    .fromTry {
-      JwtCirce.decode(accessToken.value, publicKey, Seq(JwtAlgorithm.RS256))
-    }
-    .tap(payload =>
-      ZIO
-        .succeed(payload.expiration)
-        .someOrFail(new Throwable("no expiration"))
-        .flatMap(nonExpired)
-    )
-    .flatMap { payload =>
-      ZIO.fromEither(parser.parse(payload.content))
-    }
-    .flatMap { json =>
-      ZIO.fromEither(json.as[ClaimData])
+  override def validate(accessToken: AccessToken): Task[ClaimData] =
+    getClaims(accessToken).flatMap { case (claim, payload) =>
+      ifZIO(javaClock.map(implicit clock => payload.isValid))(
+        ZIO.succeed(claim),
+        ZIO.fail(new Throwable("expired access token"))
+      )
     }
 
-  private def nonExpired(expiration: Long): ZIO[Any, Throwable, Long] = {
-    javaClock
-      .map { implicit clock =>
-        JwtTime.nowSeconds
-      }
-      .filterOrFail(_ < expiration)(new Throwable("expired access token"))
+  override def verifySign(accessToken: AccessToken): Task[ClaimData] =
+    getClaims(accessToken).map(_._1)
+
+  private def getClaims(
+      accessToken: AccessToken
+  ): Task[(ClaimData, JwtClaim)] = {
+    for {
+      payload <- ZIO.fromTry(
+        JwtCirce.decode(accessToken.value, publicKey, Seq(JwtAlgorithm.RS256))
+      )
+      claim <- ZIO.fromEither(
+        parser.parse(payload.content).flatMap(_.as[ClaimData])
+      )
+    } yield (claim, payload)
   }
 }

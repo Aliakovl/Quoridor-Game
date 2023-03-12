@@ -5,7 +5,7 @@ import sttp.tapir.ztapir._
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
 import ru.quoridor.auth.AuthenticationService
-import ru.quoridor.auth.AuthenticationService.{login, logout, refresh}
+import ru.quoridor.auth.AuthenticationService._
 import ru.quoridor.auth.model.{AccessToken, Credentials, RefreshToken}
 import ru.quoridor.services.UserService
 import ru.quoridor.services.UserService.createUser
@@ -31,7 +31,7 @@ object Authorization {
       .out(statusCode(StatusCode.Created))
       .zServerLogic { credentials =>
         createUser(credentials)
-          .zipRight(login(credentials))
+          .zipRight(signIn(credentials))
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
@@ -45,7 +45,7 @@ object Authorization {
       .out(jsonBody[AccessToken])
       .out(setCookie("refreshToken"))
       .zServerLogic { credentials =>
-        login(credentials)
+        signIn(credentials)
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
@@ -87,7 +87,7 @@ object Authorization {
         ]
       }
       .serverLogic { accessToken => refreshToken =>
-        logout(accessToken, refreshToken)
+        signOut(accessToken, refreshToken)
           .mapError(ExceptionResponse.apply)
       }
 
