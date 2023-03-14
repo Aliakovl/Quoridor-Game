@@ -71,7 +71,8 @@ object QuoridorApp extends ZIOAppDefault {
         .exitCode
     }
     .provide(
+      Slf4jBridge.initialize,
       Address.layer,
-      Slf4jBridge.initialize >>> layers
+      layers
     )
 }

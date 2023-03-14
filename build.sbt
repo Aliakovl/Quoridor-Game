@@ -31,7 +31,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.5.4",
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
-  "dev.zio" %% "zio-logging-slf4j-bridge" % zioLoggingVersion,
+  "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
   "dev.zio" %% "zio-config" % "3.0.7",
   "dev.zio" %% "zio-config-typesafe" % "3.0.7",
   "dev.zio" %% "zio-config-magnolia" % "3.0.7",
