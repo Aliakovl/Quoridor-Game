@@ -44,6 +44,6 @@ class AccessServiceImpl(private val privateKey: RSAPrivateKey)
     .expiresIn(ttl)
     .++(
       "userId" -> claimData.userId,
-      "username" -> claimData.username
+      "username" -> claimData.username.value
     )
 }

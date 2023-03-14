@@ -79,6 +79,7 @@ object Authorization {
       .in("sign-out")
       .in(cookie[RefreshToken]("refreshToken"))
       .securityIn(auth.bearer[AccessToken]())
+      .out(setCookie("refreshToken"))
       .zServerSecurityLogic { accessToken =>
         ZIO.succeed(accessToken): ZIO[
           AuthenticationService,
@@ -88,6 +89,7 @@ object Authorization {
       }
       .serverLogic { accessToken => refreshToken =>
         signOut(accessToken, refreshToken)
+          .zipRight(ZIO.attempt(CookieValueWithMeta.unsafeApply("")))
           .mapError(ExceptionResponse.apply)
       }
 
