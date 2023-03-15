@@ -15,7 +15,7 @@ import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth._
 import ru.quoridor.auth.model.RefreshToken
 import ru.quoridor.auth.store.redis._
-import ru.quoridor.config.{Address, TokenKeys, TokenStore}
+import ru.quoridor.config._
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
@@ -34,6 +34,7 @@ object QuoridorApp extends ZIOAppDefault {
 
   private val layers: ULayer[Env] = ZLayer
     .make[Env](
+      AccessTtl.layer,
       TokenStore.layer,
       TokenKeys.layer,
       Quill.DataSource.fromPrefix("hikari"),

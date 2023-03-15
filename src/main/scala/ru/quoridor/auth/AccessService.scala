@@ -2,11 +2,11 @@ package ru.quoridor.auth
 
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import ru.quoridor.auth.model.{AccessToken, ClaimData}
-import ru.quoridor.config.TokenKeys
+import ru.quoridor.config.{AccessTtl, TokenKeys}
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
 import zio.nio.file.Path
-import zio.{RLayer, UIO, ZIO, ZLayer, durationInt}
+import zio._
 
 import java.security.interfaces.RSAPrivateKey
 import java.time.Clock
@@ -16,18 +16,18 @@ trait AccessService {
 }
 
 object AccessService {
-  val live: RLayer[TokenKeys, AccessService] = ZLayer {
-    ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
-      for {
-        privateKey <- RSAKeyReader.readPrivateKey(
-          Path(tokenKeys.privateKeyPath)
-        )
-      } yield new AccessServiceImpl(privateKey)
-    }
+  val live: RLayer[TokenKeys & AccessTtl, AccessService] = ZLayer {
+    for {
+      tokenKeys <- ZIO.service[TokenKeys]
+      ttl <- ZIO.service[AccessTtl]
+      privateKey <- RSAKeyReader.readPrivateKey(
+        Path(tokenKeys.privateKeyPath)
+      )
+    } yield new AccessServiceImpl(privateKey, ttl.ttl)
   }
 }
 
-class AccessServiceImpl(private val privateKey: RSAPrivateKey)
+class AccessServiceImpl(private val privateKey: RSAPrivateKey, ttl: Duration)
     extends AccessService {
   override def generateToken(claimData: ClaimData): UIO[AccessToken] =
     javaClock.map { implicit clock =>
@@ -36,12 +36,12 @@ class AccessServiceImpl(private val privateKey: RSAPrivateKey)
       AccessToken(jwt)
     }
 
-  private val ttl: Long = 15.minutes.toSeconds
+  private val ttlSeconds: Long = ttl.toSeconds
 
   private def generatePayload(
       claimData: ClaimData
   )(implicit clock: Clock) = JwtClaim()
-    .expiresIn(ttl)
+    .expiresIn(ttlSeconds)
     .++(
       "userId" -> claimData.userId,
       "username" -> claimData.username.value
