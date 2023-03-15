@@ -15,6 +15,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
       PSWD_PEPPER: ${PSWD_PEPPER}
+      TS_PASSWORD: ${TS_PASSWORD}
     volumes:
       - ./configs:/conf:ro
     depends_on:
@@ -23,7 +24,7 @@ services:
       - token-store
 
   flyway:
-    image: flyway/flyway
+    image: flyway/flyway:latest
     command: -url=jdbc:postgresql://db:5432/quoridor -user=${DB_USER} -password=${DB_PASSWORD} -connectRetries=60 migrate
     volumes:
       - ./migrations:/flyway/sql
@@ -31,7 +32,7 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgres:latest
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -52,7 +53,8 @@ services:
       - quoridor-api
 
   token-store:
-    image: redis
+    image: redis:latest
+    command: redis-server --requirepass ${TS_PASSWORD}
     restart: always
     ports:
       - "6379:6379"

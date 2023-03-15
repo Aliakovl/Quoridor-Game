@@ -6,6 +6,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.support._
 import io.lettuce.core.{RedisClient, RedisURI, SetArgs}
 import ru.quoridor.auth.store.KVStore
+import ru.quoridor.config.TokenStore
 import zio._
 
 import java.util.concurrent.CompletionStage
@@ -112,13 +113,16 @@ object RedisStore {
 
   def live[K: Tag, V: Tag](implicit
       redisCodec: RedisCodec[K, V]
-  ): TaskLayer[KVStore[K, V]] = {
-    ZLayer(
-      RedisStore(
-        RedisURI.create("redis://token-store:6379/0"),
-        redisCodec,
-        15.days
-      )
-    )
+  ): RLayer[TokenStore, KVStore[K, V]] = ZLayer {
+    ZIO.serviceWithZIO[TokenStore] {
+      case TokenStore(host, port, databaseNumber, password, ttl) =>
+        val uri = RedisURI.Builder
+          .redis(host)
+          .withPort(port)
+          .withDatabase(databaseNumber)
+          .withAuthentication("default", password)
+          .build()
+        RedisStore(uri, redisCodec, ttl)
+    }
   }
 }

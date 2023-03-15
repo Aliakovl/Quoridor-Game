@@ -9,7 +9,7 @@ import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
 import zio.ZIO.ifZIO
 import zio.nio.file.Path
-import zio.{RIO, RLayer, Task, ZIO, ZLayer}
+import zio._
 
 import java.security.interfaces.RSAPublicKey
 
@@ -29,7 +29,7 @@ object AuthorizationService {
     ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
       for {
         publicKey <- RSAKeyReader.readPublicKey(
-          Path(tokenKeys.`public-key-path`)
+          Path(tokenKeys.publicKeyPath)
         )
       } yield new AuthorizationServiceImpl(publicKey)
     }

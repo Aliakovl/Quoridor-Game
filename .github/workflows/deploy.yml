@@ -11,6 +11,7 @@ env:
   DB_USER: ${{ vars.DB_USER }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   PSWD_PEPPER: ${{ secrets.PSWD_PEPPER }}
+  TS_PASSWORD: ${{ secrets.TS_PASSWORD }}
 
 jobs:
   deployment:

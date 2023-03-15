@@ -20,7 +20,7 @@ object AccessService {
     ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
       for {
         privateKey <- RSAKeyReader.readPrivateKey(
-          Path(tokenKeys.`private-key-path`)
+          Path(tokenKeys.privateKeyPath)
         )
       } yield new AccessServiceImpl(privateKey)
     }

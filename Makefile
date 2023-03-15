@@ -1,6 +1,7 @@
 local: export DB_PASSWORD = postgres
 local: export DB_USER = postgres
 local: export PSWD_PEPPER = pepper
+local: export TS_PASSWORD = redis
 local: image
 	docker-compose up --build
 
