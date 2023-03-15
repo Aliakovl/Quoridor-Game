@@ -1,10 +1,8 @@
 package ru.quoridor.auth
 
 import ru.quoridor.auth.model._
-import ru.quoridor.auth.store.KSetStore
-import ru.quoridor.model.User
+import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.services.UserService
-import ru.utils.tagging.ID
 import zio.{RIO, RLayer, Task, ZIO, ZLayer}
 
 trait AuthenticationService {
@@ -25,10 +23,7 @@ object AuthenticationService {
   val live: RLayer[UserService with AccessService with HashingService[
     Password,
     UserSecret
-  ] with AuthorizationService with KSetStore[
-    ID[User],
-    RefreshToken
-  ], AuthenticationServiceImpl] =
+  ] with AuthorizationService with RefreshTokenStore, AuthenticationService] =
     ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _, _))
 
   def signIn(
@@ -58,17 +53,15 @@ class AuthenticationServiceImpl(
     accessService: AccessService,
     hashingService: HashingService[Password, UserSecret],
     authorizationService: AuthorizationService,
-    tokenStore: KSetStore[ID[User], RefreshToken]
+    tokenStore: RefreshTokenStore
 ) extends AuthenticationService {
   override def signIn(
       credentials: Credentials
   ): Task[(AccessToken, RefreshToken)] = for {
     user <- userService.getUserSecret(credentials.username)
-    _ <- hashingService
-      .verifyPassword(credentials.password, user.userSecret)
-      .filterOrFail(identity)(new Throwable("Invalid password"))
+    _ <- hashingService.verifyPassword(credentials.password, user.userSecret)
     refreshToken = RefreshToken.generate()
-    _ <- tokenStore.sadd(user.id, refreshToken)
+    _ <- tokenStore.add(user.id, refreshToken)
     accessToken <- accessService.generateToken(
       ClaimData(user.id, user.username)
     )
@@ -79,11 +72,9 @@ class AuthenticationServiceImpl(
       refreshToken: RefreshToken
   ): Task[(AccessToken, RefreshToken)] = for {
     cd <- authorizationService.verifySign(accessToken)
-    _ <- tokenStore
-      .srem(cd.userId, refreshToken)
-      .filterOrFail(_ > 0)(new Throwable("Invalid token"))
+    _ <- tokenStore.remove(cd.userId, refreshToken)
     refreshToken = RefreshToken.generate()
-    _ <- tokenStore.sadd(cd.userId, refreshToken)
+    _ <- tokenStore.add(cd.userId, refreshToken)
     accessToken <- accessService.generateToken(cd)
   } yield (accessToken, refreshToken)
 
@@ -92,8 +83,6 @@ class AuthenticationServiceImpl(
       refreshToken: RefreshToken
   ): Task[Unit] = for {
     cd <- authorizationService.validate(accessToken)
-    _ <- tokenStore
-      .srem(cd.userId, refreshToken)
-      .filterOrFail(_ > 0)(new Throwable("Invalid token"))
+    _ <- tokenStore.remove(cd.userId, refreshToken)
   } yield ()
 }

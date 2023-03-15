@@ -88,9 +88,10 @@ object Authorization {
         ]
       }
       .serverLogic { accessToken => refreshToken =>
-        signOut(accessToken, refreshToken)
-          .zipRight(ZIO.attempt(CookieValueWithMeta.unsafeApply("")))
-          .mapError(ExceptionResponse.apply)
+        signOut(accessToken, refreshToken).mapBoth(
+          ExceptionResponse.apply,
+          _ => deleteCookie
+        )
       }
 
   private def cookieValue(
@@ -105,4 +106,7 @@ object Authorization {
       sameSite = Some(SameSite.Strict)
     )
   )
+
+  private val deleteCookie =
+    CookieValueWithMeta.unsafeApply("", maxAge = Some(0))
 }
