@@ -19,7 +19,10 @@ object Authorization {
   private val baseEndpoint =
     endpoint
       .in("auth")
-      .errorOut(jsonBody[ExceptionResponse])
+      .errorOut(jsonBody[ExceptionResponse] and statusCode)
+      .mapErrorOut(er => new Throwable(er._1.errorMessage)) {
+        ExceptionResponse(_)
+      }
 
   val singOnEndpoint
       : ZServerEndpoint[UserService with AuthenticationService, Any] =
@@ -35,7 +38,6 @@ object Authorization {
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
-          .mapError(ExceptionResponse.apply)
       }
 
   val signInEndpoint: ZServerEndpoint[AuthenticationService, Any] =
@@ -49,7 +51,6 @@ object Authorization {
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
-          .mapError(ExceptionResponse.apply)
       }
 
   val refreshEndpoint: ZServerEndpoint[AuthenticationService, Any] =
@@ -71,7 +72,6 @@ object Authorization {
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
-          .mapError(ExceptionResponse.apply)
       }
 
   val signOutEndpoint: ZServerEndpoint[AuthenticationService, Any] =
@@ -88,10 +88,7 @@ object Authorization {
         ]
       }
       .serverLogic { accessToken => refreshToken =>
-        signOut(accessToken, refreshToken).mapBoth(
-          ExceptionResponse.apply,
-          _ => deleteCookie
-        )
+        signOut(accessToken, refreshToken).as(deleteCookie)
       }
 
   private def cookieValue(

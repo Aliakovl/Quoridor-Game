@@ -22,9 +22,12 @@ object GameApi {
     endpoint
       .in("api")
       .securityIn(auth.bearer[AccessToken]())
-      .errorOut(jsonBody[ExceptionResponse])
+      .errorOut(jsonBody[ExceptionResponse] and statusCode)
+      .mapErrorOut(er => new Throwable(er._1.errorMessage)) {
+        ExceptionResponse(_)
+      }
       .zServerSecurityLogic { accessToken =>
-        validate(accessToken).mapError(ExceptionResponse.apply)
+        validate(accessToken)
       }
 
   val createGameEndpoint
@@ -33,7 +36,7 @@ object GameApi {
       .in("game" / "create")
       .out(jsonBody[ProtoGame] and statusCode(StatusCode.Created))
       .serverLogic { claimData => _ =>
-        createGame(claimData.userId).mapError(ExceptionResponse.apply)
+        createGame(claimData.userId)
       }
 
   val joinPlayerEndpoint
@@ -45,7 +48,6 @@ object GameApi {
       .serverLogic { _ =>
         { case (gameId, userId) =>
           joinPlayer(gameId, userId)
-            .mapError(ExceptionResponse.apply)
         }
       }
 
@@ -56,7 +58,6 @@ object GameApi {
       .out(jsonBody[Game] and statusCode(StatusCode.Created))
       .serverLogic { claimData => gameId =>
         startGame(gameId, claimData.userId)
-          .mapError(ExceptionResponse.apply)
       }
 
   val gameHistoryEndpoint
@@ -66,7 +67,6 @@ object GameApi {
       .out(jsonBody[List[Game]])
       .serverLogic { claimData => gameId =>
         gameHistory(gameId, claimData.userId)
-          .mapError(ExceptionResponse.apply)
       }
 
   val historyEndpoint
@@ -76,7 +76,6 @@ object GameApi {
       .out(jsonBody[List[GamePreView]])
       .serverLogic { claimData => _ =>
         usersHistory(claimData.userId)
-          .mapError(ExceptionResponse.apply)
       }
 
   val getGameEndpoint
@@ -86,7 +85,6 @@ object GameApi {
       .out(jsonBody[Game])
       .serverLogic { _ => gameId =>
         findGame(gameId)
-          .mapError(ExceptionResponse.apply)
       }
 
   val moveEndpoint
@@ -98,8 +96,6 @@ object GameApi {
       .serverLogic { claimData =>
         { case (gameId, move) =>
           makeMove(gameId, claimData.userId, move)
-            .mapError(ExceptionResponse.apply)
         }
       }
-
 }
