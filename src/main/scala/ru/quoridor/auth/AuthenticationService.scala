@@ -60,7 +60,7 @@ class AuthenticationServiceImpl(
   ): Task[(AccessToken, RefreshToken)] = for {
     user <- userService.getUserSecret(credentials.username)
     _ <- hashingService.verifyPassword(credentials.password, user.userSecret)
-    refreshToken = RefreshToken.generate()
+    refreshToken <- RefreshToken.generate
     _ <- tokenStore.add(user.id, refreshToken)
     accessToken <- accessService.generateToken(
       ClaimData(user.id, user.username)
@@ -73,7 +73,7 @@ class AuthenticationServiceImpl(
   ): IO[AuthException, (AccessToken, RefreshToken)] = for {
     cd <- authorizationService.verifySign(accessToken)
     _ <- tokenStore.remove(cd.userId, refreshToken)
-    refreshToken = RefreshToken.generate()
+    refreshToken <- RefreshToken.generate
     _ <- tokenStore.add(cd.userId, refreshToken)
     accessToken <- accessService.generateToken(cd)
   } yield (accessToken, refreshToken)

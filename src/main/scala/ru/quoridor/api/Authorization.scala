@@ -95,7 +95,7 @@ object Authorization {
       refreshToken: RefreshToken
   ): Task[CookieValueWithMeta] = ZIO.attempt(
     CookieValueWithMeta.unsafeApply(
-      refreshToken.value.toString,
+      refreshToken.value,
       maxAge = Some(2592000),
       path = Some("/auth"),
       secure = true,

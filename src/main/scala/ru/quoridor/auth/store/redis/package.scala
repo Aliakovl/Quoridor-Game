@@ -15,13 +15,13 @@ package object redis {
       UUID.fromString(stringCodec.decodeKey(bytes)).tag[User]
 
     override def decodeKey(bytes: ByteBuffer): RefreshToken =
-      RefreshToken(UUID.fromString(stringCodec.decodeKey(bytes)))
+      RefreshToken(stringCodec.decodeKey(bytes))
 
     override def encodeValue(key: ID[User]): ByteBuffer =
       stringCodec.encodeKey(key.toString)
 
     override def encodeKey(value: RefreshToken): ByteBuffer =
-      stringCodec.encodeKey(value.value.toString)
+      stringCodec.encodeKey(value.value)
 
     private val stringCodec: StringCodec = StringCodec.UTF8
   }

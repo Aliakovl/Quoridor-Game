@@ -1,10 +1,22 @@
 package ru.quoridor.auth.model
 
-import java.util.UUID
+import zio.{UIO, ZIO}
 
-case class RefreshToken(value: UUID) extends AnyVal
+import java.security.SecureRandom
+import java.util.Base64
+
+case class RefreshToken(value: String) extends AnyVal
 
 object RefreshToken {
-  def generate(): RefreshToken =
-    RefreshToken(UUID.randomUUID())
+  private val random = new SecureRandom
+  private val encoder = Base64.getEncoder
+  private val length = 64
+
+  val generate: UIO[RefreshToken] = ZIO
+    .succeed {
+      val bytes = new Array[Byte](length)
+      random.nextBytes(bytes)
+      encoder.encodeToString(bytes)
+    }
+    .map(RefreshToken(_))
 }
