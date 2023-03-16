@@ -29,13 +29,12 @@ object AuthorizationService {
     ZIO.serviceWithZIO[AuthorizationService](_.validate(accessToken))
 
   val live: RLayer[TokenKeys, AuthorizationService] = ZLayer {
-    ZIO.serviceWithZIO[TokenKeys] { tokenKeys =>
-      for {
-        publicKey <- RSAKeyReader.readPublicKey(
-          Path(tokenKeys.publicKeyPath)
-        )
-      } yield new AuthorizationServiceImpl(publicKey)
-    }
+    for {
+      tokenKeys <- ZIO.service[TokenKeys]
+      publicKey <- RSAKeyReader.readPublicKey(
+        Path(tokenKeys.publicKeyPath)
+      )
+    } yield new AuthorizationServiceImpl(publicKey)
   }
 }
 
