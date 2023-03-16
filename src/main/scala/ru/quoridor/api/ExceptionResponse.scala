@@ -1,5 +1,6 @@
 package ru.quoridor.api
 
+import ru.quoridor.auth.model.AuthException
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.{GameException, GameMoveException}
 import sttp.model.StatusCode
@@ -12,6 +13,7 @@ object ExceptionResponse {
   }
 
   def exceptionCode(throwable: Throwable): StatusCode = throwable match {
+    case _: AuthException             => StatusCode.Unauthorized
     case _: GameMoveException         => StatusCode.BadRequest
     case _: UserNotFoundException     => StatusCode.NotFound
     case _: UsernameNotFoundException => StatusCode.NotFound

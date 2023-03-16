@@ -3,7 +3,8 @@ package ru.quoridor.auth
 import io.circe.generic.auto._
 import io.circe.parser
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
-import ru.quoridor.auth.model.{AccessToken, ClaimData}
+import ru.quoridor.auth.model.AuthException.InvalidAccessToken
+import ru.quoridor.auth.model.{AccessToken, ClaimData, InvalidAccessToken}
 import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
@@ -14,9 +15,11 @@ import zio._
 import java.security.interfaces.RSAPublicKey
 
 trait AuthorizationService {
-  def validate(accessToken: AccessToken): Task[ClaimData]
+  def validate(accessToken: AccessToken): IO[InvalidAccessToken, ClaimData]
 
-  private[auth] def verifySign(accessToken: AccessToken): Task[ClaimData]
+  private[auth] def verifySign(
+      accessToken: AccessToken
+  ): IO[InvalidAccessToken, ClaimData]
 }
 
 object AuthorizationService {
@@ -38,22 +41,25 @@ object AuthorizationService {
 
 class AuthorizationServiceImpl(publicKey: RSAPublicKey)
     extends AuthorizationService {
-  override def validate(accessToken: AccessToken): Task[ClaimData] =
-    getClaims(accessToken).flatMap { case (claim, payload) =>
-      ifZIO(javaClock.map(implicit clock => payload.isValid))(
-        ZIO.succeed(claim),
-        ZIO.fail(new Throwable("expired access token"))
-      )
-    }
+  override def validate(
+      accessToken: AccessToken
+  ): IO[InvalidAccessToken, ClaimData] =
+    getClaims(accessToken)
+      .flatMap { case (claim, payload) =>
+        ifZIO(javaClock.map(implicit clock => payload.isValid))(
+          ZIO.succeed(claim),
+          ZIO.fail(InvalidAccessToken)
+        )
+      }
 
   private[auth] override def verifySign(
       accessToken: AccessToken
-  ): Task[ClaimData] =
+  ): IO[InvalidAccessToken, ClaimData] =
     getClaims(accessToken).map(_._1)
 
   private def getClaims(
       accessToken: AccessToken
-  ): Task[(ClaimData, JwtClaim)] = {
+  ): IO[InvalidAccessToken, (ClaimData, JwtClaim)] = {
     for {
       payload <- ZIO.fromTry(
         JwtCirce.decode(accessToken.value, publicKey, Seq(JwtAlgorithm.RS256))
@@ -62,5 +68,5 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
         parser.parse(payload.content).flatMap(_.as[ClaimData])
       )
     } yield (claim, payload)
-  }
+  }.orElseFail(InvalidAccessToken)
 }

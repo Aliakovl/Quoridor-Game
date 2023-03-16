@@ -4,7 +4,7 @@ import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.dao.UserDao
 import ru.quoridor.model.{User, UserWithSecret}
-import zio.{RIO, Task, URLayer, ZIO, ZLayer}
+import zio._
 
 trait UserService {
   def findUser(username: Username): Task[User]

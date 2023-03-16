@@ -1,29 +1,44 @@
 package ru.quoridor.auth.store
 
-import ru.quoridor.auth.model.RefreshToken
+import ru.quoridor.auth.model.AuthException.InvalidRefreshToken
+import ru.quoridor.auth.model.{InvalidRefreshToken, RefreshToken}
 import ru.quoridor.model.User
 import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
-import zio.{RLayer, Task, ZLayer}
+import zio._
 
 trait RefreshTokenStore {
-  def add(userId: ID[User], token: RefreshToken): Task[Unit]
+  def add(
+      userId: ID[User],
+      token: RefreshToken
+  ): IO[InvalidRefreshToken, Unit]
 
-  def remove(userId: ID[User], token: RefreshToken): Task[Unit]
+  def remove(
+      userId: ID[User],
+      token: RefreshToken
+  ): IO[InvalidRefreshToken, Unit]
 }
 
 class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
     extends RefreshTokenStore {
-  def add(userId: ID[User], token: RefreshToken): Task[Unit] = {
+  def add(
+      userId: ID[User],
+      token: RefreshToken
+  ): IO[InvalidRefreshToken, Unit] = {
     store
       .set(token, userId)
-      .orFail(new Throwable("maybe key is already set"))
+      .orDie
+      .orFail(InvalidRefreshToken)
   }
 
-  def remove(userId: ID[User], token: RefreshToken): Task[Unit] = {
+  def remove(
+      userId: ID[User],
+      token: RefreshToken
+  ): IO[InvalidRefreshToken, Unit] = {
     store
       .delete(token, userId)
-      .orFail(new Throwable("maybe key is already gone"))
+      .orDie
+      .orFail(InvalidRefreshToken)
   }
 }
 

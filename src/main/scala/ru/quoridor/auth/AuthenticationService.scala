@@ -3,7 +3,7 @@ package ru.quoridor.auth
 import ru.quoridor.auth.model._
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.services.UserService
-import zio.{RIO, RLayer, Task, ZIO, ZLayer}
+import zio._
 
 trait AuthenticationService {
   def signIn(credentials: Credentials): Task[(AccessToken, RefreshToken)]
@@ -11,12 +11,12 @@ trait AuthenticationService {
   def refresh(
       accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): Task[(AccessToken, RefreshToken)]
+  ): IO[AuthException, (AccessToken, RefreshToken)]
 
   def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): Task[Unit]
+  ): IO[AuthException, Unit]
 }
 
 object AuthenticationService {
@@ -70,7 +70,7 @@ class AuthenticationServiceImpl(
   override def refresh(
       accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): Task[(AccessToken, RefreshToken)] = for {
+  ): IO[AuthException, (AccessToken, RefreshToken)] = for {
     cd <- authorizationService.verifySign(accessToken)
     _ <- tokenStore.remove(cd.userId, refreshToken)
     refreshToken = RefreshToken.generate()
@@ -81,7 +81,7 @@ class AuthenticationServiceImpl(
   override def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): Task[Unit] = for {
+  ): IO[AuthException, Unit] = for {
     cd <- authorizationService.validate(accessToken)
     _ <- tokenStore.remove(cd.userId, refreshToken)
   } yield ()

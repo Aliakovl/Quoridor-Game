@@ -7,6 +7,7 @@ import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
+import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
 
@@ -58,11 +59,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     val activePlayer = state.players.activePlayer
     for {
       lastStep <- findLastStep(gameId)
-      _ <- ZIO.cond(
-        step == lastStep + 1,
-        (),
-        new Throwable("Filed transaction")
-      )
+      _ <- ZIO
+        .succeed(step == lastStep + 1)
+        .orFail(new Throwable("Filed transaction"))
       _ <- recordNextState(gameId, step, activePlayer.id)
       _ <- winner match {
         case Some(user) => recordWinner(gameId, user.id)

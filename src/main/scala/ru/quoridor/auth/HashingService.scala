@@ -1,13 +1,14 @@
 package ru.quoridor.auth
 
-import ru.quoridor.auth.model.{Password, UserSecret}
+import ru.quoridor.auth.model.AuthException.InvalidPassword
+import ru.quoridor.auth.model.{InvalidPassword, Password, UserSecret}
 import ru.utils.ZIOExtensions.OrFail
 import zio.System.env
-import zio.{IO, UIO, ULayer, ZIO, ZLayer}
+import zio._
 
 trait HashingService[P, S] {
   def hashPassword(password: P): UIO[S]
-  def verifyPassword(password: P, secret: S): IO[Throwable, Unit]
+  def verifyPassword(password: P, secret: S): IO[InvalidPassword, Unit]
 }
 
 object HashingService {
@@ -34,7 +35,7 @@ class HashingServiceImpl(pepper: String)
   override def verifyPassword(
       password: Password,
       secret: UserSecret
-  ): IO[Throwable, Unit] = {
+  ): IO[InvalidPassword, Unit] = {
     ZIO
       .succeed(
         com.password4j.Password
@@ -42,6 +43,6 @@ class HashingServiceImpl(pepper: String)
           .addPepper(pepper)
           .withArgon2()
       )
-      .orFail(new Throwable("Invalid password"))
+      .orFail(InvalidPassword)
   }
 }
