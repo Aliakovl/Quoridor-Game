@@ -1,19 +1,15 @@
 package ru.quoridor.config
 
 import zio._
-import zio.config._
-import zio.config.magnolia.descriptor
-import zio.config.typesafe.TypesafeConfigSource
+import zio.config.magnolia.deriveConfig
+import zio.config.typesafe.TypesafeConfigProvider
 
-case class AccessTtl(ttl: Duration) extends AnyVal
+final case class AccessTtl(ttl: Duration)
 
 object AccessTtl {
   val layer: TaskLayer[AccessTtl] = ZLayer {
-    read {
-      descriptor[AccessTtl].from(
-        TypesafeConfigSource.fromResourcePath
-          .at(PropertyTreePath.$("auth.ttl"))
-      )
-    }
+    TypesafeConfigProvider.fromResourcePath
+      .nested("auth")
+      .load(deriveConfig[AccessTtl])
   }
 }

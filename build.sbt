@@ -32,9 +32,9 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
-  "dev.zio" %% "zio-config" % "3.0.7",
-  "dev.zio" %% "zio-config-typesafe" % "3.0.7",
-  "dev.zio" %% "zio-config-magnolia" % "3.0.7",
+  "dev.zio" %% "zio-config" % "4.0.0-RC12",
+  "dev.zio" %% "zio-config-typesafe" % "4.0.0-RC12",
+  "dev.zio" %% "zio-config-magnolia" % "4.0.0-RC12",
   "com.github.jwt-scala" %% "jwt-circe" % "9.2.0",
   "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE",
   "com.password4j" % "password4j" % "1.7.0"

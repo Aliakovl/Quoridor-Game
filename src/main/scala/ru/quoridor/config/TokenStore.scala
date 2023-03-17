@@ -1,11 +1,10 @@
 package ru.quoridor.config
 
 import zio._
-import zio.config._
-import zio.config.magnolia.descriptor
-import zio.config.typesafe.TypesafeConfigSource
+import zio.config.magnolia.deriveConfig
+import zio.config.typesafe.TypesafeConfigProvider
 
-case class TokenStore(
+final case class TokenStore(
     host: String,
     port: Int,
     databaseNumber: Int,
@@ -15,11 +14,9 @@ case class TokenStore(
 
 object TokenStore {
   val layer: TaskLayer[TokenStore] = ZLayer {
-    read {
-      descriptor[TokenStore].from(
-        TypesafeConfigSource.fromResourcePath
-          .at(PropertyTreePath.$("redis.tokenStore"))
-      )
-    }
+    TypesafeConfigProvider.fromResourcePath
+      .nested("tokenStore")
+      .nested("redis")
+      .load(deriveConfig[TokenStore])
   }
 }
