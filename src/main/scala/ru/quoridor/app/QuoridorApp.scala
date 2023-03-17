@@ -34,9 +34,10 @@ object QuoridorApp extends ZIOAppDefault {
 
   private val layers: ULayer[Env] = ZLayer
     .make[Env](
-      AccessTtl.layer,
-      TokenStore.layer,
-      TokenKeys.layer,
+      Auth.live,
+      TokenKeys.live,
+      TokenStore.live,
+      Configuration.live,
       Quill.DataSource.fromPrefix("hikari"),
       QuillContext.live,
       ProtoGameDao.live,
@@ -79,7 +80,8 @@ object QuoridorApp extends ZIOAppDefault {
     }
     .provide(
       Slf4jBridge.initialize,
-      Address.layer,
+      Address.live,
+      Configuration.live,
       layers
     )
 }

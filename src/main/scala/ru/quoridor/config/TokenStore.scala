@@ -1,8 +1,6 @@
 package ru.quoridor.config
 
 import zio._
-import zio.config.magnolia.deriveConfig
-import zio.config.typesafe.TypesafeConfigProvider
 
 final case class TokenStore(
     host: String,
@@ -13,10 +11,7 @@ final case class TokenStore(
 )
 
 object TokenStore {
-  val layer: TaskLayer[TokenStore] = ZLayer {
-    TypesafeConfigProvider.fromResourcePath
-      .nested("tokenStore")
-      .nested("redis")
-      .load(deriveConfig[TokenStore])
-  }
+  val live: RLayer[Configuration, TokenStore] = ZLayer(
+    ZIO.serviceWith[Configuration](_.tokenStore)
+  )
 }
