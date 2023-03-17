@@ -68,7 +68,7 @@ object QuoridorApp extends ZIOAppDefault {
             "ws" -> new WSGameApi(wsb).routeWs
               .handleError { _ =>
                 Response(InternalServerError).withEntity(
-                  ExceptionResponse("Something went wrong!")
+                  ExceptionResponse("Oops, something went wrong...")
                 )
               }
           ).orNotFound

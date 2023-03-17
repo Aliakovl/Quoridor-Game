@@ -45,7 +45,7 @@ jobs:
         with:
           envs: HD,DB_USER,DB_PASSWORD,PSWD_PEPPER
           host: quoridor.online
-          username: aliakovl
+          username: ${{ vars.USERNAME }}
           key: ${{ secrets.ID_ED25519 }}
           port: 22
           script: |
