@@ -25,7 +25,7 @@ class GameCreatorImpl(
       protoGameDao
         .insert(gameId, userId, target)
         .as {
-          val protoPlayer = ProtoPlayer(userId, user.login, target)
+          val protoPlayer = ProtoPlayer(userId, user.username, target)
           ProtoGame(gameId, ProtoPlayers(protoPlayer, List.empty))
         }
     }
@@ -48,7 +48,7 @@ class GameCreatorImpl(
       target = Side.values(playersNumber)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       user <- userDao.findById(userId)
-      newPlayer = ProtoPlayer(user.id, user.login, target)
+      newPlayer = ProtoPlayer(user.id, user.username, target)
     } yield protoGame.copy(players =
       protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
     )

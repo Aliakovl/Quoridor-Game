@@ -10,28 +10,30 @@ env:
   HD: ${{ vars.HD }}
   DB_USER: ${{ vars.DB_USER }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  PSWD_PEPPER: ${{ secrets.PSWD_PEPPER }}
+  TS_PASSWORD: ${{ secrets.TS_PASSWORD }}
 
 jobs:
   deployment:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'sbt'
-    - run: mkdir "$HOME/.ssh"
-    - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519"
-    - run: chmod 600 "$HOME/.ssh/id_ed25519"
-    - run: sbt "Docker / stage"
-    - run: ssh -i "$HOME/.ssh/id_ed25519" -o StrictHostKeyChecking=no
-           aliakovl@quoridor.online "cd $HD && docker-compose down" || true
-    - run: rsync -a -z --delete-after
-           ./migrations ./nginx ./target ./static ./configs
-           ./docker-compose.yml ./docker-compose.prod.yml
-           ./Dockerfile ./Makefile "aliakovl@quoridor.online:$HD"
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - run: mkdir "$HOME/.ssh"
+      - run: echo "${{ secrets.ID_ED25519 }}" > "$HOME/.ssh/id_ed25519"
+      - run: chmod 600 "$HOME/.ssh/id_ed25519"
+      - run: sbt "Docker / stage"
+      - run: ssh -i "$HOME/.ssh/id_ed25519" -o StrictHostKeyChecking=no
+          aliakovl@quoridor.online "cd $HD && docker-compose down" || true
+      - run: rsync -a -z --delete-after
+          ./migrations ./nginx ./target ./static ./configs
+          ./docker-compose.yml ./docker-compose.prod.yml
+          ./Dockerfile ./Makefile "aliakovl@quoridor.online:$HD"
 
   restart:
     name: Restart
@@ -41,13 +43,14 @@ jobs:
       - name: set env and restart
         uses: appleboy/ssh-action@v0.1.8
         with:
-          envs: HD,DB_USER,DB_PASSWORD
+          envs: HD,DB_USER,DB_PASSWORD,PSWD_PEPPER
           host: quoridor.online
-          username: aliakovl
+          username: ${{ vars.USERNAME }}
           key: ${{ secrets.ID_ED25519 }}
           port: 22
           script: |
             cd $HD
             export DB_USER=$DB_USER
             export DB_PASSWORD=$DB_PASSWORD
+            export PSWD_PEPPER=$PSWD_PEPPER
             make prod

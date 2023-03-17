@@ -1,5 +1,6 @@
 package ru.quoridor.model
 
+import ru.quoridor.auth.model.Username
 import ru.quoridor.model.game.Game
 import ru.utils.tagging.ID
 
@@ -9,8 +10,8 @@ object GameException {
   case class UserNotFoundException(userId: ID[User])
       extends GameException(s"User with id=$userId not found")
 
-  case class LoginNotFoundException(login: String)
-      extends GameException(s"User with login=$login not found")
+  case class UsernameNotFoundException(username: Username)
+      extends GameException(s"User with username=$username not found")
 
   case class GameNotFoundException(gameId: ID[Game])
       extends GameException(s"Game with id=$gameId not found")
@@ -31,8 +32,8 @@ object GameException {
   case object PlayersNumberLimitException
       extends GameException("The number of players has reached the limit")
 
-  case class LoginOccupiedException(login: String)
-      extends GameException(s"User with login $login already exists")
+  case class UsernameOccupiedException(username: Username)
+      extends GameException(s"User with username $username already exists")
 
   case class SamePlayerException(userId: ID[User], gameId: ID[Game])
       extends GameException(

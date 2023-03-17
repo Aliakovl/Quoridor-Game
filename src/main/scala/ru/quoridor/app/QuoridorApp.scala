@@ -10,13 +10,20 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.{HttpRoutes, Response}
 import ru.quoridor.api.{ExceptionResponse, WSGameApi}
-import ru.quoridor.app.QuoridorGame.EnvTask
+import ru.quoridor.app.QuoridorGame.{Env, EnvTask}
+import ru.quoridor.auth.store.RefreshTokenStore
+import ru.quoridor.auth._
+import ru.quoridor.auth.model.RefreshToken
+import ru.quoridor.auth.store.redis._
+import ru.quoridor.config._
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
+import ru.quoridor.model.User
+import ru.utils.tagging.ID
 import zio.interop.catz._
 import zio.logging.slf4j.bridge.Slf4jBridge
-import zio.{ExitCode, ZIO, ZIOAppDefault}
+import zio.{ExitCode, ULayer, ZIO, ZIOAppDefault, ZLayer}
 
 object QuoridorApp extends ZIOAppDefault {
   private val httpApp: HttpRoutes[EnvTask] =
@@ -25,12 +32,35 @@ object QuoridorApp extends ZIOAppDefault {
   implicit val jsonEncode: Encoder[ExceptionResponse] =
     Encoder.forProduct1("errorMessage")(_.errorMessage)
 
+  private val layers: ULayer[Env] = ZLayer
+    .make[Env](
+      Auth.live,
+      TokenKeys.live,
+      TokenStore.live,
+      Configuration.live,
+      Quill.DataSource.fromPrefix("hikari"),
+      QuillContext.live,
+      ProtoGameDao.live,
+      GameDao.live,
+      UserDao.live,
+      GameCreator.live,
+      GameService.live,
+      UserService.live,
+      HashingService.live,
+      RedisStore.live[RefreshToken, ID[User]],
+      RefreshTokenStore.live,
+      AccessService.live,
+      AuthorizationService.live,
+      AuthenticationService.live
+    )
+    .orDie
+
   override def run: ZIO[Any, Any, ExitCode] = ZIO
-    .serviceWithZIO[AppConfig] { appConfig =>
+    .serviceWithZIO[Address] { address =>
       BlazeServerBuilder[EnvTask]
         .bindHttp(
-          appConfig.address.port,
-          appConfig.address.host
+          address.port,
+          address.host
         )
         .withHttpWebSocketApp({ wsb =>
           Router[EnvTask](
@@ -38,7 +68,7 @@ object QuoridorApp extends ZIOAppDefault {
             "ws" -> new WSGameApi(wsb).routeWs
               .handleError { _ =>
                 Response(InternalServerError).withEntity(
-                  ExceptionResponse("Something went wrong!")
+                  ExceptionResponse("Oops, something went wrong...")
                 )
               }
           ).orNotFound
@@ -49,16 +79,9 @@ object QuoridorApp extends ZIOAppDefault {
         .exitCode
     }
     .provide(
-      QuoridorGame.appConfigLayer,
-      Quill.DataSource.fromPrefix("hikari"),
-      QuillContext.live,
-      ProtoGameDao.live,
-      GameDao.live,
-      UserDao.live,
-      GameCreator.live,
-      GameService.live,
-      UserService.live,
-      Slf4jBridge.initialize
+      Slf4jBridge.initialize,
+      Address.live,
+      Configuration.live,
+      layers
     )
-
 }

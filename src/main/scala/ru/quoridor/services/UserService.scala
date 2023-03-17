@@ -1,22 +1,32 @@
 package ru.quoridor.services
 
-import ru.quoridor.dao.{GameDao, UserDao}
-import ru.quoridor.model.User
-import zio.{RIO, Task, URLayer, ZIO, ZLayer}
+import ru.quoridor.auth.HashingService
+import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
+import ru.quoridor.dao.UserDao
+import ru.quoridor.model.{User, UserWithSecret}
+import zio._
 
 trait UserService {
-  def findUser(login: String): Task[User]
+  def findUser(username: Username): Task[User]
 
-  def createUser(login: String): Task[User]
+  def createUser(credentials: Credentials): Task[User]
+
+  def getUserSecret(username: Username): Task[UserWithSecret]
 }
 
 object UserService {
-  val live: URLayer[UserDao with GameDao, UserService] =
-    ZLayer.fromFunction(new UserServiceImpl(_))
+  val live: URLayer[
+    UserDao with HashingService[Password, UserSecret],
+    UserService
+  ] =
+    ZLayer.fromFunction(new UserServiceImpl(_, _))
 
-  def findUser(login: String): RIO[UserService, User] =
-    ZIO.serviceWithZIO[UserService](_.findUser(login))
+  def findUser(username: Username): RIO[UserService, User] =
+    ZIO.serviceWithZIO[UserService](_.findUser(username))
 
-  def createUser(login: String): RIO[UserService, User] =
-    ZIO.serviceWithZIO[UserService](_.createUser(login))
+  def createUser(credentials: Credentials): RIO[UserService, User] =
+    ZIO.serviceWithZIO[UserService](_.createUser(credentials))
+
+  def getUserSecret(username: Username): RIO[UserService, UserWithSecret] =
+    ZIO.serviceWithZIO[UserService](_.getUserSecret(username))
 }

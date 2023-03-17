@@ -17,11 +17,11 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
       {
         for {
           player <- query[dto.Player]
-          user <- query[dto.User].join(_.userId == player.userId)
+          user <- query[dto.Userdata].join(_.userId == player.userId)
           game <- query[dto.Game].join(_.gameId == player.gameId)
           if game.gameId == lift(gameId)
         } yield (
-          ProtoPlayer(user.userId, user.login, player.target),
+          ProtoPlayer(user.userId, user.username, player.target),
           game.creator
         )
       }.sortBy { case (protoPlayer, creator) => protoPlayer.id == creator }(

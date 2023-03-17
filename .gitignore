@@ -3,6 +3,7 @@
 project/target/
 project/project/
 target/
+keys/
 project/.bloop
 .bloop
 *metals

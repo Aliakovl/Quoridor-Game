@@ -7,6 +7,7 @@ import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
+import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
 
@@ -58,11 +59,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     val activePlayer = state.players.activePlayer
     for {
       lastStep <- findLastStep(gameId)
-      _ <- ZIO.cond(
-        step == lastStep + 1,
-        (),
-        new Throwable("Filed transaction")
-      )
+      _ <- ZIO
+        .succeed(step == lastStep + 1)
+        .orFail(new Throwable("Filed transaction"))
       _ <- recordNextState(gameId, step, activePlayer.id)
       _ <- winner match {
         case Some(user) => recordWinner(gameId, user.id)
@@ -129,7 +128,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -141,7 +140,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
           pawnPosition.userId != gameState.activePlayer
       } yield Player(
         user.userId,
-        user.login,
+        user.username,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -159,7 +158,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -171,7 +170,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
           user.userId == gameState.activePlayer
       } yield Player(
         user.userId,
-        user.login,
+        user.username,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -207,9 +206,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         winner <- query[dto.Winner]
-        user <- query[dto.User].join(_.userId == winner.userId)
+        user <- query[dto.Userdata].join(_.userId == winner.userId)
         if winner.gameId == lift(gameId)
-      } yield User(user.userId, user.login)
+      } yield User(user.userId, user.username)
     }).map(_.headOption)
   }
 
@@ -279,9 +278,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.User].join(_.userId == player.userId)
+        user <- query[dto.Userdata].join(_.userId == player.userId)
         if player.gameId == lift(gameId)
-      } yield User(user.userId, user.login)
+      } yield User(user.userId, user.username)
     })
       .reject { case Nil =>
         GameNotFoundException(gameId)
