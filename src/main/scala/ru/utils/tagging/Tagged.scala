@@ -1,7 +1,7 @@
 package ru.utils.tagging
 
 import io.circe.{Decoder, Encoder}
-import ru.utils.tagging.Tagged.Implicits.TaggedOps
+import ru.utils.tagging.Tagged.Implicits._
 import sttp.tapir.{Codec, CodecFormat, Schema}
 
 case class Tagged[+A, B](untag: A) extends AnyVal {

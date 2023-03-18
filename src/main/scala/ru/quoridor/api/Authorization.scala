@@ -20,9 +20,9 @@ object Authorization {
     endpoint
       .in("auth")
       .errorOut(jsonBody[ExceptionResponse] and statusCode)
-      .mapErrorOut(er => new Throwable(er._1.errorMessage)) {
+      .mapErrorOut(er => new Throwable(er._1.errorMessage))(
         ExceptionResponse(_)
-      }
+      )
 
   val singOnEndpoint
       : ZServerEndpoint[UserService with AuthenticationService, Any] =

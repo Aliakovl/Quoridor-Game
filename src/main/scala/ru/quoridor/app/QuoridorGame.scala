@@ -1,13 +1,14 @@
 package ru.quoridor.app
 
 import org.http4s.HttpRoutes
-import ru.quoridor.api.GameApi._
+import ru.quoridor.api.GameAPI._
 import ru.quoridor.api.Authorization._
 import ru.quoridor.auth.{AuthenticationService, AuthorizationService}
+import ru.quoridor.model.game.Game
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.ztapir._
-import zio.RIO
+import zio.{Hub, RIO}
 
 object QuoridorGame {
   type Env = GameService
@@ -15,6 +16,7 @@ object QuoridorGame {
     with UserService
     with AuthenticationService
     with AuthorizationService
+    with Hub[Game]
 
   type EnvTask[A] = RIO[Env, A]
 

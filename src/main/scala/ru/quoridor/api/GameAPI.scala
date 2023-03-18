@@ -16,16 +16,16 @@ import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged._
 import sttp.model.StatusCode
 
-object GameApi {
+object GameAPI {
 
   private val baseEndpoint =
     endpoint
       .in("api")
       .securityIn(auth.bearer[AccessToken]())
       .errorOut(jsonBody[ExceptionResponse] and statusCode)
-      .mapErrorOut(er => new Throwable(er._1.errorMessage)) {
+      .mapErrorOut(er => new Throwable(er._1.errorMessage))(
         ExceptionResponse(_)
-      }
+      )
       .zServerSecurityLogic { accessToken =>
         validate(accessToken)
       }

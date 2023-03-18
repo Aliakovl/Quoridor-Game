@@ -7,7 +7,7 @@ import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.model.game.geometry.Side
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.Implicits.TaggedOps
+import ru.utils.tagging.Tagged.Implicits._
 import zio.{Task, ZIO}
 
 import java.util.UUID
