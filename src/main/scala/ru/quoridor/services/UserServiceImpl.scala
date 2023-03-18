@@ -4,7 +4,7 @@ import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.UserDao
-import ru.utils.tagging.Tagged.Implicits.TaggedOps
+import ru.utils.tagging.Tagged.Implicits._
 import zio.Task
 
 import java.util.UUID

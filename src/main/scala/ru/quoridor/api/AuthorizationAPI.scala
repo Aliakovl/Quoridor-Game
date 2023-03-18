@@ -14,18 +14,24 @@ import sttp.model.headers.Cookie.SameSite
 import sttp.model.headers.CookieValueWithMeta
 import zio.{Task, ZIO}
 
-object Authorization {
+object AuthorizationAPI {
+  def apply[Env <: UserService with AuthenticationService]
+      : List[ZServerEndpoint[Env, Any]] = List(
+    singOnEndpoint.widen[Env],
+    signInEndpoint.widen[Env],
+    refreshEndpoint.widen[Env],
+    signOutEndpoint.widen[Env]
+  )
 
   private val baseEndpoint =
     endpoint
       .in("auth")
       .errorOut(jsonBody[ExceptionResponse] and statusCode)
-      .mapErrorOut(er => new Throwable(er._1.errorMessage)) {
+      .mapErrorOut(er => new Throwable(er._1.errorMessage))(
         ExceptionResponse(_)
-      }
+      )
 
-  val singOnEndpoint
-      : ZServerEndpoint[UserService with AuthenticationService, Any] =
+  private val singOnEndpoint =
     baseEndpoint.post
       .in("sign-on")
       .in(jsonBody[Credentials])
@@ -40,7 +46,7 @@ object Authorization {
           }
       }
 
-  val signInEndpoint: ZServerEndpoint[AuthenticationService, Any] =
+  private val signInEndpoint =
     baseEndpoint.put
       .in("sign-in")
       .in(jsonBody[Credentials])
@@ -53,7 +59,7 @@ object Authorization {
           }
       }
 
-  val refreshEndpoint: ZServerEndpoint[AuthenticationService, Any] =
+  private val refreshEndpoint =
     baseEndpoint.get
       .in("refresh")
       .in(cookie[RefreshToken]("refreshToken"))
@@ -74,7 +80,7 @@ object Authorization {
           }
       }
 
-  val signOutEndpoint: ZServerEndpoint[AuthenticationService, Any] =
+  private val signOutEndpoint =
     baseEndpoint.post
       .in("sign-out")
       .in(cookie[RefreshToken]("refreshToken"))

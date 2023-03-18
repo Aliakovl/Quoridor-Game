@@ -43,7 +43,7 @@ jobs:
       - name: set env and restart
         uses: appleboy/ssh-action@v0.1.8
         with:
-          envs: HD,DB_USER,DB_PASSWORD,PSWD_PEPPER
+          envs: HD,DB_USER,DB_PASSWORD,PSWD_PEPPER,TS_PASSWORD
           host: quoridor.online
           username: ${{ vars.USERNAME }}
           key: ${{ secrets.ID_ED25519 }}
@@ -53,4 +53,5 @@ jobs:
             export DB_USER=$DB_USER
             export DB_PASSWORD=$DB_PASSWORD
             export PSWD_PEPPER=$PSWD_PEPPER
+            export TS_PASSWORD=$TS_PASSWORD
             make prod
