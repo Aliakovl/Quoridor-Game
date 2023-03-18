@@ -9,14 +9,25 @@ import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
-import ru.quoridor.services.{GameCreator, GameService}
 import ru.quoridor.services.GameCreator._
+import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService._
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged._
 import sttp.model.StatusCode
 
 object GameAPI {
+  def apply[
+      Env <: GameService with GameCreator with UserService with AuthorizationService
+  ]: List[ZServerEndpoint[Env, Any]] = List(
+    createGameEndpoint.widen[Env],
+    joinPlayerEndpoint.widen[Env],
+    startGameEndpoint.widen[Env],
+    gameHistoryEndpoint.widen[Env],
+    historyEndpoint.widen[Env],
+    getGameEndpoint.widen[Env],
+    moveEndpoint.widen[Env]
+  )
 
   private val baseEndpoint =
     endpoint
@@ -30,8 +41,7 @@ object GameAPI {
         validate(accessToken)
       }
 
-  val createGameEndpoint
-      : ZServerEndpoint[AuthorizationService with GameCreator, Any] =
+  private val createGameEndpoint =
     baseEndpoint.post
       .in("game" / "create")
       .out(jsonBody[ProtoGame] and statusCode(StatusCode.Created))
@@ -39,8 +49,7 @@ object GameAPI {
         createGame(claimData.userId)
       }
 
-  val joinPlayerEndpoint
-      : ZServerEndpoint[AuthorizationService with GameCreator, Any] =
+  private val joinPlayerEndpoint =
     baseEndpoint.post
       .in("game" / path[ID[Game]]("gameId"))
       .in("join" / path[ID[User]]("userId"))
@@ -51,8 +60,7 @@ object GameAPI {
         }
       }
 
-  val startGameEndpoint
-      : ZServerEndpoint[AuthorizationService with GameCreator, Any] =
+  private val startGameEndpoint =
     baseEndpoint.post
       .in("game" / path[ID[Game]]("gameId") / "start")
       .out(jsonBody[Game] and statusCode(StatusCode.Created))
@@ -60,8 +68,7 @@ object GameAPI {
         startGame(gameId, claimData.userId)
       }
 
-  val gameHistoryEndpoint
-      : ZServerEndpoint[AuthorizationService with GameService, Any] =
+  private val gameHistoryEndpoint =
     baseEndpoint.get
       .in("game" / path[ID[Game]]("gameId") / "history")
       .out(jsonBody[List[Game]])
@@ -69,8 +76,7 @@ object GameAPI {
         gameHistory(gameId, claimData.userId)
       }
 
-  val historyEndpoint
-      : ZServerEndpoint[AuthorizationService with GameService, Any] =
+  private val historyEndpoint =
     baseEndpoint.get
       .in("history")
       .out(jsonBody[List[GamePreView]])
@@ -78,8 +84,7 @@ object GameAPI {
         usersHistory(claimData.userId)
       }
 
-  val getGameEndpoint
-      : ZServerEndpoint[AuthorizationService with GameService, Any] =
+  private val getGameEndpoint =
     baseEndpoint.get
       .in("game" / path[ID[Game]]("gameId"))
       .out(jsonBody[Game])
@@ -87,8 +92,7 @@ object GameAPI {
         findGame(gameId)
       }
 
-  val moveEndpoint
-      : ZServerEndpoint[AuthorizationService with GameService, Any] =
+  private val moveEndpoint =
     baseEndpoint.post
       .in("game" / path[ID[Game]]("gameId") / "move")
       .in(jsonBody[Move])

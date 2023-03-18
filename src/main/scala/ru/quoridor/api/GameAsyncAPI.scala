@@ -1,7 +1,7 @@
 package ru.quoridor.api
 
 import io.circe.generic.auto._
-import ru.quoridor.app.QuoridorGame.Env
+import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.game.{Game, Move}
@@ -9,17 +9,22 @@ import ru.quoridor.services.GameService
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged._
 import sttp.apispec.asyncapi.AsyncAPI
+import sttp.capabilities.WebSockets
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.CodecFormat
 import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.ztapir._
 import zio.stream.ZStream
 import zio.{Hub, ZIO}
 
 object GameAsyncAPI {
+  def apply[Env <: GameService with AuthorizationService with Hub[Game]]
+      : List[ZServerEndpoint[Env, ZioStreams with WebSockets]] = List(
+    wsLogic.widen[Env]
+  )
+
   private val wsEndpoint = endpoint.get
     .in("game" / path[ID[Game]]("gameId"))
     .securityIn(auth.bearer[AccessToken]())
@@ -32,7 +37,7 @@ object GameAsyncAPI {
     )
 
   val docs: AsyncAPI =
-    AsyncAPIInterpreter().toAsyncAPI(wsEndpoint, "Game Async Api", "0.0.1")
+    AsyncAPIInterpreter().toAsyncAPI(wsEndpoint, "Game Async Api", "0.1.0")
 
   private val wsLogic = wsEndpoint
     .zServerSecurityLogic { accessToken =>
@@ -52,7 +57,4 @@ object GameAsyncAPI {
         }
       }
     }
-
-  val wsRoute =
-    ZHttp4sServerInterpreter().fromWebSocket(wsLogic.widen[Env]).toRoutes
 }
