@@ -11,7 +11,7 @@ object Swagger {
   private val openApi =
     OpenAPIDocsInterpreter().serverEndpointsToOpenAPI(
       GameAPI[Env] ++ AuthorizationAPI[Env],
-      "Quoridor game api",
+      "Quoridor Game Api",
       "0.1.0"
     )
 
