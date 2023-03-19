@@ -17,7 +17,7 @@ import zio.{Task, ZIO}
 object AuthorizationAPI {
   def apply[Env <: UserService with AuthenticationService]
       : List[ZServerEndpoint[Env, Any]] = List(
-    singOnEndpoint.widen[Env],
+    singUpEndpoint.widen[Env],
     signInEndpoint.widen[Env],
     refreshEndpoint.widen[Env],
     signOutEndpoint.widen[Env]
@@ -31,11 +31,11 @@ object AuthorizationAPI {
         ExceptionResponse(_)
       )
 
-  private val singOnEndpoint =
+  private val singUpEndpoint =
     baseEndpoint.post
-      .in("sign-on")
+      .in("sign-up")
       .in(jsonBody[Credentials])
-      .out(jsonBody[AccessToken])
+      .out(plainBody[AccessToken])
       .out(setCookie("refreshToken"))
       .out(statusCode(StatusCode.Created))
       .zServerLogic { credentials =>
@@ -47,10 +47,10 @@ object AuthorizationAPI {
       }
 
   private val signInEndpoint =
-    baseEndpoint.put
+    baseEndpoint.post
       .in("sign-in")
       .in(jsonBody[Credentials])
-      .out(jsonBody[AccessToken])
+      .out(plainBody[AccessToken])
       .out(setCookie("refreshToken"))
       .zServerLogic { credentials =>
         signIn(credentials)
@@ -60,11 +60,11 @@ object AuthorizationAPI {
       }
 
   private val refreshEndpoint =
-    baseEndpoint.get
+    baseEndpoint.post
       .in("refresh")
       .in(cookie[RefreshToken]("refreshToken"))
       .securityIn(auth.bearer[AccessToken]())
-      .out(jsonBody[AccessToken])
+      .out(plainBody[AccessToken])
       .out(setCookie("refreshToken"))
       .zServerSecurityLogic { accessToken =>
         ZIO.succeed(accessToken): ZIO[
