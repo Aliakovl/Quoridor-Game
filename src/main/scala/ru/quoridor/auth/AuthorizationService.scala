@@ -2,7 +2,7 @@ package ru.quoridor.auth
 
 import io.circe.generic.auto._
 import io.circe.parser
-import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim, JwtOptions}
 import ru.quoridor.auth.model.AuthException.InvalidAccessToken
 import ru.quoridor.auth.model.{AccessToken, ClaimData, InvalidAccessToken}
 import ru.quoridor.config.TokenKeys
@@ -61,7 +61,12 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
   ): IO[InvalidAccessToken, (ClaimData, JwtClaim)] = {
     for {
       payload <- ZIO.fromTry(
-        JwtCirce.decode(accessToken.value, publicKey, Seq(JwtAlgorithm.RS256))
+        JwtCirce.decode(
+          accessToken.value,
+          publicKey,
+          Seq(JwtAlgorithm.RS256),
+          JwtOptions(expiration = false)
+        )
       )
       claim <- ZIO.fromEither(
         parser.parse(payload.content).flatMap(_.as[ClaimData])
