@@ -2,9 +2,9 @@ package ru.quoridor.auth
 
 import io.circe.generic.auto._
 import io.circe.parser
-import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim, JwtOptions}
 import ru.quoridor.auth.model.AuthException.InvalidAccessToken
-import ru.quoridor.auth.model.{AccessToken, ClaimData, InvalidAccessToken}
+import ru.quoridor.auth.model._
 import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
@@ -16,6 +16,10 @@ import java.security.interfaces.RSAPublicKey
 
 trait AuthorizationService {
   def validate(accessToken: AccessToken): IO[InvalidAccessToken, ClaimData]
+
+  def extractSignature(
+      accessToken: AccessToken
+  ): IO[InvalidAccessToken, TokenSignature]
 
   private[auth] def verifySign(
       accessToken: AccessToken
@@ -51,6 +55,12 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
         )
       }
 
+  override def extractSignature(
+      accessToken: AccessToken
+  ): IO[InvalidAccessToken, TokenSignature] = ZIO
+    .attempt(accessToken.value.split('.')(2))
+    .mapBoth(_ => InvalidAccessToken, TokenSignature)
+
   private[auth] override def verifySign(
       accessToken: AccessToken
   ): IO[InvalidAccessToken, ClaimData] =
@@ -61,7 +71,12 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
   ): IO[InvalidAccessToken, (ClaimData, JwtClaim)] = {
     for {
       payload <- ZIO.fromTry(
-        JwtCirce.decode(accessToken.value, publicKey, Seq(JwtAlgorithm.RS256))
+        JwtCirce.decode(
+          accessToken.value,
+          publicKey,
+          Seq(JwtAlgorithm.RS256),
+          JwtOptions(expiration = false)
+        )
       )
       claim <- ZIO.fromEither(
         parser.parse(payload.content).flatMap(_.as[ClaimData])

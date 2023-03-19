@@ -37,7 +37,11 @@ object GameAsyncAPI {
     )
 
   val docs: AsyncAPI =
-    AsyncAPIInterpreter().toAsyncAPI(wsEndpoint, "Quoridor Game Async Api", "0.1.0")
+    AsyncAPIInterpreter().toAsyncAPI(
+      wsEndpoint,
+      "Quoridor Game Async Api",
+      "0.1.0"
+    )
 
   private val wsLogic = wsEndpoint
     .zServerSecurityLogic { accessToken =>

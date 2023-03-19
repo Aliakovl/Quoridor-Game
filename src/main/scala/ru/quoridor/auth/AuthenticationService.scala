@@ -60,29 +60,33 @@ class AuthenticationServiceImpl(
   ): Task[(AccessToken, RefreshToken)] = for {
     user <- userService.getUserSecret(credentials.username)
     _ <- hashingService.verifyPassword(credentials.password, user.userSecret)
-    refreshToken <- RefreshToken.generate
-    _ <- tokenStore.add(user.id, refreshToken)
     accessToken <- accessService.generateToken(
       ClaimData(user.id, user.username)
     )
+    refreshToken <- RefreshToken.generate
+    signature <- authorizationService.extractSignature(accessToken)
+    _ <- tokenStore.add(refreshToken, signature)
   } yield (accessToken, refreshToken)
 
   override def refresh(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): IO[AuthException, (AccessToken, RefreshToken)] = for {
-    cd <- authorizationService.verifySign(accessToken)
-    _ <- tokenStore.remove(cd.userId, refreshToken)
+    claimData <- authorizationService.verifySign(accessToken)
+    signature <- authorizationService.extractSignature(accessToken)
+    _ <- tokenStore.remove(refreshToken, signature)
     refreshToken <- RefreshToken.generate
-    _ <- tokenStore.add(cd.userId, refreshToken)
-    accessToken <- accessService.generateToken(cd)
+    accessToken <- accessService.generateToken(claimData)
+    signature <- authorizationService.extractSignature(accessToken)
+    _ <- tokenStore.add(refreshToken, signature)
   } yield (accessToken, refreshToken)
 
   override def signOut(
       accessToken: AccessToken,
       refreshToken: RefreshToken
   ): IO[AuthException, Unit] = for {
-    cd <- authorizationService.validate(accessToken)
-    _ <- tokenStore.remove(cd.userId, refreshToken)
+    _ <- authorizationService.validate(accessToken)
+    signature <- authorizationService.extractSignature(accessToken)
+    _ <- tokenStore.remove(refreshToken, signature)
   } yield ()
 }
