@@ -8,15 +8,13 @@ import org.http4s.HttpRoutes
 import ru.quoridor.api.{AuthorizationAPI, GameAPI, GameAsyncAPI}
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth._
-import ru.quoridor.auth.model.RefreshToken
+import ru.quoridor.auth.model.{RefreshToken, TokenSignature}
 import ru.quoridor.auth.store.redis._
 import ru.quoridor.config._
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
-import ru.quoridor.model.User
 import ru.quoridor.model.game.Game
-import ru.utils.tagging.ID
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import zio.interop.catz._
 import zio.logging.slf4j.bridge.Slf4jBridge
@@ -65,7 +63,7 @@ object QuoridorApp extends ZIOAppDefault {
       GameService.live,
       UserService.live,
       HashingService.live,
-      RedisStore.live[RefreshToken, ID[User]],
+      RedisStore.live[RefreshToken, TokenSignature],
       RefreshTokenStore.live,
       AccessService.live,
       AuthorizationService.live,

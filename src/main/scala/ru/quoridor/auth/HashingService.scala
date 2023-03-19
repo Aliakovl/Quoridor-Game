@@ -14,7 +14,7 @@ trait HashingService[P, S] {
 object HashingService {
   val live: ULayer[HashingService[Password, UserSecret]] = ZLayer(
     for {
-      pepper <- env("PSWD_PEPPER").orDie
+      pepper <- env("PSWD_PEPPER").!
     } yield new HashingServiceImpl(pepper.orNull)
   )
 }

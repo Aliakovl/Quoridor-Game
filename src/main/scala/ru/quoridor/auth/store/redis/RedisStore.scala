@@ -59,7 +59,6 @@ class RedisStore[K, V](
     for {
       real <- get(key)
       equals = real.contains(value)
-      _ <- ZIO.logInfo(s"($real, $value)")
       _ <- ZIO.when(equals)(delete(key))
     } yield equals
   }
@@ -79,7 +78,7 @@ class RedisStore[K, V](
         }
       }
     }
-  }.map(_.async())
+  }.map(_.async)
 }
 
 object RedisStore {
