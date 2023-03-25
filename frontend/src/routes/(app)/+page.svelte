@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {GameAPI} from "../../lib/api/gameAPI";
+    import {GameAPI} from "$lib/api/gameAPI";
 
     const gameApi = GameAPI.Unsafe();
 

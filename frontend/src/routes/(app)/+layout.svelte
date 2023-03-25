@@ -2,14 +2,23 @@
     import {getToken} from "../../lib/auth/auth";
     import {directLogin} from "../../lib/api/gameAPI";
 
-    if (getToken() === undefined) {
+    const noToken = getToken() === undefined
+
+    if (noToken) {
         directLogin();
     }
 </script>
 
-<main>
-    <slot/>
-</main>
+{#if !noToken}
+    <header>
+        <button id="new-game-button" type="button">New Game</button>
+        <button id="logout-button" type="button">Logout</button>
+    </header>
+
+    <main>
+        <slot/>
+    </main>
+{/if}
 
 <style>
     :root {
@@ -27,8 +36,12 @@
         -webkit-text-size-adjust: 100%;
     }
 
-    h1 {
-        font-size: 3.2em;
-        line-height: 1.1;
+    header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #new-game-button {
+        align-self: start;
     }
 </style>

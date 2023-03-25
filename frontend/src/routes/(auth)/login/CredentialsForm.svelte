@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {signIn, signUp} from "../../../lib/auth/authAPI";
-    import {saveToken} from "../../../lib/auth/auth";
+    import {signIn, signUp} from "$lib/auth/authAPI";
+    import {saveToken} from "$lib/auth/auth";
     import {browser} from "$app/environment";
 
     let username = "";

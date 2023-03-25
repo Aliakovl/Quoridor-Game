@@ -7,3 +7,17 @@ services:
       - ./nginx/snippets:/etc/nginx/snippets
       - /etc/letsencrypt:/etc/letsencrypt
       - /etc/ssl/certs:/etc/ssl/certs
+    depends_on:
+      - frontend
+
+  frontend:
+    image: node:lts-alpine
+    working_dir: /home/node
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./frontend/build:/home/node/app
+      - ./frontend/package.json:/home/node/package.json
+    ports:
+      - "127.0.0.1:3000:3000"
+    command: "node app"

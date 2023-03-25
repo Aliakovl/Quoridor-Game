@@ -56,15 +56,3 @@ services:
     restart: always
     ports:
       - "127.0.0.1:6379:6379"
-
-  frontend:
-    image: node:lts-alpine
-    working_dir: /home/node
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - ./frontend/build:/home/node/app
-      - ./frontend/package.json:/home/node/package.json
-    ports:
-      - "127.0.0.1:3000:3000"
-    command: "node app"
