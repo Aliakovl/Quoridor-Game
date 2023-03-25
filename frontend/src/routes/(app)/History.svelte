@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {GameAPI} from "../../lib/api/gameAPI";
+    import {GameAPI} from "$lib/api/gameAPI";
     import {onMount} from "svelte";
     
     export let gameApi: GameAPI;
@@ -36,7 +36,7 @@
 
 <style>
     td.user-history {
-        border: 1px solid black;
+        border: 1px solid dimgray;
         border-collapse: collapse;
         padding: 0 10px 10px 10px;
     }

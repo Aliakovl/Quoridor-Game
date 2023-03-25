@@ -8,6 +8,10 @@ export function getToken() {
     return browser && sessionStorage.getItem("AccessToken") || undefined
 }
 
+export function deleteToken() {
+    sessionStorage.removeItem("AccessToken")
+}
+
 export function getTokenUnsafe() {
     const token = getToken()
     if (token === undefined) {

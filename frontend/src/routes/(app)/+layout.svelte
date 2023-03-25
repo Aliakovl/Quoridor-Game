@@ -1,18 +1,25 @@
 <script lang="ts">
-    import {getToken} from "../../lib/auth/auth";
-    import {directLogin} from "../../lib/api/gameAPI";
+    import {deleteToken, getToken, getTokenUnsafe} from "$lib/auth/auth";
+    import {directLogin} from "$lib/api/gameAPI";
+    import {signOut} from "$lib/auth/authAPI";
 
     const noToken = getToken() === undefined
 
     if (noToken) {
         directLogin();
     }
+
+    async function logout(event) {
+        const token = getTokenUnsafe()
+        await signOut(token).catch(() => {}).finally(deleteToken)
+        directLogin()
+    }
 </script>
 
 {#if !noToken}
     <header>
         <button id="new-game-button" type="button">New Game</button>
-        <button id="logout-button" type="button">Logout</button>
+        <button id="logout-button" type="button" on:click={logout}>Logout</button>
     </header>
 
     <main>
