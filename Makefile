@@ -2,8 +2,16 @@ local: export DB_PASSWORD = postgres
 local: export DB_USER = postgres
 local: export PSWD_PEPPER = pepper
 local: export TS_PASSWORD = redis
-local: image
+local: image frontend-build
 	docker-compose up --build
+
+init: local-keys frontend-init
+
+frontend-build:
+	@cd frontend && npm run build
+
+frontend-init:
+	@cd frontend && npm install
 
 local-keys:
 	mkdir -p keys/local
