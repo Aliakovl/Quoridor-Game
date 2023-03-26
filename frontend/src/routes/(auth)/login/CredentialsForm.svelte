@@ -9,14 +9,14 @@
         await signIn(username, password).then(accessToken => {
             saveToken(accessToken);
             directHome();
-        }).catch(console.log)
+        })
     }
 
     async function signUpHandler(event) {
         await signUp(username, password).then(accessToken => {
             saveToken(accessToken);
             directHome();
-        }).catch(console.log)
+        })
     }
 </script>
 

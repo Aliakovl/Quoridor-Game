@@ -1,35 +1,19 @@
 <script lang="ts">
-    import {deleteToken, getToken} from "$lib/auth/auth";
+    import {getToken} from "$lib/auth/auth";
     import {directLogin} from "$lib/api/gameAPI";
-    import {signOut} from "$lib/auth/authAPI";
     import Spinner from "$lib/Spinner.svelte";
 
-    const noToken = getToken() === undefined
+    const noToken = getToken() === undefined;
 
     if (noToken) {
         directLogin();
     }
-
-    async function logout(event) {
-        await signOut().catch(() => {
-        }).finally(deleteToken)
-        directLogin()
-    }
 </script>
 
 {#if !noToken}
-    <header>
-        <button id="new-game-button" type="button">New Game</button>
-        <button id="logout-button" type="button" on:click={logout}>Logout</button>
-    </header>
-
-    <main>
-        <slot/>
-    </main>
+    <slot/>
 {:else}
-    <main>
-        <Spinner/>
-    </main>
+    <Spinner/>
 {/if}
 
 <style>
@@ -46,14 +30,5 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         -webkit-text-size-adjust: 100%;
-    }
-
-    header {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    #new-game-button {
-        align-self: start;
     }
 </style>

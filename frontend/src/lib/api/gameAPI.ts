@@ -1,6 +1,6 @@
 import {refresh} from "../auth/authAPI";
 import {getToken, saveToken} from "../auth/auth";
-import type {Game, GamePreView, Move, ProtoGame} from "./types";
+import type {Game, GamePreView, Move, ProtoGame, User} from "./types";
 import {browser} from "$app/environment";
 
 export function directLogin() {
@@ -18,7 +18,6 @@ export class GameAPI {
 
     static Unsafe() {
         const token = getToken()
-        console.log(token)
         if (token == undefined) {
             directLogin()
         } else {
@@ -99,6 +98,14 @@ export class GameAPI {
             throw new Error("getGame failed")
         }
         return await response.json() as Game
+    }
+
+    async getUser(username: string) {
+        const response = await this.call(`/api/user/${username}`)
+        if (!response.ok) {
+            throw new Error("getGame failed")
+        }
+        return await response.json() as User
     }
 
     async move(gameId: string, move: Move) {

@@ -18,6 +18,13 @@ class UserServiceImpl(
     userDao.findById(userId)
   }
 
+  def getUser(username: Username): Task[User] = {
+    userDao.findByUsername(username).map {
+      case UserWithSecret(id, username, _) =>
+        User(id, username)
+    }
+  }
+
   override def createUser(credentials: Credentials): Task[User] = {
     for {
       secret <- hashingService.hashPassword(credentials.password)
