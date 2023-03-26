@@ -17,10 +17,6 @@ import java.security.interfaces.RSAPublicKey
 trait AuthorizationService {
   def validate(accessToken: AccessToken): IO[InvalidAccessToken, ClaimData]
 
-  def extractSignature(
-      accessToken: AccessToken
-  ): IO[InvalidAccessToken, TokenSignature]
-
   private[auth] def verifySign(
       accessToken: AccessToken
   ): IO[InvalidAccessToken, ClaimData]
@@ -54,12 +50,6 @@ class AuthorizationServiceImpl(publicKey: RSAPublicKey)
           ZIO.fail(InvalidAccessToken)
         )
       }
-
-  override def extractSignature(
-      accessToken: AccessToken
-  ): IO[InvalidAccessToken, TokenSignature] = ZIO
-    .attempt(accessToken.value.split('.')(2))
-    .mapBoth(_ => InvalidAccessToken, TokenSignature)
 
   private[auth] override def verifySign(
       accessToken: AccessToken

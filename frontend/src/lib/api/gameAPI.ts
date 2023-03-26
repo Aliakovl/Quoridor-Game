@@ -1,5 +1,5 @@
 import {refresh} from "../auth/authAPI";
-import {getToken, getTokenUnsafe, saveToken} from "../auth/auth";
+import {getToken, saveToken} from "../auth/auth";
 import type {Game, GamePreView, Move, ProtoGame} from "./types";
 import {browser} from "$app/environment";
 
@@ -33,8 +33,7 @@ export class GameAPI {
     async wrapper(request: () => Promise<Response>) {
         const response = await request()
         if (response.status === 401) {
-            const token = getTokenUnsafe()
-            const accessToken = await refresh(token)
+            const accessToken = await refresh()
             this.updateToken(accessToken)
             saveToken(accessToken)
             return await request()

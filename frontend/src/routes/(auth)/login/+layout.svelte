@@ -1,4 +1,27 @@
-<slot/>
+<script lang="ts">
+    import {refresh} from "$lib/auth/authAPI";
+    import {saveToken, directHome} from "$lib/auth/auth";
+    import {onMount} from "svelte";
+    import Spinner from "$lib/Spinner.svelte";
+
+    let logged = true
+
+    onMount(async () => {
+        logged = await refresh().then(accessToken => {
+            saveToken(accessToken)
+            directHome()
+            return true
+        }).catch(() => false)
+    })
+</script>
+
+{#if !logged}
+    <slot/>
+{:else}
+    <main>
+        <Spinner/>
+    </main>
+{/if}
 
 <style>
     :root {

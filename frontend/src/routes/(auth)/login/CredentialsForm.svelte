@@ -1,16 +1,9 @@
 <script lang="ts">
     import {signIn, signUp} from "$lib/auth/authAPI";
-    import {saveToken} from "$lib/auth/auth";
-    import {browser} from "$app/environment";
+    import {saveToken, directHome} from "$lib/auth/auth";
 
     let username = "";
     let password = "";
-
-    function directHome() {
-        if (browser) {
-            window.location.replace('/');
-        }
-    }
 
     async function signInHandler(event) {
         await signIn(username, password).then(accessToken => {

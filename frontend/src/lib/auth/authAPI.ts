@@ -22,12 +22,9 @@ async function signIn(username: string, password: string) {
     return await response.text()
 }
 
-async function refresh(accessToken: string) {
+async function refresh() {
     const response = await fetch("/auth/refresh", {
-        method: 'POST',
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        }
+        method: 'POST'
     })
     if (!response.ok) {
         throw new Error("refresh failed")
@@ -35,12 +32,9 @@ async function refresh(accessToken: string) {
     return await response.text()
 }
 
-async function signOut(accessToken: string) {
+async function signOut() {
     const response = await fetch("/auth/sign-out", {
-        method: 'POST',
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        }
+        method: 'POST'
     })
     if (!response.ok) {
         throw new Error("signOut failed")

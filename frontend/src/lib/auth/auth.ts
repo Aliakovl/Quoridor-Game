@@ -12,6 +12,12 @@ export function deleteToken() {
     sessionStorage.removeItem("AccessToken")
 }
 
+export function directHome() {
+    if (browser) {
+        window.location.replace('/');
+    }
+}
+
 export function getTokenUnsafe() {
     const token = getToken()
     if (token === undefined) {

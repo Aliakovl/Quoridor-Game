@@ -8,12 +8,10 @@
 
 <style>
     #app {
+        justify-content: center;
         display: flex;
         place-items: center;
-        width: fit-content;
-        height: fit-content;
-        margin: 15% 60%;
-        padding: 2rem;
+        margin: 35vh 70vw;
         text-align: center;
     }
 </style>

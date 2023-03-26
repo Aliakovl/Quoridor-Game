@@ -1,7 +1,8 @@
 <script lang="ts">
-    import {deleteToken, getToken, getTokenUnsafe} from "$lib/auth/auth";
+    import {deleteToken, getToken} from "$lib/auth/auth";
     import {directLogin} from "$lib/api/gameAPI";
     import {signOut} from "$lib/auth/authAPI";
+    import Spinner from "$lib/Spinner.svelte";
 
     const noToken = getToken() === undefined
 
@@ -10,8 +11,8 @@
     }
 
     async function logout(event) {
-        const token = getTokenUnsafe()
-        await signOut(token).catch(() => {}).finally(deleteToken)
+        await signOut().catch(() => {
+        }).finally(deleteToken)
         directLogin()
     }
 </script>
@@ -24,6 +25,10 @@
 
     <main>
         <slot/>
+    </main>
+{:else}
+    <main>
+        <Spinner/>
     </main>
 {/if}
 
