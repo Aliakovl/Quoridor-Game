@@ -33,9 +33,9 @@
     }
 
     async function handleStartGame(event) {
-        await gameAPI.startGame(gameId)
-        browser && sessionStorage.setItem("gameId", gameId)
-        browser && window.location.replace('/game')
+        await gameAPI.startGame(gameId);
+        browser && sessionStorage.setItem("gameId", gameId);
+        browser && window.location.assign('/game');
     }
 </script>
 

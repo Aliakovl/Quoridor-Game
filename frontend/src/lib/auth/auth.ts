@@ -14,7 +14,7 @@ export function deleteToken() {
 
 export function directHome() {
     if (browser) {
-        window.location.replace('/');
+        window.location.assign('/');
     }
 }
 

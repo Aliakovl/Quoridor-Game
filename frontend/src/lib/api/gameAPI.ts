@@ -5,7 +5,7 @@ import {browser} from "$app/environment";
 
 export function directLogin() {
     if (browser) {
-        window.location.replace('/login')
+        window.location.assign('/login')
     }
 }
 
