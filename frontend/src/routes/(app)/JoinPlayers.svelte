@@ -1,6 +1,7 @@
 <script lang="ts">
     import '$lib/forms.css';
     import {GameAPI} from "$lib/api/gameAPI";
+    import {browser} from "$app/environment";
 
     export let gameAPI: GameAPI;
     export let gameId: string;
@@ -18,7 +19,7 @@
 
     let username = "";
 
-    async function onAddPlayer(event) {
+    async function handleAddPlayer(event) {
         const user = await gameAPI.getUser(username).catch(() => {
             styles.bg = "#AA0000";
         })
@@ -30,6 +31,12 @@
             styles.bg = "#AA0000";
         })
     }
+
+    async function handleStartGame(event) {
+        await gameAPI.startGame(gameId)
+        browser && sessionStorage.setItem("gameId", gameId)
+        browser && window.location.replace('/game')
+    }
 </script>
 
 <div id="join">
@@ -40,8 +47,8 @@
                    required/>
         </div>
         <div class="submits">
-            <input id="add-player" type="submit" value="Add player" form="create-game-form" on:click={onAddPlayer}/>
-            <input id="start-game" type="submit" value="Start game"/>
+            <input id="add-player" type="submit" value="Add player" form="create-game-form" on:click={handleAddPlayer}/>
+            <input id="start-game" type="button" value="Start game" on:click={handleStartGame}/>
         </div>
     </form>
     <div id="players">
