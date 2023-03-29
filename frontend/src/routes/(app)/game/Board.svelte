@@ -34,46 +34,48 @@
     const cs = [...Array(9).keys()];
 </script>
 
-<svg width={max} height={max} transform=rotate({rotationAngle(target)})>
-    <rect width={h} height={h} class="background"/>
-    {#each cs as i}
-        {#each cs as j}
-            {@const pawn = {pawnPosition: {row: i, column: j}}}
-            <Cell row={i} column={j} bind:cd={cd} bind:qd={qd}
-                  on:click={() => onMove(pawn)}/>
+{#if target !== undefined}
+    <svg width={max} height={max} transform="rotate({rotationAngle(target)})">
+        <rect width={h} height={h} class="background"/>
+        {#each cs as i}
+            {#each cs as j}
+                {@const pawn = {pawnPosition: {row: i, column: j}}}
+                <Cell row={i} column={j} bind:cd={cd} bind:qd={qd}
+                      on:click={() => onMove(pawn)}/>
+            {/each}
         {/each}
-    {/each}
 
-    {#each qs as i}
-        {#each qs as j}
-            {@const wall = {orientation: 'horizontal', row: i, column: j}}
-            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
-                      on:click={() => onMove({wallPosition: wall})}
-            />
+        {#each qs as i}
+            {#each qs as j}
+                {@const wall = {orientation: 'horizontal', row: i, column: j}}
+                <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
+                          on:click={() => onMove({wallPosition: wall})}
+                />
+            {/each}
         {/each}
-    {/each}
 
-    {#each qs as i}
-        {#each qs as j}
-            {@const wall = {orientation: 'vertical', row: i, column: j}}
-            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
-                      on:click={() => onMove({wallPosition: wall})}
-            />
+        {#each qs as i}
+            {#each qs as j}
+                {@const wall = {orientation: 'vertical', row: i, column: j}}
+                <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
+                          on:click={() => onMove({wallPosition: wall})}
+                />
+            {/each}
         {/each}
-    {/each}
 
-    {#key walls}
-        {#each walls as wall}
-            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='wall'/>
-        {/each}
-    {/key}
+        {#key walls}
+            {#each walls as wall}
+                <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='wall'/>
+            {/each}
+        {/key}
 
-    {#key players}
-        {#each players as {pawnPosition, target}}
-            <Pawn row={pawnPosition.row} column={pawnPosition.column} target={target} bind:cd={cd} bind:qd={qd}/>
-        {/each}
-    {/key}
-</svg>
+        {#key players}
+            {#each players as {pawnPosition, target}}
+                <Pawn row={pawnPosition.row} column={pawnPosition.column} target={target} bind:cd={cd} bind:qd={qd}/>
+            {/each}
+        {/key}
+    </svg>
+{/if}
 
 <style>
     rect.background {

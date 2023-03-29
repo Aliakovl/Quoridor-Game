@@ -5,39 +5,39 @@ import {browser} from "$app/environment";
 
 export function directLogin() {
     if (browser) {
-        window.location.assign('/login')
+        window.location.replace('/login');
     }
 }
 
 export class GameAPI {
-    private accessToken: string
+    private accessToken: string;
 
     constructor(accessToken: string) {
-        this.accessToken = accessToken
+        this.accessToken = accessToken;
     }
 
     static Unsafe() {
-        const token = getToken()
+        const token = getToken();
         if (token == undefined) {
-            directLogin()
+            directLogin();
         } else {
-            return new GameAPI(token)
+            return new GameAPI(token);
         }
     }
 
     updateToken(accessToken: string) {
-        this.accessToken = accessToken
+        this.accessToken = accessToken;
     }
 
     async wrapper(request: () => Promise<Response>) {
-        const response = await request()
+        const response = await request();
         if (response.status === 401) {
-            const accessToken = await refresh()
-            this.updateToken(accessToken)
-            saveToken(accessToken)
-            return await request()
+            const accessToken = await refresh();
+            this.updateToken(accessToken);
+            saveToken(accessToken);
+            return await request();
         }
-        return response
+        return response;
     }
 
     call(url: RequestInfo | URL, method?: string, body?: BodyInit) {
@@ -49,70 +49,70 @@ export class GameAPI {
                 },
                 body: body
             })
-        })
+        });
     }
 
     async createGame() {
-        const response = await this.call('/api/game/create', 'POST')
+        const response = await this.call('/api/game/create', 'POST');
         if (!response.ok) {
-            throw new Error("createGame failed")
+            throw new Error("createGame failed");
         }
-        return await response.json() as ProtoGame
+        return await response.json() as ProtoGame;
     }
 
     async joinPlayer(gameId: string, userId: string) {
-        const response = await this.call(`/api/game/${gameId}/join/${userId}`, 'POST')
+        const response = await this.call(`/api/game/${gameId}/join/${userId}`, 'POST');
         if (!response.ok) {
-            throw new Error("joinPlayer failed")
+            throw new Error("joinPlayer failed");
         }
-        return await response.json() as ProtoGame
+        return await response.json() as ProtoGame;
     }
 
     async startGame(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/start`, 'POST')
+        const response = await this.call(`/api/game/${gameId}/start`, 'POST');
         if (!response.ok) {
-            throw new Error("startGame failed")
+            throw new Error("startGame failed");
         }
-        return await response.json() as Game
+        return await response.json() as Game;
     }
 
     async gameHistory(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/history`)
+        const response = await this.call(`/api/game/${gameId}/history`);
         if (!response.ok) {
-            throw new Error("gameHistory failed")
+            throw new Error("gameHistory failed");
         }
-        return await response.json() as [Game]
+        return await response.json() as [Game];
     }
 
     async history() {
-        const response = await this.call('/api/history')
+        const response = await this.call('/api/history');
         if (!response.ok) {
-            throw new Error("history failed")
+            throw new Error("history failed");
         }
-        return await response.json() as [GamePreView]
+        return await response.json() as [GamePreView];
     }
 
     async getGame(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}`)
+        const response = await this.call(`/api/game/${gameId}`);
         if (!response.ok) {
-            throw new Error("getGame failed")
+            throw new Error("getGame failed");
         }
-        return await response.json() as Game
+        return await response.json() as Game;
     }
 
     async getUser(username: string) {
-        const response = await this.call(`/api/user/${username}`)
+        const response = await this.call(`/api/user/${username}`);
         if (!response.ok) {
-            throw new Error("getGame failed")
+            throw new Error("getGame failed");
         }
-        return await response.json() as User
+        return await response.json() as User;
     }
 
     async move(gameId: string, move: Move) {
         const response = await this.call(`/api/game/${gameId}/move`, 'POST', JSON.stringify(move))
         if (!response.ok) {
-            throw new Error("move failed")
+            throw new Error("move failed");
         }
-        return await response.json() as Game
+        return await response.json() as Game;
     }
 }

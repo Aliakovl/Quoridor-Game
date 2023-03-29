@@ -8,6 +8,7 @@
     import {refresh} from "$lib/auth/authAPI";
     import {getUser} from "$lib/auth/auth";
     import type {User} from "$lib/auth/auth";
+    import GameStatus from "./GameStatus.svelte";
 
     let gameWS: GameWS;
     let game: Game;
@@ -38,12 +39,14 @@
 
 <div>
     <div></div>
-    <div>
-        {#if game !== undefined && user !== undefined}
+    {#if game !== undefined && user !== undefined}
+        <div>
             <Board onMove={onMove} user={user} bind:state={game.state}/>
-        {/if}
-    </div>
-    <div></div>
+        </div>
+        <div>
+            <GameStatus players={game.state.players}/>
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -56,6 +59,6 @@
         justify-content: center;
         display: flex;
         place-items: center;
-        text-align: center;
+        text-align: left;
     }
 </style>
