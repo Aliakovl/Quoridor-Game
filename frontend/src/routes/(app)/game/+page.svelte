@@ -7,12 +7,11 @@
     import {directHome, saveToken} from "$lib/auth/auth";
     import {refresh} from "$lib/auth/authAPI";
 
-    let gameId;
     let gameWS: GameWS;
     let game: Game;
 
     onMount(async () => {
-        gameId = browser && sessionStorage.getItem("gameId") || undefined
+        const gameId = browser && sessionStorage.getItem("gameId") || undefined
         if (gameId === undefined) {
             directHome()
         } else {

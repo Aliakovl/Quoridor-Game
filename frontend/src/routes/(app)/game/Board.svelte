@@ -1,12 +1,14 @@
 <script lang="ts">
-    import type {State} from "$lib/api/types";
     import Quoridor from "./Quoridor.svelte";
     import Cell from "./Cell.svelte";
+    import type {State} from "$lib/api/types";
+    import Pawn from "./Pawn.svelte";
 
     export let onMove: (Move) => {};
     export let state: State;
 
     $: walls = state.walls;
+    $: players = [state.players.activePlayer, ...state.players.enemies]
 
     let max_qd = 20;
     let max = 8 * max_qd + 9 * max_qd * 3 + 100;
@@ -24,7 +26,7 @@
     {#each cs as i}
         {#each cs as j}
             {@const pawn = {pawnPosition: {row: i, column: j}}}
-            <Cell i={i} j={j} bind:cd={cd} bind:qd={qd}
+            <Cell row={i} column={j} bind:cd={cd} bind:qd={qd}
                   on:click={() => onMove(pawn)}/>
         {/each}
     {/each}
@@ -50,6 +52,12 @@
     {#key walls}
         {#each walls as wall}
             <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='wall'/>
+        {/each}
+    {/key}
+
+    {#key players}
+        {#each players as {pawnPosition, target}}
+            <Pawn row={pawnPosition.row} column={pawnPosition.column} target={target} bind:cd={cd} bind:qd={qd}/>
         {/each}
     {/key}
 </svg>
