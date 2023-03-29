@@ -14,3 +14,16 @@ export function pawnColour(target: Side) {
             return "#FFFF00"
     }
 }
+
+export function rotationAngle(target: Side) {
+    switch (target) {
+        case "north":
+            return 0
+        case "south":
+            return 180
+        case "east":
+            return 90
+        case "west":
+            return 270
+    }
+}

@@ -21,7 +21,7 @@
                     <div>
                         <p>Players: {gameView.players.map(x => x.username).join(", ")}</p>
                         {#if gameView.winner !== null}
-                            <p>{gameView.winner.username}</p>
+                            <p>Winner: {gameView.winner.username}</p>
                         {/if}
                         <button class="view-history-button" type="button" value={gameView.id}>View game history
                         </button>

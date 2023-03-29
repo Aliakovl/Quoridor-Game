@@ -3,15 +3,28 @@
     import Cell from "./Cell.svelte";
     import type {State} from "$lib/api/types";
     import Pawn from "./Pawn.svelte";
+    import {rotationAngle} from "./types.js";
+    import type {Player} from "$lib/api/types";
+    import {onMount} from "svelte";
+    import type {User} from "$lib/auth/auth";
 
     export let onMove: (Move) => {};
     export let state: State;
+    export let user: User;
+
+    let target;
 
     $: walls = state.walls;
     $: players = [state.players.activePlayer, ...state.players.enemies]
 
+    onMount(() => {
+        target = players.find<Player>(p => {
+            return p.id === user.userId;
+        })?.target;
+    })
+
     let max_qd = 20;
-    let max = 8 * max_qd + 9 * max_qd * 3 + 100;
+    let max = 8 * max_qd + 9 * max_qd * 3;
 
     let qd = max_qd;
     $: cd = 3 * qd;
@@ -21,7 +34,7 @@
     const cs = [...Array(9).keys()];
 </script>
 
-<svg width={max} height={max}>
+<svg width={max} height={max} transform=rotate({rotationAngle(target)})>
     <rect width={h} height={h} class="background"/>
     {#each cs as i}
         {#each cs as j}

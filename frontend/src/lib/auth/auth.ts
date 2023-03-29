@@ -25,3 +25,12 @@ export function getTokenUnsafe() {
     }
     return token
 }
+
+export type User = {
+    userId: string,
+    username: string
+}
+
+export function getUser(accessToken: string): User {
+    return JSON.parse(atob(accessToken.split(".")[1]))
+}

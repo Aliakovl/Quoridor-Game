@@ -6,18 +6,23 @@
     import {browser} from "$app/environment";
     import {directHome, saveToken} from "$lib/auth/auth";
     import {refresh} from "$lib/auth/authAPI";
+    import {getUser} from "$lib/auth/auth";
+    import type {User} from "$lib/auth/auth";
 
     let gameWS: GameWS;
     let game: Game;
+    let user: User;
 
     onMount(async () => {
         const gameId = browser && sessionStorage.getItem("gameId") || undefined
         if (gameId === undefined) {
-            directHome()
+            directHome();
         } else {
-            const token = await refresh()
-            saveToken(token)
-            gameWS = new GameWS(gameId, token, update)
+            const token = await refresh();
+            user = getUser(token);
+            console.log(user);
+            saveToken(token);
+            gameWS = new GameWS(gameId, token, update);
         }
     })
 
@@ -34,8 +39,8 @@
 <div>
     <div></div>
     <div>
-        {#if game !== undefined}
-            <Board onMove={onMove} bind:state={game.state}/>
+        {#if game !== undefined && user !== undefined}
+            <Board onMove={onMove} user={user} bind:state={game.state}/>
         {/if}
     </div>
     <div></div>
