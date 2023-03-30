@@ -5,6 +5,17 @@ local: export TS_PASSWORD = redis
 local: image
 	docker-compose up --build
 
+dev:
+	@cd frontend && npm run dev
+
+frontend-build:
+	@cd frontend && npm run build
+
+init: local-keys frontend-init
+
+frontend-init:
+	@cd frontend && npm install
+
 local-keys:
 	mkdir -p keys/local
 	openssl genrsa -out keys/local/jwtRSA256.pem 2048

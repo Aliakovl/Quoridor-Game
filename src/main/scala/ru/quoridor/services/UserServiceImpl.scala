@@ -4,6 +4,7 @@ import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.UserDao
+import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits._
 import zio.Task
 
@@ -13,8 +14,15 @@ class UserServiceImpl(
     userDao: UserDao,
     hashingService: HashingService[Password, UserSecret]
 ) extends UserService {
-  override def findUser(username: Username): Task[User] = {
-    userDao.findByUsername(username).map(_.toUser)
+  override def getUser(userId: ID[User]): Task[User] = {
+    userDao.findById(userId)
+  }
+
+  def getUser(username: Username): Task[User] = {
+    userDao.findByUsername(username).map {
+      case UserWithSecret(id, username, _) =>
+        User(id, username)
+    }
   }
 
   override def createUser(credentials: Credentials): Task[User] = {

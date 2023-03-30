@@ -63,18 +63,10 @@ object AuthorizationAPI {
     baseEndpoint.post
       .in("refresh")
       .in(cookie[RefreshToken]("refreshToken"))
-      .securityIn(auth.bearer[AccessToken]())
       .out(plainBody[AccessToken])
       .out(setCookie("refreshToken"))
-      .zServerSecurityLogic { accessToken =>
-        ZIO.succeed(accessToken): ZIO[
-          AuthenticationService,
-          Nothing,
-          AccessToken
-        ]
-      }
-      .serverLogic { accessToken => refreshToken =>
-        refresh(accessToken, refreshToken)
+      .zServerLogic { refreshToken =>
+        refresh(refreshToken)
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
@@ -84,17 +76,9 @@ object AuthorizationAPI {
     baseEndpoint.post
       .in("sign-out")
       .in(cookie[RefreshToken]("refreshToken"))
-      .securityIn(auth.bearer[AccessToken]())
       .out(setCookie("refreshToken"))
-      .zServerSecurityLogic { accessToken =>
-        ZIO.succeed(accessToken): ZIO[
-          AuthenticationService,
-          Nothing,
-          AccessToken
-        ]
-      }
-      .serverLogic { accessToken => refreshToken =>
-        signOut(accessToken, refreshToken).as(deleteCookie)
+      .zServerLogic { refreshToken =>
+        signOut(refreshToken).as(deleteCookie)
       }
 
   private def cookieValue(

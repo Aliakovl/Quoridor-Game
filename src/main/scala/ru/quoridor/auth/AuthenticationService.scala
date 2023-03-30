@@ -9,12 +9,10 @@ trait AuthenticationService {
   def signIn(credentials: Credentials): Task[(AccessToken, RefreshToken)]
 
   def refresh(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): IO[AuthException, (AccessToken, RefreshToken)]
+  ): Task[(AccessToken, RefreshToken)]
 
   def signOut(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
   ): IO[AuthException, Unit]
 }
@@ -23,8 +21,8 @@ object AuthenticationService {
   val live: RLayer[UserService with AccessService with HashingService[
     Password,
     UserSecret
-  ] with AuthorizationService with RefreshTokenStore, AuthenticationService] =
-    ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _, _))
+  ] with RefreshTokenStore, AuthenticationService] =
+    ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _))
 
   def signIn(
       credentials: Credentials
@@ -32,19 +30,17 @@ object AuthenticationService {
     ZIO.serviceWithZIO[AuthenticationService](_.signIn(credentials))
 
   def refresh(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
   ): RIO[AuthenticationService, (AccessToken, RefreshToken)] =
     ZIO.serviceWithZIO[AuthenticationService](
-      _.refresh(accessToken, refreshToken)
+      _.refresh(refreshToken)
     )
 
   def signOut(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
   ): RIO[AuthenticationService, Unit] =
     ZIO.serviceWithZIO[AuthenticationService](
-      _.signOut(accessToken, refreshToken)
+      _.signOut(refreshToken)
     )
 }
 
@@ -52,7 +48,6 @@ class AuthenticationServiceImpl(
     userService: UserService,
     accessService: AccessService,
     hashingService: HashingService[Password, UserSecret],
-    authorizationService: AuthorizationService,
     tokenStore: RefreshTokenStore
 ) extends AuthenticationService {
   override def signIn(
@@ -64,29 +59,24 @@ class AuthenticationServiceImpl(
       ClaimData(user.id, user.username)
     )
     refreshToken <- RefreshToken.generate
-    signature <- authorizationService.extractSignature(accessToken)
-    _ <- tokenStore.add(refreshToken, signature)
+    _ <- tokenStore.add(refreshToken, user.id)
   } yield (accessToken, refreshToken)
 
   override def refresh(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
-  ): IO[AuthException, (AccessToken, RefreshToken)] = for {
-    claimData <- authorizationService.verifySign(accessToken)
-    signature <- authorizationService.extractSignature(accessToken)
-    _ <- tokenStore.remove(refreshToken, signature)
+  ): Task[(AccessToken, RefreshToken)] = for {
+    userId <- tokenStore.remove(refreshToken)
+    user <- userService.getUser(userId)
     refreshToken <- RefreshToken.generate
-    accessToken <- accessService.generateToken(claimData)
-    signature <- authorizationService.extractSignature(accessToken)
-    _ <- tokenStore.add(refreshToken, signature)
+    accessToken <- accessService.generateToken(
+      ClaimData(user.id, user.username)
+    )
+    _ <- tokenStore.add(refreshToken, user.id)
   } yield (accessToken, refreshToken)
 
   override def signOut(
-      accessToken: AccessToken,
       refreshToken: RefreshToken
   ): IO[AuthException, Unit] = for {
-    _ <- authorizationService.validate(accessToken)
-    signature <- authorizationService.extractSignature(accessToken)
-    _ <- tokenStore.remove(refreshToken, signature)
+    _ <- tokenStore.remove(refreshToken)
   } yield ()
 }

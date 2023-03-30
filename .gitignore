@@ -9,3 +9,7 @@ project/.bloop
 *metals
 metals*
 .vscode
+*/node_modules/
+frontend/build/
+frontend/.svelte-kit/
+frontend/package-lock.json

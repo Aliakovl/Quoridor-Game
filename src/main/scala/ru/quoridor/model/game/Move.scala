@@ -83,7 +83,7 @@ case class PlaceWall(wallPosition: WallPosition) extends Move {
     val activePlayer = state.players.activePlayer
       .copy(wallsAmount = state.players.activePlayer.wallsAmount - 1)
     val players = state.players.copy(activePlayer = activePlayer)
-    state.copy(players.shift, walls)
+    State(players.shift, walls)
   }
 }
 

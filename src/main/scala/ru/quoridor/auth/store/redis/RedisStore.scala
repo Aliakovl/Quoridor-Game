@@ -55,12 +55,17 @@ class RedisStore[K, V](
     }
   }
 
-  override def delete(key: K, value: V): Task[Boolean] = {
-    for {
-      real <- get(key)
-      equals = real.contains(value)
-      _ <- ZIO.when(equals)(delete(key))
-    } yield equals
+  override def getDel(key: K): Task[Option[V]] = ZIO.scoped {
+    withConnection.flatMap { async =>
+      ZIO.async { cb =>
+        async
+          .getdel(key)
+          .handleAsync { (value: V, error: Throwable) =>
+            cb(ZIO.succeed(Option(value)))
+            cb(ZIO.fail(error))
+          }
+      }
+    }
   }
 
   private val acquire: Task[StatefulRedisConnection[K, V]] = ZIO.async { cb =>
@@ -85,7 +90,7 @@ object RedisStore {
   def apply[K, V](
       redisURI: RedisURI,
       redisCodec: RedisCodec[K, V],
-      ttl: zio.Duration
+      ttl: Duration
   ): Task[RedisStore[K, V]] = {
     ZIO
       .async { cb =>
