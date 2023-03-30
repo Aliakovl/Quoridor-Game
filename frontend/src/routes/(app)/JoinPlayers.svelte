@@ -43,7 +43,7 @@
     <form id="create-game-form" on:submit|preventDefault>
         <div class="field" style="{cssVarStyles}">
             <input bind:value={username} id="user-login" type="text" name="username" form="create-game-form"
-                   placeholder="Player's username"
+                   placeholder="Username"
                    required/>
         </div>
         <div class="submits">
@@ -62,15 +62,43 @@
 </div>
 
 <style>
+    #join {
+        border: 2px solid dimgray;
+        background-color: dimgray;
+        color: ghostwhite;
+        border-radius: 0.7em;
+        padding: 0 10px 10px 10px;
+    }
+
     #players {
         margin-top: 2em;
+        background-color: #2a2a2a;
+        border-radius: 0.7em;
+        padding: 12px;
+        box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.1);
     }
 
     #user-login {
         border-color: var(--bg);
     }
 
+    .field > input {
+        background-color: #414141;
+        color: ghostwhite;
+        box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .submits > input {
+        background-color: #2a2a2a;
+        color: ghostwhite;
+        box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.1);
+    }
+
     #user-login:hover {
         border-color: #646cff;
+    }
+
+    li {
+        text-align: left;
     }
 </style>

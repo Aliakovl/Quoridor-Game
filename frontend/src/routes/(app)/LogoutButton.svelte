@@ -20,4 +20,8 @@
         display: flex;
         justify-content: space-between;
     }
+
+    button {
+        box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.3), 0 3px 6px 0 rgba(0, 0, 0, 0.2);
+    }
 </style>

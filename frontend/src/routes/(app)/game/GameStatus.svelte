@@ -12,7 +12,7 @@
 <ul>
     {#each playersList as {username, target, wallsAmount} (target)}
         {#if target === players.activePlayer.target}
-            <li class={target}>➤ {username}: {wallsAmount}</li>
+            <li class="{target} active">{username}: {wallsAmount}</li>
         {:else}
             <li class={target}>{username}: {wallsAmount}</li>
         {/if}
@@ -26,34 +26,37 @@
         float: left;
     }
 
+    li.active::marker {
+        content: "➤ ";
+        font-size: 1.5em;
+    }
+
+    li:not(.active)::marker {
+        content: "⬤  ";
+        font-size: 1em;
+    }
+
     li::before {
-        content: "\2B24";
         font-weight: bold;
-        padding-bottom: 0;
-        padding-top: 0;
     }
 
     li {
         font-size: x-large;
-        padding-bottom: 0;
-        padding-top: 0;
     }
 
-    li.north:before {
-        color: #0000FF;
+    li.north::marker {
+        color: #3434e6;
     }
 
-    li.south:before {
-        color: #FF0000;
+    li.south::marker {
+        color: #bc1313;
     }
 
-
-    ul li.east:before {
-        color: #00FF00;
+    li.east::marker {
+        color: #38ae38;
     }
 
-
-    ul li.west:before {
-        color: #FFFF00;
+    li.west::marker {
+        color: #c8c826;
     }
 </style>

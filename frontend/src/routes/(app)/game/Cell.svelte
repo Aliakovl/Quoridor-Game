@@ -14,9 +14,13 @@
 <style>
     rect {
         fill: #515151;
+        stroke-width: 1;
+        stroke: #212121;
     }
 
     rect:hover {
-        fill: #646cff;
+        fill: #d8d8d8;
+        stroke-width: 1;
+        stroke: #212121;
     }
 </style>

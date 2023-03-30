@@ -5,13 +5,13 @@ type QuoridorStatus = 'empty' | 'wall' | 'forbidden';
 export function pawnColour(target: Side) {
     switch (target) {
         case "north":
-            return "#0000FF";
+            return "#3434e6";
         case "south":
-            return "#FF0000";
+            return "#bc1313";
         case "east":
-            return "#00FF00";
+            return "#38ae38";
         case "west":
-            return "#FFFF00";
+            return "#c8c826";
     }
 }
 
@@ -22,9 +22,9 @@ export function rotationAngle(target: Side) {
         case "south":
             return 180;
         case "east":
-            return 90;
-        case "west":
             return 270;
+        case "west":
+            return 90;
     }
 }
 
