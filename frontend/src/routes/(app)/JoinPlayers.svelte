@@ -43,8 +43,7 @@
     <form id="create-game-form" on:submit|preventDefault>
         <div class="field" style="{cssVarStyles}">
             <input bind:value={username} id="user-login" type="text" name="username" form="create-game-form"
-                   placeholder="Username"
-                   required/>
+                   placeholder="Username" required autocomplete="off"/>
         </div>
         <div class="submits">
             <input id="add-player" type="submit" value="Add player" form="create-game-form" on:click={handleAddPlayer}/>
