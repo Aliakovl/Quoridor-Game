@@ -1,41 +1,33 @@
 <script lang="ts">
     import '$lib/forms.css';
-    import Board from "./Board.svelte";
-    import type {Game, Move} from "$lib/api/types";
-    import {GameWS} from "$lib/api/gameWS";
+    import LogoutButton from "../LogoutButton.svelte";
+    import HomeButton from "../game/HomeButton.svelte";
     import {onMount} from "svelte";
     import {browser} from "$app/environment";
-    import {directHome, saveToken} from "$lib/auth/auth";
-    import {refresh} from "$lib/auth/authAPI";
+    import {directHome, getToken} from "$lib/auth/auth";
+    import {GameAPI} from "$lib/api/gameAPI";
     import {getUser} from "$lib/auth/auth";
-    import type {User} from "$lib/auth/auth";
-    import GameStatus from "./GameStatus.svelte";
-    import LogoutButton from "../LogoutButton.svelte";
-    import HomeButton from "./HomeButton.svelte";
+    import Board from "../game/Board.svelte";
+    import type {Game} from "$lib/api/types";
+    import GameStatus from "../game/GameStatus.svelte";
+    import BackAndForth from "./BackAndForth.svelte";
 
-    let gameWS: GameWS;
-    let game: Game;
-    let user: User;
+    let history: [Game];
+    let gameApi: GameAPI;
+    let user;
+    let index = 0;
 
     onMount(async () => {
         const gameId = browser && sessionStorage.getItem("gameId") || undefined
-        if (gameId === undefined) {
+        const token = getToken();
+        if (gameId === undefined || token === undefined) {
             directHome();
         } else {
-            const token = await refresh();
+            gameApi = new GameAPI(token);
             user = getUser(token);
-            saveToken(token);
-            gameWS = new GameWS(gameId, token, update);
+            history = await gameApi.gameHistory(gameId);
         }
     })
-
-    function update(newGame: Game) {
-        game = newGame;
-    }
-
-    function onMove(move: Move) {
-        gameWS.send(move);
-    }
 </script>
 
 <header>
@@ -45,14 +37,16 @@
 </header>
 <main>
     <div class="app">
-        {#if game !== undefined && user !== undefined}
-            <div class="placeholder"></div>
+        {#if history !== undefined}
+            <div class="placeholder">
+                <BackAndForth bind:index={index} max={history.length - 1}/>
+            </div>
             <div class="board">
-                <Board onMove={onMove} user={user} bind:state={game.state}/>
+                <Board onMove={() => {}} user={user} bind:state={history[index].state}/>
             </div>
             <div class="placeholder">
                 <div class="status">
-                    <GameStatus players={game.state.players}/>
+                    <GameStatus players={history[index].state.players}/>
                 </div>
             </div>
         {/if}

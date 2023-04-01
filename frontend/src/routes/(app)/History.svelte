@@ -12,6 +12,11 @@
         window.location.assign('/game');
     }
 
+    function viewHistory(gameId: string) {
+        browser && sessionStorage.setItem("gameId", gameId);
+        window.location.assign('/history');
+    }
+
     onMount(() => {
         promise = gameApi.history();
     })
@@ -30,7 +35,10 @@
                     {/if}
                 </div>
                 {#if gameView.winner !== null}
-                    <button class="view-history-button" type="button">View game history</button>
+                    <button class="view-history-button" type="button"
+                            on:click={() => viewHistory(gameView.id)}>
+                        View game history
+                    </button>
                 {:else}
                     <button class="view-history-button" type="button"
                             on:click={() => playGame(gameView.id)}>

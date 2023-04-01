@@ -26,11 +26,11 @@ export function getTokenUnsafe() {
     return token;
 }
 
-export type User = {
+export type Claim = {
     userId: string,
     username: string
 }
 
-export function getUser(accessToken: string): User {
+export function getUser(accessToken: string): Claim {
     return JSON.parse(atob(accessToken.split(".")[1]));
 }
