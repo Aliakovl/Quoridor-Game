@@ -1,7 +1,17 @@
-# [Quoridor Game](https://quoridor.online)
+# [Welcome to Qouridor!](https://quoridor.online)
 
-## Краткое описание:
+Qouridor is a strategy 9x9 board game that is easy to learn but challenging to master. The game is designed for 2-4 players and is perfect for friends looking to spend some quality time together.
 
-Quoridor - это настольная игра на 2 - 4 игрока.
-Игра ведётся на доске 9x9.  У каждого игрока есть одна пешка и от пяти до десяти стен, в зависимости от количества игроков. Цель игры - первым пешкой дойти до противоположной стороны доски. Игроки ходят по очереди, за один ход можно либо сходить на одну клетку пешкой (по диагонали можно ходить только в особых случаях), либо поставить стену между клеток, усложняя игру соперникам. 
-[Подробнее.](https://en.wikipedia.org/wiki/Quoridor)
+## How to Play
+
+Each player has a pawn that starts in the center of the board. The goal of the game is to move your pawn to the opposite side of the board before your opponents do. Players can also place walls to block their opponents' progress.
+
+To move your pawn, you can either move one space in any direction or jump over an adjacent pawn. To place a wall, you can either place it horizontally or vertically, blocking your opponent's path.
+
+## Features
+
+Our Qouridor website allows you to play the game with your friends online, no matter where you are. You can create a private game and invite your friends to join.
+
+## Get Started
+
+To start playing Qouridor, simply create an account on our website and choose whether you want to create a private game. Then, invite your friends to join your game.
