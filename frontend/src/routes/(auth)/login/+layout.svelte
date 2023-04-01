@@ -16,7 +16,9 @@
 </script>
 
 {#if !logged}
-    <slot/>
+    <main>
+        <slot/>
+    </main>
 {:else}
     <main>
         <Spinner/>
@@ -25,7 +27,7 @@
 
 <style>
     :root {
-        font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+        font-family: ui-monospace;
         line-height: 1.5;
         font-weight: 600;
         min-width: 0;
