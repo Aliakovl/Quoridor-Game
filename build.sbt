@@ -4,7 +4,7 @@ lazy val circeVersion = "0.14.5"
 lazy val tapirVersion = "1.2.10"
 lazy val http4sVersion = "0.23.18"
 lazy val zioVersion = "2.0.10"
-lazy val zioLoggingVersion = "2.1.9"
+lazy val zioLoggingVersion = "2.1.11"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -42,7 +42,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.password4j" % "password4j" % "1.7.0"
 )
 
-lazy val root = (project in file("."))
+lazy val root = (project in file("./backend/app"))
   .settings(
     name := "Quoridor Game",
     version := "0.1.0",

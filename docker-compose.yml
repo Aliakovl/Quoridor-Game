@@ -7,7 +7,7 @@ services:
       - ./configs:/conf:ro
 
   quoridor-api:
-    build: ./target/docker/stage/
+    build: ./backend/app/target/docker/stage/
     restart: on-failure
     ports:
       - "127.0.0.1:8080:8080"
