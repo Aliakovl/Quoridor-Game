@@ -23,13 +23,12 @@
 <div class="form">
     <form id="credentials" on:submit|preventDefault>
         <div class="field">
-            <input bind:value={username} id="username-field" type="text" name="username" form="credentials" required
-                   placeholder="Username"/>
+            <input bind:value={username} id="username-field" type="text" name="username" form="credentials"
+                   required placeholder="Username"/>
         </div>
         <div class="field">
             <input bind:value={password} id="password-field" type="password" name="password" form="credentials"
-                   required
-                   placeholder="Password"/>
+                   required placeholder="Password"/>
         </div>
         <div class="submits">
             <input id="sign-in" type="submit" value="Sign In" form="credentials" on:click={signInHandler}/>
@@ -39,6 +38,19 @@
 </div>
 
 <style>
+    @media (prefers-color-scheme: dark) {
+        .field > input {
+            background: #1a1a1a;
+        }
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+    }
+
     .submits {
         display: flex;
         justify-content: space-between;

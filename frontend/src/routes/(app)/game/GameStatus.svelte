@@ -27,12 +27,12 @@
     }
 
     li.active::marker {
-        content: "➤ ";
-        font-size: 1.5em;
+        content: "⬤ ";
+        font-size: 1em;
     }
 
     li:not(.active)::marker {
-        content: "⬤  ";
+        content: "◯ ";
         font-size: 1em;
     }
 

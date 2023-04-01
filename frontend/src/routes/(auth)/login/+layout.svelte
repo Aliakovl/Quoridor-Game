@@ -29,7 +29,7 @@
         line-height: 1.5;
         font-weight: 600;
         min-width: 0;
-        color-scheme: light dark;
+        color-scheme: dark;
         color: rgba(255, 255, 255, 0.87);
         background-color: #242424;
         font-synthesis: none;
