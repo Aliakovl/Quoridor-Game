@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+export const prerender = true;
 
 export const load: PageLoad = async ({ fetch }) => {
     const res = await fetch(`/description.md`);
