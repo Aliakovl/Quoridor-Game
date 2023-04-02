@@ -6,7 +6,7 @@ lazy val http4sVersion = "0.23.18"
 lazy val zioVersion = "2.0.10"
 lazy val zioLoggingVersion = "2.1.11"
 
-ThisBuild / libraryDependencies ++= Seq(
+lazy val dependencies = Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
   "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
@@ -42,7 +42,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "com.password4j" % "password4j" % "1.7.0"
 )
 
-lazy val root = (project in file("./backend/app"))
+lazy val app = (project in file("./backend/app"))
   .settings(
     name := "Quoridor Game",
     version := "0.1.0",
@@ -59,6 +59,13 @@ lazy val root = (project in file("./backend/app"))
       "-Xlint",
       "-Xlint:-byname-implicit"
     ),
+    libraryDependencies ++= dependencies,
     Compile / doc / sources := Nil
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)
+  .dependsOn(core)
+
+lazy val core = (project in file("./backend/core"))
+  .settings(
+    libraryDependencies ++= dependencies
+  )
