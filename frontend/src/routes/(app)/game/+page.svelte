@@ -45,7 +45,7 @@
     } else {
         width = Math.min(innerWidth, innerHeight - 200)
     }
-    $: qt = width / 45
+    $: qd = width / 45
 </script>
 
 <svelte:window bind:innerWidth={innerWidth} bind:innerHeight={innerHeight}></svelte:window>
@@ -59,11 +59,11 @@
     <div class="app">
         {#if game !== undefined && user !== undefined}
             <div class="placeholder"></div>
-            <div class="board" style="padding: {3*qt}px; border-radius: {1.61803398875 * qt}px">
-                <Board onMove={onMove} user={user} bind:state={game.state} qd={qt}/>
+            <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
+                <Board onMove={onMove} user={user} bind:state={game.state} qd={qd}/>
             </div>
             <div class="placeholder">
-                <div class="status" style="margin-top: {3*qt}px; margin-bottom: {3*qt}px">
+                <div class="status" style="margin-top: {3*qd}px; margin-bottom: {3*qd}px">
                     <GameStatus players={game.state.players}/>
                 </div>
             </div>

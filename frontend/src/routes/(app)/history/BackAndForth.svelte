@@ -43,4 +43,20 @@
         padding: 1.2em;
         box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 0 rgba(0, 0, 0, 0.2);
     }
+
+    @media screen and (max-width: 961px) {
+        button {
+            font-size: inherit;
+        }
+
+        div {
+            display: flex;
+            gap: 1em;
+            background-color: #747474;
+            border-radius: 0.8em;
+            padding: 0.8em;
+            box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 0 rgba(0, 0, 0, 0.2);
+            margin-top: 1em;
+        }
+    }
 </style>
