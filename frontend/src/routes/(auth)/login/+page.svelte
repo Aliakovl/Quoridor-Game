@@ -35,4 +35,18 @@
         place-items: start;
         text-align: center;
     }
+
+    @media screen and (max-width: 961px) {
+        .app {
+            flex-direction: column-reverse;
+            margin-left: 1em;
+            margin-right: 1em;
+            margin-top: 1em;
+        }
+
+        .credentials-form {
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+    }
 </style>
