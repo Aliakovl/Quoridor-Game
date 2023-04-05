@@ -23,7 +23,7 @@
     </LogoutButton>
 </header>
 <main>
-    <div id="app">
+    <div class="app">
         {#if gameId !== undefined}
             <JoinPlayers gameAPI={gameApi} gameId={gameId} creator={username}/>
         {/if}
@@ -38,11 +38,7 @@
         font-weight: 500;
     }
 
-    header {
-        margin-bottom: 5em;
-    }
-
-    #app {
+    .app {
         justify-content: center;
         display: flex;
         place-items: baseline;
@@ -52,5 +48,14 @@
     main {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        margin-top: 5em;
+    }
+
+    @media screen and (max-width: 961px) {
+        main {
+            display: flex;
+            flex-direction: column;
+            margin-top: 3em;
+        }
     }
 </style>

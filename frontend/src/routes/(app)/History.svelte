@@ -83,4 +83,10 @@
         color: ghostwhite;
         box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.1);
     }
+
+    @media screen and (max-width: 961px) {
+        .user-history-table {
+            margin-top: 3em;
+        }
+    }
 </style>
