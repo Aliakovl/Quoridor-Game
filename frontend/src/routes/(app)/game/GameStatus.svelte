@@ -59,4 +59,10 @@
     li.west::marker {
         color: #c8c826;
     }
+
+    @media screen and (max-width: 961px) {
+        li {
+            font-size: inherit;
+        }
+    }
 </style>
