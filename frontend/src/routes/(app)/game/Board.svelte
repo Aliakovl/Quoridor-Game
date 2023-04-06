@@ -11,6 +11,7 @@
     export let onMove: (Move) => {};
     export let state: State;
     export let user: User;
+    export let qd: number;
 
     let target;
 
@@ -23,10 +24,8 @@
         })?.target;
     })
 
-    let max_qd = 20;
-    let max = 8 * max_qd + 9 * max_qd * 3;
+    $: max = 8 * qd + 9 * qd * 3;
 
-    let qd = max_qd;
     $: cd = 3 * qd;
     $: h = 8 * qd + 9 * cd;
 

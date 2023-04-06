@@ -44,9 +44,11 @@
         stroke: #212121;
     }
 
-    rect.empty:hover {
-        fill: #d8d8d8;
-        stroke-width: 1;
-        stroke: #212121;
+    @media (hover: hover) {
+        rect.empty:hover {
+            fill: #d8d8d8;
+            stroke-width: 1;
+            stroke: #212121;
+        }
     }
 </style>

@@ -40,16 +40,16 @@
 </script>
 
 <div id="join">
-    <form id="create-game-form" on:submit|preventDefault>
+    <div id="create-game-form">
         <div class="field" style="{cssVarStyles}">
-            <input bind:value={username} id="user-login" type="text" name="username" form="create-game-form"
-                   placeholder="Username" required autocomplete="off" autofocus/>
+            <input bind:value={username} id="user-login" type="text" name="username"
+                   placeholder="Username" required autofocus autocomplete="off"/>
         </div>
         <div class="submits">
-            <input id="add-player" type="submit" value="Add player" form="create-game-form" on:click={handleAddPlayer}/>
+            <input id="add-player" type="submit" value="Add player" on:click={handleAddPlayer}/>
             <input id="start-game" type="button" value="Start game" on:click={handleStartGame}/>
         </div>
-    </form>
+    </div>
     <div id="players">
         <label>Participants:</label>
         <ul id="added-players">

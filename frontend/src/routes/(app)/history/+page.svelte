@@ -28,7 +28,19 @@
             history = await gameApi.gameHistory(gameId);
         }
     })
+
+    let innerWidth;
+    let innerHeight;
+    let width
+    $: if (innerWidth > 961) {
+        width = Math.min(innerWidth, innerHeight) - 50
+    } else {
+        width = Math.min(innerWidth, innerHeight - 250)
+    }
+    $: qd = width / 45
 </script>
+
+<svelte:window bind:innerWidth={innerWidth} bind:innerHeight={innerHeight}></svelte:window>
 
 <header>
     <LogoutButton>
@@ -41,8 +53,8 @@
             <div class="placeholder">
                 <BackAndForth bind:index={index} max={history.length - 1}/>
             </div>
-            <div class="board">
-                <Board onMove={() => {}} user={user} bind:state={history[index].state}/>
+            <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
+                <Board onMove={() => {}} user={user} bind:state={history[index].state} qd={qd}/>
             </div>
             <div class="placeholder">
                 <div class="status">
@@ -69,20 +81,21 @@
     }
 
     .board {
-        padding: 3em;
         background-color: gray;
-        border-radius: 2em;
+        margin-top: 1em;
         box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 0 rgba(0, 0, 0, 0.2);
     }
 
     .placeholder {
         flex: 1;
+        margin-right: 2em;
     }
 
     .status {
         flex: 1;
         padding: 0 1em 0 1em;
         max-width: min-content;
+        margin-left: 2em;
         background-color: #747474;
         border-radius: 0.8em;
         box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 0 rgba(0, 0, 0, 0.2);
@@ -90,5 +103,22 @@
 
     .app {
         flex: 1;
+    }
+
+    @media screen and (max-width: 961px) {
+        .app {
+            display: flex;
+            flex-flow: column-reverse;
+        }
+
+        .status {
+            padding: 0 0.8em 0 0;
+            border-radius: 0.6em;
+            margin-left: 0;
+        }
+
+        .placeholder {
+            margin-right: 0;
+        }
     }
 </style>
