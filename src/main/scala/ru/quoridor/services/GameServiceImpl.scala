@@ -7,8 +7,9 @@ import ru.quoridor.model.GameException.{
 }
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
-import ru.quoridor.model.game.geometry.Board
+import ru.quoridor.model.game.geometry.{Board, PawnPosition}
 import ru.quoridor.dao.GameDao
+import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
@@ -85,5 +86,20 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
         gameDao.find(gameId, _)
       )
     } yield history
+  }
+
+  override def availablePawnMoves(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): Task[List[PawnPosition]] = {
+    for {
+      game <- gameDao.find(gameId)
+      _ <- ZIO
+        .succeed(game.state.players.toList.exists(_.id == userId))
+        .orFail(GameInterloperException(userId, gameId))
+      _ <- ZIO
+        .succeed(game.winner.isEmpty)
+        .orFail(GameHasFinishedException(gameId))
+    } yield game.state.possibleSteps
   }
 }
