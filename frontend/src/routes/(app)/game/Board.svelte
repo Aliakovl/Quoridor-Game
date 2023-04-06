@@ -7,6 +7,7 @@
     import type {Player} from "$lib/api/types";
     import {onMount} from "svelte";
     import type {User} from "$lib/auth/auth";
+    import Plug from "./Plug.svelte";
 
     export let onMove: (Move) => {};
     export let state: State;
@@ -14,23 +15,35 @@
     export let qd: number;
 
     let target;
+    let qsh;
+    let qsv;
+    const cs = [...Array(9).keys()];
 
     $: walls = state.walls;
     $: players = [state.players.activePlayer, ...state.players.enemies]
-
-    onMount(() => {
-        target = players.find<Player>(p => {
-            return p.id === user.userId;
-        })?.target;
-    })
 
     $: max = 8 * qd + 9 * qd * 3;
 
     $: cd = 3 * qd;
     $: h = 8 * qd + 9 * cd;
 
-    const qs = [...Array(8).keys()];
-    const cs = [...Array(9).keys()];
+    onMount(() => {
+        target = players.find<Player>(p => {
+            return p.id === user.userId;
+        })?.target;
+
+        if (["east", "south"].includes(target)) {
+            qsv = [...Array(8).keys()].reverse();
+        } else {
+            qsv = [...Array(8).keys()];
+        }
+
+        if (["west", "south"].includes(target)) {
+            qsh = [...Array(8).keys()].reverse();
+        } else {
+            qsh = [...Array(8).keys()];
+        }
+    })
 </script>
 
 {#if target !== undefined}
@@ -44,8 +57,8 @@
             {/each}
         {/each}
 
-        {#each qs as i}
-            {#each qs as j}
+        {#each qsv as i}
+            {#each qsh as j}
                 {@const wall = {orientation: 'horizontal', row: i, column: j}}
                 <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
                           on:click={() => onMove({wallPosition: wall})}
@@ -53,12 +66,18 @@
             {/each}
         {/each}
 
-        {#each qs as i}
-            {#each qs as j}
+        {#each qsv as i}
+            {#each qsh as j}
                 {@const wall = {orientation: 'vertical', row: i, column: j}}
                 <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
                           on:click={() => onMove({wallPosition: wall})}
                 />
+            {/each}
+        {/each}
+
+        {#each qsv as i}
+            {#each qsh as j}
+                <Plug row={i} column={j} bind:cd={cd} bind:qd={qd}></Plug>
             {/each}
         {/each}
 
