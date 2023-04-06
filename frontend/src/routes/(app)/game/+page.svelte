@@ -8,14 +8,17 @@
     import {directHome, saveToken} from "$lib/auth/auth";
     import {refresh} from "$lib/auth/authAPI";
     import {getUser} from "$lib/auth/auth";
-    import type {User} from "$lib/auth/auth";
+    import type {Claim} from "$lib/auth/auth";
     import GameStatus from "./GameStatus.svelte";
     import LogoutButton from "../LogoutButton.svelte";
     import HomeButton from "./HomeButton.svelte";
+    import Modal from "./Modal.svelte";
 
     let gameWS: GameWS;
     let game: Game;
-    let user: User;
+    let user: Claim;
+
+    let collapsed = false;
 
     onMount(async () => {
         const gameId = browser && sessionStorage.getItem("gameId") || undefined
@@ -35,6 +38,10 @@
 
     function onMove(move: Move) {
         gameWS.send(move);
+    }
+
+    function collapse(event) {
+        collapsed = true;
     }
 
     let innerWidth;
@@ -58,6 +65,19 @@
 <main>
     <div class="app">
         {#if game !== undefined && user !== undefined}
+            {#if game.winner !== null && !collapsed}
+                {#if user.userId === game.winner.id}
+                    <Modal>
+                        <p class="win-text">You won!</p>
+                        <button class="win-button" on:click={collapse}>Yippee!</button>
+                    </Modal>
+                {:else }
+                    <Modal>
+                        <p class="win-text">Winner - {game.winner.username}!</p>
+                        <button class="win-button" on:click={collapse}>Let it go</button>
+                    </Modal>
+                {/if}
+            {/if}
             <div class="placeholder"></div>
             <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
                 <Board onMove={onMove} user={user} bind:state={game.state} qd={qd}/>
@@ -111,6 +131,15 @@
         flex: 1;
     }
 
+    .win-button {
+        flex: 1;
+    }
+
+    .win-text {
+        text-align: center;
+        flex: 1;
+    }
+
     @media screen and (max-width: 961px) {
         .app {
             display: flex;
@@ -120,6 +149,14 @@
         .status {
             padding: 0 0.8em 0 0;
             border-radius: 0.6em;
+        }
+
+        .win-button {
+            font-size: large;
+        }
+
+        .win-text {
+            font-size: large;
         }
     }
 </style>
