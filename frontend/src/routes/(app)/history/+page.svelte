@@ -54,7 +54,7 @@
                 <BackAndForth bind:index={index} max={history.length - 1}/>
             </div>
             <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
-                <Board onMove={() => {}} user={user} bind:state={history[index].state} qd={qd}/>
+                <Board onMove={() => {}} user={user} bind:game={history[index]} qd={qd}/>
             </div>
             <div class="placeholder">
                 <div class="status">

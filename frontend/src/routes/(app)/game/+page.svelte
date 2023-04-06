@@ -13,27 +13,38 @@
     import LogoutButton from "../LogoutButton.svelte";
     import HomeButton from "./HomeButton.svelte";
     import Modal from "./Modal.svelte";
+    import type {PawnPosition} from "$lib/api/types";
+    import {GameAPI} from "$lib/api/gameAPI";
 
     let gameWS: GameWS;
     let game: Game;
     let user: Claim;
-
+    let gameId: string;
+    let pawnMoves: [PawnPosition];
     let collapsed = false;
+    let gameAPI: GameAPI;
 
     onMount(async () => {
-        const gameId = browser && sessionStorage.getItem("gameId") || undefined
-        if (gameId === undefined) {
+        const _gameId = browser && sessionStorage.getItem("gameId") || undefined;
+        if (_gameId === undefined) {
             directHome();
         } else {
+            gameId = _gameId;
             const token = await refresh();
             user = getUser(token);
+            gameAPI = new GameAPI(token);
             saveToken(token);
             gameWS = new GameWS(gameId, token, update);
         }
     })
 
-    function update(newGame: Game) {
+    async function update(newGame: Game) {
         game = newGame;
+        if (game.state.players.activePlayer.id === user.userId) {
+            pawnMoves = await gameAPI.pawnMoves(gameId).catch(() => []);
+        } else {
+            pawnMoves = []
+        }
     }
 
     function onMove(move: Move) {
@@ -80,7 +91,7 @@
             {/if}
             <div class="placeholder"></div>
             <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
-                <Board onMove={onMove} user={user} bind:state={game.state} qd={qd}/>
+                <Board onMove={onMove} user={user} bind:game={game} bind:pawnMoves={pawnMoves} qd={qd}/>
             </div>
             <div class="placeholder">
                 <div class="status" style="margin-top: {3*qd}px; margin-bottom: {3*qd}px">
