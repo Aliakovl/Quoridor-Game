@@ -64,5 +64,15 @@
         li {
             font-size: inherit;
         }
+
+        li.active::marker {
+            content: "● ";
+            font-size: inherit;
+        }
+
+        li:not(.active)::marker {
+            content: "○ ";
+            font-size: inherit;
+        }
     }
 </style>
