@@ -27,7 +27,6 @@
     $: cd = 3 * qd;
     $: h = 8 * qd + 9 * cd;
 
-
     onMount(() => {
         target = players.find<Player>(p => {
             return p.id === user.userId;
