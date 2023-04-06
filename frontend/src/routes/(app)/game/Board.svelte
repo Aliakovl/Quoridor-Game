@@ -6,12 +6,12 @@
     import {rotationAngle} from "./types.js";
     import type {Player} from "$lib/api/types";
     import {onMount} from "svelte";
-    import type {User} from "$lib/auth/auth";
     import Plug from "./Plug.svelte";
+    import type {Claim} from "$lib/auth/auth";
 
     export let onMove: (Move) => {};
     export let state: State;
-    export let user: User;
+    export let user: Claim;
     export let qd: number;
 
     let target;
@@ -20,7 +20,7 @@
     const cs = [...Array(9).keys()];
 
     $: walls = state.walls;
-    $: players = [state.players.activePlayer, ...state.players.enemies]
+    $: players = [state.players.activePlayer, ...state.players.enemies];
 
     $: max = 8 * qd + 9 * qd * 3;
 
