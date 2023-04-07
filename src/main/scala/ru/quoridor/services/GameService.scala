@@ -3,7 +3,7 @@ package ru.quoridor.services
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.dao.GameDao
-import ru.quoridor.model.game.geometry.PawnPosition
+import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.utils.tagging.ID
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
@@ -20,6 +20,10 @@ trait GameService {
       gameId: ID[Game],
       userId: ID[User]
   ): Task[List[PawnPosition]]
+
+  def availableWallMoves(
+      gameId: ID[Game]
+  ): Task[Set[WallPosition]]
 }
 
 object GameService {
@@ -50,4 +54,9 @@ object GameService {
       userId: ID[User]
   ): RIO[GameService, List[PawnPosition]] =
     ZIO.serviceWithZIO[GameService](_.availablePawnMoves(gameId, userId))
+
+  def availableWallMoves(
+      gameId: ID[Game]
+  ): RIO[GameService, Set[WallPosition]] =
+    ZIO.serviceWithZIO[GameService](_.availableWallMoves(gameId))
 }

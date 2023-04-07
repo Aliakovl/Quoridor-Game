@@ -3,16 +3,16 @@
     import Cell from "./Cell.svelte";
     import Pawn from "./Pawn.svelte";
     import {rotationAngle} from "./types.js";
-    import type {Player} from "$lib/api/types";
     import {onMount} from "svelte";
     import Plug from "./Plug.svelte";
     import type {Claim} from "$lib/auth/auth";
-    import type {Game, PawnPosition} from "$lib/api/types";
+    import type {Game, PawnPosition, WallPosition, Player} from "$lib/api/types";
     import EmptyCell from "./EmptyCell.svelte";
 
     export let onMove: (Move) => {};
     export let game: Game;
     export let pawnMoves: [PawnPosition] = [];
+    export let wallMoves: [WallPosition] = [];
     export let user: Claim;
     export let qd: number;
 
@@ -20,6 +20,10 @@
     let qsh;
     let qsv;
     const cs = [...Array(9).keys()];
+
+    function toStr(wall: WallPosition): string {
+        return `${wall.orientation === 'horizontal' ? 'h' : 'v'}${wall.row}${wall.column}`;
+    }
 
     $: state = game.state;
     $: walls = state.walls;
@@ -29,6 +33,12 @@
 
     $: cd = 3 * qd;
     $: h = 8 * qd + 9 * cd;
+
+    $: setWalls = new Set(wallMoves.map(toStr));
+
+    function isAvailable(wall: WallPosition) {
+        return setWalls.has(toStr(wall));
+    }
 
     onMount(() => {
         target = players.find<Player>(p => {
@@ -66,24 +76,32 @@
             {/each}
         {/key}
 
-        {#if state.players.activePlayer.id === user.userId && game.winner === null }
-            {#each qsv as i}
-                {#each qsh as j}
-                    {@const wall = {orientation: 'horizontal', row: i, column: j}}
-                    <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
-                              on:click={() => onMove({wallPosition: wall})}
-                    />
+        {#if state.players.activePlayer.id === user.userId && game.winner === null}
+            {#key setWalls}
+                {#each qsv as i}
+                    {#each qsh as j}
+                        {@const wall = {orientation: 'horizontal', row: i, column: j}}
+                        {#if isAvailable(wall)}
+                            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
+                                      on:click={() => onMove({wallPosition: wall})}/>
+                        {:else}
+                            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='forbidden'/>
+                        {/if}
+                    {/each}
                 {/each}
-            {/each}
 
-            {#each qsv as i}
-                {#each qsh as j}
-                    {@const wall = {orientation: 'vertical', row: i, column: j}}
-                    <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
-                              on:click={() => onMove({wallPosition: wall})}
-                    />
+                {#each qsv as i}
+                    {#each qsh as j}
+                        {@const wall = {orientation: 'vertical', row: i, column: j}}
+                        {#if isAvailable(wall)}
+                            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='empty'
+                                      on:click={() => onMove({wallPosition: wall})}/>
+                        {:else}
+                            <Quoridor wall={wall} bind:qd={qd} bind:cd={cd} status='forbidden'/>
+                        {/if}
+                    {/each}
                 {/each}
-            {/each}
+            {/key}
         {/if}
 
         {#each qsv as i}

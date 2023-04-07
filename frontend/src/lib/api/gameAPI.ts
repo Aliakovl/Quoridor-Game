@@ -1,6 +1,6 @@
 import {refresh} from "../auth/authAPI";
 import {getToken, saveToken} from "../auth/auth";
-import type {Game, GamePreView, Move, PawnPosition, ProtoGame, User} from "./types";
+import type {Game, GamePreView, Move, PawnPosition, ProtoGame, User, WallPosition} from "./types";
 import {browser} from "$app/environment";
 
 export function directLogin() {
@@ -122,5 +122,13 @@ export class GameAPI {
             throw new Error("pawnMoves failed");
         }
         return await response.json() as [PawnPosition];
+    }
+
+    async wallMoves(gameId: string) {
+        const response = await this.call(`/api/game/${gameId}/wallMoves`);
+        if (!response.ok) {
+            throw new Error("wallMoves failed");
+        }
+        return await response.json() as [WallPosition];
     }
 }

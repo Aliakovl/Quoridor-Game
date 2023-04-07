@@ -33,16 +33,14 @@ trait MoveValidator { self: Move =>
       state: State,
       wallPosition: WallPosition
   ): Either[GameMoveException, Unit] = {
-    lazy val anyIntersections = state.walls
-      .map(Board.doWallsIntersect(wallPosition, _))
-      .fold(false)(_ || _)
+    lazy val noIntersections =
+      state.walls.forall(!Board.doWallsIntersect(wallPosition, _))
 
     lazy val walls = state.walls + wallPosition
     lazy val noBlocks = state.players.toList
-      .map { player =>
+      .forall { player =>
         Board.existsPath(player.pawnPosition, player.target, walls)
       }
-      .fold(true)(_ && _)
 
     for {
       _ <- Either.cond(
@@ -55,7 +53,7 @@ trait MoveValidator { self: Move =>
         (),
         WallOutOfBoardException
       )
-      _ <- Either.cond(!anyIntersections, (), WallImpositionException)
+      _ <- Either.cond(noIntersections, (), WallImpositionException)
       _ <- Either.cond(noBlocks, (), WallBlocksPawls)
     } yield ()
   }

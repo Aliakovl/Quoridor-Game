@@ -2,6 +2,7 @@ package ru.quoridor.model.game.geometry
 
 import Direction._
 import Side._
+import ru.quoridor.model.game.geometry.Orientation.{Horizontal, Vertical}
 
 object Board {
   private val width: Int = 9
@@ -79,6 +80,27 @@ object Board {
           case _ => false
         }
     }
+  }
+
+  private val allWalls: Set[WallPosition] = (for {
+    orientation <- List(Horizontal, Vertical)
+    row <- 0 until (width - 1)
+    column <- 0 until (width - 1)
+  } yield WallPosition(orientation, row, column)).toSet
+
+  def availableWalls(
+      walls: Set[WallPosition],
+      pawns: List[(PawnPosition, Side)]
+  ): Set[WallPosition] = {
+    (allWalls -- walls)
+      .filter { wall =>
+        walls.forall(!doWallsIntersect(_, wall))
+      }
+      .filter { wall =>
+        pawns.forall { case (pawnPosition, target) =>
+          existsPath(pawnPosition, target, walls + wall)
+        }
+      }
   }
 
   import scala.collection.mutable

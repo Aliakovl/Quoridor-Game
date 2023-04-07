@@ -7,7 +7,7 @@ import ru.quoridor.model.GameException.{
 }
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
-import ru.quoridor.model.game.geometry.{Board, PawnPosition}
+import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
 import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
@@ -101,5 +101,22 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
         .succeed(game.winner.isEmpty)
         .orFail(GameHasFinishedException(gameId))
     } yield game.state.possibleSteps
+  }
+
+  def availableWallMoves(
+      gameId: ID[Game]
+  ): Task[Set[WallPosition]] = {
+    for {
+      game <- gameDao.find(gameId)
+      _ <- ZIO
+        .succeed(game.winner.isEmpty)
+        .orFail(GameHasFinishedException(gameId))
+    } yield Board.availableWalls(
+      game.state.walls,
+      game.state.players.toList.map {
+        case Player(_, _, pawnPosition, _, target) =>
+          (pawnPosition, target)
+      }
+    )
   }
 }
