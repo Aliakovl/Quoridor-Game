@@ -5,9 +5,8 @@
     import {GameWS} from "$lib/api/gameWS";
     import {onMount} from "svelte";
     import {browser} from "$app/environment";
-    import {directHome, saveToken} from "$lib/auth/auth";
+    import {directHome, saveToken, getUser} from "$lib/auth/auth";
     import {refresh} from "$lib/auth/authAPI";
-    import {getUser} from "$lib/auth/auth";
     import type {Claim} from "$lib/auth/auth";
     import GameStatus from "./GameStatus.svelte";
     import LogoutButton from "../LogoutButton.svelte";
@@ -15,12 +14,14 @@
     import Modal from "./Modal.svelte";
     import type {PawnPosition} from "$lib/api/types";
     import {GameAPI} from "$lib/api/gameAPI";
+    import type {WallPosition} from "$lib/api/types";
 
     let gameWS: GameWS;
     let game: Game;
     let user: Claim;
     let gameId: string;
     let pawnMoves: [PawnPosition];
+    let wallMoves: [WallPosition];
     let collapsed = false;
     let gameAPI: GameAPI;
 
@@ -42,6 +43,7 @@
         game = newGame;
         if (game.state.players.activePlayer.id === user.userId) {
             pawnMoves = await gameAPI.pawnMoves(gameId).catch(() => []);
+            wallMoves = await gameAPI.wallMoves(gameId).catch(() => []);
         } else {
             pawnMoves = []
         }
@@ -91,7 +93,8 @@
             {/if}
             <div class="placeholder"></div>
             <div class="board" style="padding: {3*qd}px; border-radius: {1.61803398875 * qd}px">
-                <Board onMove={onMove} user={user} bind:game={game} bind:pawnMoves={pawnMoves} qd={qd}/>
+                <Board onMove={onMove} user={user} bind:game={game} bind:pawnMoves={pawnMoves}
+                       bind:wallMoves={wallMoves} qd={qd}/>
             </div>
             <div class="placeholder">
                 <div class="status" style="margin-top: {3*qd}px; margin-bottom: {3*qd}px">

@@ -7,7 +7,7 @@ import io.circe.generic.auto._
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
-import ru.quoridor.model.game.geometry.PawnPosition
+import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameCreator._
@@ -30,7 +30,8 @@ object GameAPI {
     getGameEndpoint.widen[Env],
     getUserEndpoint.widen[Env],
     moveEndpoint.widen[Env],
-    pawnMoves.widen[Env]
+    pawnMoves.widen[Env],
+    wallMoves.widen[Env]
   )
 
   private val baseEndpoint =
@@ -121,5 +122,13 @@ object GameAPI {
       .out(jsonBody[List[PawnPosition]])
       .serverLogic { claimData => gameId =>
         availablePawnMoves(gameId, claimData.userId)
+      }
+
+  private val wallMoves =
+    baseEndpoint.get
+      .in("game" / path[ID[Game]]("gameId") / "wallMoves")
+      .out(jsonBody[Set[WallPosition]])
+      .serverLogic { _ => gameId =>
+        availableWallMoves(gameId)
       }
 }

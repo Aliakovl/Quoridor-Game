@@ -38,6 +38,10 @@
         fill: transparent;
     }
 
+    rect.forbidden {
+        fill: transparent;
+    }
+
     rect.wall {
         fill: #377469;
         stroke-width: 1;
