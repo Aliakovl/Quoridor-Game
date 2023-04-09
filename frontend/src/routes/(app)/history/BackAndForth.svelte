@@ -2,23 +2,34 @@
     export let index: number;
     export let max: number;
 
+    let leftDisabled = true;
+    let rightDisabled = false;
+
     function onBack() {
-        if (index > 0) {
-            index -= 1;
+        index -= 1;
+        if (index <= 0) {
+            leftDisabled = true;
         }
+        rightDisabled = false;
     }
 
     function onForth() {
-        if (index < max) {
-            index += 1;
+        index += 1;
+        if (index >= max) {
+            rightDisabled = true;
         }
+        leftDisabled = false
     }
 
     function onKey(event: KeyboardEvent) {
         if (event.code === "ArrowRight") {
-            onForth();
+            if (!rightDisabled) {
+                onForth();
+            }
         } else if (event.code == "ArrowLeft") {
-            onBack();
+            if (!leftDisabled) {
+                onBack();
+            }
         }
     }
 </script>
@@ -26,8 +37,8 @@
 <svelte:window on:keydown={onKey}/>
 
 <div>
-    <button on:click={onBack}>◀</button>
-    <button on:click={onForth}>▶</button>
+    <button on:click={onBack} disabled={leftDisabled}>◀</button>
+    <button on:click={onForth} disabled={rightDisabled}>▶</button>
 </div>
 
 <style>
@@ -47,6 +58,10 @@
     @media screen and (max-width: 961px) {
         button {
             font-size: inherit;
+        }
+
+        button:disabled {
+            background: #444444;
         }
 
         div {
