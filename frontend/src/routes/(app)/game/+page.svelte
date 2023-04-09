@@ -132,7 +132,7 @@
 
     .status {
         flex: 1;
-        padding: 0 1em 0 1em;
+        padding-right: 1.6em;
         max-width: min-content;
         margin-left: 2em;
         margin-right: 2em;

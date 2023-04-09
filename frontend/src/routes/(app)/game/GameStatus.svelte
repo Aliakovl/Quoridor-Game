@@ -24,15 +24,16 @@
         list-style: none;
         width: max-content;
         float: left;
+        padding-left: 1.6em;
     }
 
-    li.active::marker {
-        content: "⬤ ";
+    li.active::before {
+        content: "● ";
         font-size: 1em;
     }
 
-    li:not(.active)::marker {
-        content: "◯ ";
+    li:not(.active)::before {
+        content: "○ ";
         font-size: 1em;
     }
 
@@ -44,33 +45,38 @@
         font-size: x-large;
     }
 
-    li.north::marker {
+    li.north::before {
         color: #3434e6;
     }
 
-    li.south::marker {
+    li.south::before {
         color: #bc1313;
     }
 
-    li.east::marker {
+    li.east::before {
         color: #38ae38;
     }
 
-    li.west::marker {
+    li.west::before {
         color: #c8c826;
     }
 
     @media screen and (max-width: 961px) {
+        ul {
+            columns: 2;
+            gap: 2em;
+        }
+
         li {
             font-size: inherit;
         }
 
-        li.active::marker {
+        li.active::before {
             content: "● ";
             font-size: inherit;
         }
 
-        li:not(.active)::marker {
+        li:not(.active)::before {
             content: "○ ";
             font-size: inherit;
         }

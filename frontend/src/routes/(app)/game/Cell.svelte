@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {Side} from "../../../lib/api/types";
+    import type {Side} from "$lib/api/types";
 
     export let row: number;
     export let column: number;
