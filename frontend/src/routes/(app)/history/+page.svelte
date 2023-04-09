@@ -57,7 +57,7 @@
                 <Board onMove={() => {}} user={user} bind:game={history[index]} qd={qd}/>
             </div>
             <div class="placeholder">
-                <div class="status">
+                <div class="status" style="margin-top: {3*qd}px; margin-bottom: {qd}px">
                     <GameStatus players={history[index].state.players}/>
                 </div>
             </div>
@@ -93,7 +93,7 @@
 
     .status {
         flex: 1;
-        padding: 0 1em 0 1em;
+        padding-right: 1.6em;
         max-width: min-content;
         margin-left: 2em;
         background-color: #747474;

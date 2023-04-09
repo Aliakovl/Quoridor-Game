@@ -15,6 +15,7 @@
     import type {PawnPosition} from "$lib/api/types";
     import {GameAPI} from "$lib/api/gameAPI";
     import type {WallPosition} from "$lib/api/types";
+    import {getTokenUnsafe} from "../../../lib/auth/auth";
 
     let gameWS: GameWS;
     let game: Game;
@@ -31,7 +32,7 @@
             directHome();
         } else {
             gameId = _gameId;
-            const token = await refresh();
+            const token = getTokenUnsafe();
             user = getUser(token);
             gameAPI = new GameAPI(token);
             saveToken(token);
@@ -132,7 +133,7 @@
 
     .status {
         flex: 1;
-        padding: 0 1em 0 1em;
+        padding-right: 1.6em;
         max-width: min-content;
         margin-left: 2em;
         margin-right: 2em;
