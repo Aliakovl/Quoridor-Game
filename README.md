@@ -1,6 +1,6 @@
-# [Welcome to Qouridor!](https://quoridor.online)
+# [Welcome to Quoridor!](https://quoridor.online)
 
-Qouridor is a strategy 9x9 board game that is easy to learn but challenging to master. The game is designed for 2-4 players and is perfect for friends looking to spend some quality time together.
+Quoridor is a strategy 9x9 board game that is easy to learn but challenging to master. The game is designed for 2-4 players and is perfect for friends looking to spend some quality time together.
 
 ## How to Play
 
@@ -10,8 +10,8 @@ To move your pawn, you can either move one space in any direction or jump over a
 
 ## Features
 
-Our Qouridor website allows you to play the game with your friends online, no matter where you are. You can create a private game and invite your friends to join.
+Our Quoridor website allows you to play the game with your friends online, no matter where you are. You can create a private game and invite your friends to join.
 
 ## Get Started
 
-To start playing Qouridor, simply create an account on our website and choose whether you want to create a private game. Then, invite your friends to join your game.
+To start playing Quoridor, simply create an account on our website and choose whether you want to create a private game. Then, invite your friends to join your game.

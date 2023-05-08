@@ -1,6 +1,6 @@
-# Welcome to Qouridor!
+# Welcome to Quoridor!
 
-Qouridor is a strategy board game that is easy to learn but challenging to master. The game is designed for 2-4 players and is perfect for friends looking to spend some quality time together.
+Quoridor is a strategy board game that is easy to learn but challenging to master. The game is designed for 2-4 players and is perfect for friends looking to spend some quality time together.
 
 ## How to Play
 
