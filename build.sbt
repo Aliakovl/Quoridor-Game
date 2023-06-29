@@ -1,10 +1,11 @@
 ThisBuild / scalaVersion := "2.13.10"
 
 lazy val circeVersion = "0.14.5"
-lazy val tapirVersion = "1.2.10"
+lazy val tapirVersion = "1.4.0"
 lazy val http4sVersion = "0.23.18"
-lazy val zioVersion = "2.0.10"
-lazy val zioLoggingVersion = "2.1.11"
+lazy val zioVersion = "2.0.13"
+lazy val zioLoggingVersion = "2.1.13"
+lazy val postgresql = "42.5.4"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -28,9 +29,9 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-nio" % "2.0.1",
-  "dev.zio" %% "zio-interop-cats" % "23.0.0.1",
+  "dev.zio" %% "zio-interop-cats" % "23.0.03",
   "io.getquill" %% "quill-jdbc-zio" % "4.6.0",
-  "org.postgresql" % "postgresql" % "42.5.4",
+  "org.postgresql" % "postgresql" % postgresql,
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
@@ -52,7 +53,8 @@ lazy val root = (project in file("."))
     dockerExposedPorts := Seq(8080),
     bashScriptConfigLocation := Some("/conf/application.ini"),
     scalacOptions ++= Seq(
-      "-encoding", "utf8",
+      "-encoding",
+      "utf8",
       "-feature",
       "-unchecked",
       "-Werror",

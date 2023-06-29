@@ -14,7 +14,7 @@ CREATE TABLE userdata
 (
     user_id     UUID PRIMARY KEY,
     username    VARCHAR(64) NOT NULL UNIQUE,
-    user_secret BYTEA NOT NULL
+    user_secret BYTEA       NOT NULL
 );
 
 CREATE TABLE game

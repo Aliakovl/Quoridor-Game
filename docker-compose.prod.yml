@@ -1,14 +1,24 @@
 version: "3"
 
 services:
+  quoridor-api:
+    volumes:
+      - ./keys:/var/keys:ro
+
   nginx:
+    restart: always
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/snippets:/etc/nginx/snippets
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /etc/ssl/certs:/etc/ssl/certs
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - frontend
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
   frontend:
     image: node:lts-alpine
@@ -19,5 +29,5 @@ services:
       - ./frontend/build:/home/node/app
       - ./frontend/package.json:/home/node/package.json
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     command: "node app"
