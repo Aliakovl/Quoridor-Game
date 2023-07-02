@@ -1,9 +1,5 @@
-local: export DB_PASSWORD = postgres
-local: export DB_USER = postgres
-local: export PSWD_PEPPER = pepper
-local: export TS_PASSWORD = redis
 local: image
-	docker-compose up --build
+	docker-compose --env-file .env.dev up --build
 
 dev:
 	@cd frontend && npm run dev
@@ -30,3 +26,18 @@ prod:
 
 down:
 	docker-compose down
+
+runtime-image:
+	docker build --no-cache --force-rm -t "quoridor-runtime:17.0.7" ./
+
+backend-image: runtime-image
+	sbt "Docker/publishLocal"
+
+frontend-image:
+	docker build --no-cache --force-rm -t "quoridor-frontend:latest" --build-arg NODE_ENV_ARG=development frontend/
+
+build-and-run: backend-image frontend-image
+	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build
+
+delete-builder-images:
+	docker rmi $(docker images | grep "<none>" | awk '{print $3}')
