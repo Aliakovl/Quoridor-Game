@@ -2,25 +2,22 @@ version: "3"
 
 services:
   quoridor-api-conf:
-    build: .
+    build: configs
     volumes:
-      - ./configs:/conf:ro
+      - conf:/conf
 
   quoridor-api:
-    build: ./target/docker/stage/
-    restart: on-failure
-    ports:
-      - "8080:8080"
+    image: quoridor-game:latest
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
     volumes:
-      - ./configs:/conf:ro
+      - conf:/conf:ro
     depends_on:
-      - flyway
       - quoridor-api-conf
+      - flyway
       - token-store
 
   flyway:
@@ -33,26 +30,31 @@ services:
 
   db:
     image: postgres:latest
-    restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: quoridor
-    ports:
-      - "5432:5432"
-
-  nginx:
-    image: nginx:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - quoridor-api
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   token-store:
     image: redis:latest
     command: redis-server --requirepass ${TS_PASSWORD}
-    restart: always
+
+  nginx:
+    image: nginx:latest
     ports:
-      - "6379:6379"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/local/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - quoridor-api
+      - frontend
+
+  frontend:
+    image: quoridor-frontend:latest
+
+volumes:
+  conf:
+  pgdata:

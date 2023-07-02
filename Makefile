@@ -1,32 +1,38 @@
-local: export DB_PASSWORD = postgres
-local: export DB_USER = postgres
-local: export PSWD_PEPPER = pepper
-local: export TS_PASSWORD = redis
-local: image
-	docker-compose up --build
+init-dev: init-keys init-frontend containers-dev
 
-dev:
-	@cd frontend && npm run dev
+init-keys: build-runtime-image
+	docker create --name quoridor-keys quoridor-runtime echo
+	docker cp quoridor-keys:/var/keys/ keys/
+	docker rm -f quoridor-keys
 
-frontend-build:
-	@cd frontend && npm run build
+init-frontend:
+	cd frontend && npm install
 
-init: local-keys frontend-init
+containers-dev:
+	docker-compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
 
-frontend-init:
-	@cd frontend && npm install
+frontend-dev:
+	cd frontend && npm run dev
 
-local-keys:
-	mkdir -p keys/local
-	openssl genrsa -out keys/local/jwtRSA256.pem 2048
-	openssl rsa -in keys/local/jwtRSA256.pem -pubout -outform PEM -out keys/local/jwtRSA256.pem.pub
-	chmod 644 keys/local/jwtRSA256.pem
+backend-dev:
+	export $$(cat .env.dev) && sbt run
 
-image:
-	sbt "Docker / stage"
+local: build-backend-image build-frontend-image
+	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
 
-prod:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+build-runtime-image:
+	docker build --no-cache --force-rm -t "quoridor-runtime" ./
+
+build-backend-image: build-runtime-image
+	sbt "Docker/publishLocal"
+
+build-frontend-image:
+	docker build --no-cache --force-rm -t "quoridor-frontend:latest" --build-arg NODE_ENV_ARG=development frontend/
+
+delete-builder-images:
+	docker rmi $$(docker images | grep '<none>' | awk '{print $$3}')
 
 down:
 	docker-compose down
+	docker stop $$(docker ps -q) | true
+	docker rm $$(docker ps -aq) | true
