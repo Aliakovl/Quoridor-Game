@@ -1,4 +1,4 @@
-init-dev: init-keys init-frontend dev-containers
+init-dev: init-keys init-frontend containers-dev
 
 init-keys: build-runtime-image
 	docker create --name quoridor-keys quoridor-runtime echo
@@ -8,16 +8,14 @@ init-keys: build-runtime-image
 init-frontend:
 	cd frontend && npm install
 
-dev-containers:
+containers-dev:
 	docker-compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
 
-dev: dev-backend dev-frontend
-
-dev-frontend:
+frontend-dev:
 	cd frontend && npm run dev
 
-dev-backend:
-	sbt run
+backend-dev:
+	export $$(cat .env.dev) && sbt run
 
 local: build-backend-image build-frontend-image
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
