@@ -30,7 +30,6 @@ services:
 
   db:
     image: postgres:latest
-    restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
@@ -41,7 +40,6 @@ services:
   token-store:
     image: redis:latest
     command: redis-server --requirepass ${TS_PASSWORD}
-    restart: always
 
   nginx:
     image: nginx:latest

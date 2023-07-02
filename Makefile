@@ -1,43 +1,40 @@
-local: image
-	docker-compose --env-file .env.dev up --build
+init-dev: init-keys init-frontend dev-containers
 
-dev:
-	@cd frontend && npm run dev
+init-keys: build-runtime-image
+	docker create --name quoridor-keys quoridor-runtime echo
+	docker cp quoridor-keys:/var/keys/ keys/
+	docker rm -f quoridor-keys
 
-frontend-build:
-	@cd frontend && npm run build
+init-frontend:
+	cd frontend && npm install
 
-init: local-keys frontend-init
+dev-containers:
+	docker-compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
 
-frontend-init:
-	@cd frontend && npm install
+dev: dev-backend dev-frontend
 
-local-keys:
-	mkdir -p keys/local
-	openssl genrsa -out keys/local/jwtRSA256.pem 2048
-	openssl rsa -in keys/local/jwtRSA256.pem -pubout -outform PEM -out keys/local/jwtRSA256.pem.pub
-	chmod 644 keys/local/jwtRSA256.pem
+dev-frontend:
+	cd frontend && npm run dev
 
-image:
-	sbt "Docker / stage"
+dev-backend:
+	sbt run
 
-prod:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+local: build-backend-image build-frontend-image
+	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
+
+build-runtime-image:
+	docker build --no-cache --force-rm -t "quoridor-runtime" ./
+
+build-backend-image: build-runtime-image
+	sbt "Docker/publishLocal"
+
+build-frontend-image:
+	docker build --no-cache --force-rm -t "quoridor-frontend:latest" --build-arg NODE_ENV_ARG=development frontend/
+
+delete-builder-images:
+	docker rmi $$(docker images | grep '<none>' | awk '{print $$3}')
 
 down:
 	docker-compose down
-
-runtime-image:
-	docker build --no-cache --force-rm -t "quoridor-runtime:17.0.7" ./
-
-backend-image: runtime-image
-	sbt "Docker/publishLocal"
-
-frontend-image:
-	docker build --no-cache --force-rm -t "quoridor-frontend:latest" --build-arg NODE_ENV_ARG=development frontend/
-
-build-and-run: backend-image frontend-image
-	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build
-
-delete-builder-images:
-	docker rmi $(docker images | grep "<none>" | awk '{print $3}')
+	docker stop $$(docker ps -q) | true
+	docker rm $$(docker ps -aq) | true
