@@ -54,8 +54,7 @@ lazy val root = (project in file("."))
     dockerExposedPorts := Seq(8080),
     bashScriptConfigLocation := Some("/conf/application.ini"),
     scalacOptions ++= Seq(
-      "-encoding",
-      "utf8",
+      "-encoding", "utf8",
       "-feature",
       "-unchecked",
       "-Werror",
