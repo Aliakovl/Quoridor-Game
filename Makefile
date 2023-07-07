@@ -36,3 +36,13 @@ down:
 	docker-compose down
 	docker stop $$(docker ps -q) | true
 	docker rm $$(docker ps -aq) | true
+	docker-compose down
+
+prod-build:
+	docker build -t "quoridor-runtime" ./
+	sbt "Docker/publishLocal"
+	docker build -t "quoridor-frontend:latest" --build-arg NODE_ENV_ARG=production frontend/
+	docker build -t "quoridor-nginx:latest" --progress=plain  nginx/
+
+prod:
+	docker-compose -f docker-compose.prod.yml --env-file .env.dev up --build
