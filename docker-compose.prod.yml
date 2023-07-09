@@ -8,6 +8,7 @@ services:
 
   quoridor-api:
     image: ${DOCKER_REGISTRY}/quoridor-game:latest
+    restart: on-failure:3
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
@@ -22,6 +23,7 @@ services:
 
   flyway:
     image: flyway/flyway:latest
+    restart: unless-stopped
     command: -url=jdbc:postgresql://db:5432/quoridor -user=${DB_USER} -password=${DB_PASSWORD} -connectRetries=60 migrate
     volumes:
       - ./migrations:/flyway/sql
@@ -30,6 +32,7 @@ services:
 
   db:
     image: postgres:latest
+    restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
@@ -39,12 +42,14 @@ services:
 
   token-store:
     image: redis:latest
+    restart: always
     command: redis-server --requirepass ${TS_PASSWORD}
     volumes:
       - rdata:/data
 
   nginx:
     image: ${DOCKER_REGISTRY}/quoridor-nginx:latest
+    restart: on-failure:3
     ports:
       - "80:80"
       - "443:443"
@@ -54,6 +59,7 @@ services:
 
   frontend:
     image: ${DOCKER_REGISTRY}/quoridor-frontend:latest
+    restart: on-failure:3
 
 volumes:
   conf:
