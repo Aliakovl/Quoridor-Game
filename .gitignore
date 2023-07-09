@@ -13,5 +13,4 @@ metals*
 frontend/build/
 frontend/.svelte-kit/
 frontend/package-lock.json
-nginx/certbot/conf
-nginx/certbot/www
+nginx/certbot

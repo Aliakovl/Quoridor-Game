@@ -2,12 +2,12 @@ version: "2.4"
 
 services:
   quoridor-api-conf:
-    build: configs
+    image: ${DOCKER_REGISTRY}/quoridor-config:latest
     volumes:
       - conf:/conf
 
   quoridor-api:
-    image: quoridor-game:latest
+    image: ${DOCKER_REGISTRY}/quoridor-game:latest
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
@@ -44,7 +44,7 @@ services:
       - rdata:/data
 
   nginx:
-    image: quoridor-nginx:latest
+    image: ${DOCKER_REGISTRY}/quoridor-nginx:latest
     ports:
       - "80:80"
       - "443:443"
@@ -53,7 +53,7 @@ services:
       - frontend
 
   frontend:
-    image: quoridor-frontend:latest
+    image: ${DOCKER_REGISTRY}/quoridor-frontend:latest
 
 volumes:
   conf:
