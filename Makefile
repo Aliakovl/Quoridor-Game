@@ -77,7 +77,7 @@ publish-nginx:
 	docker image push $(DOCKER_REGISTRY)/quoridor-nginx:$(VERSION)
 	docker image push $(DOCKER_REGISTRY)/quoridor-nginx:latest
 
-prod:
+deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
  	docker-compose -f docker-compose.prod.yml --env-file .env up -d
