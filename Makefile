@@ -1,5 +1,6 @@
 VERSION := $(shell git log -1 --pretty=tformat:"%h" master)
 DOCKER_REGISTRY = quoridor.online:5000
+DOCKER_CONTEXT = quoridor
 
 init-dev: init-keys init-frontend containers-dev
 
@@ -78,7 +79,8 @@ publish-nginx:
 
 prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
- 	docker-compose -f docker-compose.prod.yml --env-file .env.dev up --build -d
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+ 	docker-compose -f docker-compose.prod.yml --env-file .env up -d
 
 version:
 	@echo $(VERSION)
