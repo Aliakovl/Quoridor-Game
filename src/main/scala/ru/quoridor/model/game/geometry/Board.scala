@@ -2,6 +2,7 @@ package ru.quoridor.model.game.geometry
 
 import Direction._
 import Side._
+import monocle.Monocle._
 import ru.quoridor.model.game.geometry.Orientation.{Horizontal, Vertical}
 
 object Board {
@@ -39,10 +40,10 @@ object Board {
       direction: Direction
   ): Option[PawnPosition] = {
     val wp1 = direction.toWallPosition(pawnPosition)
-    val wp2 = wp1.copy(column = wp1.column - 1)
-    val wayIsBlocked = (walls contains wp1) || (walls contains wp2)
+    val wp2 = wp1.focus(_.column).modify(_ - 1)
+    val pathIsBlocked = (walls contains wp1) || (walls contains wp2)
     val newPosition = direction.step(pawnPosition)
-    if (!wayIsBlocked && isPawnOnBoard(newPosition)) {
+    if (!pathIsBlocked && isPawnOnBoard(newPosition)) {
       Some(newPosition)
     } else {
       None

@@ -2,6 +2,7 @@ package ru.quoridor.model.game.geometry
 
 import Orientation._
 import Direction._
+import monocle.Monocle._
 
 sealed trait Direction extends Cross with StepForward with WallConverter
 
@@ -24,22 +25,21 @@ trait Cross { this: Direction =>
 trait StepForward { this: Direction =>
   def step(pawnPosition: PawnPosition): PawnPosition =
     this match {
-      case ToNorth => pawnPosition.copy(row = pawnPosition.row - 1)
-      case ToSouth => pawnPosition.copy(row = pawnPosition.row + 1)
-      case ToWest  => pawnPosition.copy(column = pawnPosition.column - 1)
-      case ToEast  => pawnPosition.copy(column = pawnPosition.column + 1)
+      case ToNorth => pawnPosition.focus(_.row).modify(_ - 1)
+      case ToSouth => pawnPosition.focus(_.row).modify(_ + 1)
+      case ToWest  => pawnPosition.focus(_.column).modify(_ - 1)
+      case ToEast  => pawnPosition.focus(_.column).modify(_ + 1)
     }
 }
 
 trait WallConverter { this: Direction =>
-  def toWallPosition(pawnPosition: PawnPosition): WallPosition =
-    pawnPosition match {
-      case PawnPosition(row, column) =>
-        this match {
-          case ToNorth => WallPosition(Horizontal, row - 1, column)
-          case ToSouth => WallPosition(Horizontal, row, column)
-          case ToWest  => WallPosition(Vertical, column - 1, row)
-          case ToEast  => WallPosition(Vertical, column, row)
-        }
-    }
+  val toWallPosition: PawnPosition => WallPosition = {
+    case PawnPosition(row, column) =>
+      this match {
+        case ToNorth => WallPosition(Horizontal, row - 1, column)
+        case ToSouth => WallPosition(Horizontal, row, column)
+        case ToWest  => WallPosition(Vertical, column - 1, row)
+        case ToEast  => WallPosition(Vertical, column, row)
+      }
+  }
 }

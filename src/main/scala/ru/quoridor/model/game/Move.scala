@@ -1,5 +1,6 @@
 package ru.quoridor.model.game
 
+import monocle.Monocle._
 import ru.quoridor.model.GameMoveException._
 import ru.quoridor.model.GameMoveException
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
@@ -68,20 +69,23 @@ sealed trait Move extends MoveValidator {
 
 case class PawnMove(pawnPosition: PawnPosition) extends Move {
   override protected def legalMove(state: State): State = {
-    val activePlayer =
-      state.players.activePlayer.copy(pawnPosition = pawnPosition)
-    val players = state.players.copy(activePlayer = activePlayer)
-    state.copy(players = players.shift)
+    state
+      .focus(_.players.activePlayer.pawnPosition)
+      .replace(pawnPosition)
+      .focus(_.players)
+      .modify(_.shift)
   }
 }
 
 case class PlaceWall(wallPosition: WallPosition) extends Move {
   override protected def legalMove(state: State): State = {
-    val walls = state.walls + wallPosition
-    val activePlayer = state.players.activePlayer
-      .copy(wallsAmount = state.players.activePlayer.wallsAmount - 1)
-    val players = state.players.copy(activePlayer = activePlayer)
-    State(players.shift, walls)
+    state
+      .focus(_.walls)
+      .modify(_ + wallPosition)
+      .focus(_.players.activePlayer.wallsAmount)
+      .modify(_ - 1)
+      .focus(_.players)
+      .modify(_.shift)
   }
 }
 

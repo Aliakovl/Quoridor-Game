@@ -5,6 +5,7 @@ lazy val tapirVersion = "1.2.10"
 lazy val http4sVersion = "0.23.18"
 lazy val zioVersion = "2.0.10"
 lazy val zioLoggingVersion = "2.1.11"
+lazy val monocleVersion = "3.2.0"
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.9.0",
@@ -39,7 +40,9 @@ ThisBuild / libraryDependencies ++= Seq(
   "dev.zio" %% "zio-config-magnolia" % "4.0.0-RC12",
   "com.github.jwt-scala" %% "jwt-circe" % "9.2.0",
   "io.lettuce" % "lettuce-core" % "6.2.3.RELEASE",
-  "com.password4j" % "password4j" % "1.7.0"
+  "com.password4j" % "password4j" % "1.7.0",
+  "dev.optics" %% "monocle-core" % monocleVersion,
+  "dev.optics" %% "monocle-macro" % monocleVersion
 )
 
 lazy val root = (project in file("."))
@@ -57,7 +60,8 @@ lazy val root = (project in file("."))
       "-unchecked",
       "-Werror",
       "-Xlint",
-      "-Xlint:-byname-implicit"
+      "-Xlint:-byname-implicit",
+      "-Ymacro-annotations"
     ),
     Compile / doc / sources := Nil
   )

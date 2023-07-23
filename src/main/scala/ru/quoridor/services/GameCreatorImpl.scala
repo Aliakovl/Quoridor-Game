@@ -1,5 +1,6 @@
 package ru.quoridor.services
 
+import monocle.Monocle._
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
@@ -49,9 +50,7 @@ class GameCreatorImpl(
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       user <- userDao.findById(userId)
       newPlayer = ProtoPlayer(user.id, user.username, target)
-    } yield protoGame.copy(players =
-      protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
-    )
+    } yield protoGame.focus(_.players.guests).modify(_ :+ newPlayer)
   }
 
   override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
