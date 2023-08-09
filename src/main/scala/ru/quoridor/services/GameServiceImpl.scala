@@ -50,7 +50,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
         Some(game.state.players.activePlayer).collect {
           case Player(id, username, _, _, target)
               if Board.isPawnOnEdge(pawnPosition, target) =>
-            User(id, username)
+            User.Userdata(id, username)
         }
       }.flatten
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)

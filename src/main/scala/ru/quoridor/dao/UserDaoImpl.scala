@@ -3,11 +3,8 @@ package ru.quoridor.dao
 import org.postgresql.util.PSQLState
 import ru.quoridor.auth.model.Username
 import ru.quoridor.dao.quill.QuillContext
-import ru.quoridor.model.GameException.{
-  UserNotFoundException,
-  UsernameNotFoundException,
-  UsernameOccupiedException
-}
+import ru.quoridor.model.GameException._
+import ru.quoridor.model.User.Userdata
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
@@ -29,7 +26,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       }
   }
 
-  override def findById(id: ID[User]): Task[User] = {
+  override def findById(id: ID[User]): Task[Userdata] = {
     val findUserById = quote {
       query[dto.Userdata].filter(_.userId == lift(id))
     }
@@ -37,7 +34,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       .map(_.headOption)
       .someOrFail(UserNotFoundException(id))
       .map { case dto.Userdata(id, username, _) =>
-        User(id, username)
+        User.Userdata(id, username)
       }
   }
 

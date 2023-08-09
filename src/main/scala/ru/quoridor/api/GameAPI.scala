@@ -7,6 +7,7 @@ import io.circe.generic.auto._
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
+import ru.quoridor.model.User.Userdata
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
@@ -100,7 +101,7 @@ object GameAPI {
   private val getUserEndpoint =
     baseEndpoint.get
       .in("user" / path[Username]("username"))
-      .out(jsonBody[User])
+      .out(jsonBody[Userdata])
       .serverLogic { _ => username =>
         getUser(username)
       }

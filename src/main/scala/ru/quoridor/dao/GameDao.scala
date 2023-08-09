@@ -3,6 +3,7 @@ package ru.quoridor.dao
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, State}
 import ru.quoridor.dao.quill.QuillContext
+import ru.quoridor.model.User.Userdata
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
@@ -18,7 +19,7 @@ trait GameDao {
       step: Int,
       state: State,
       move: Move,
-      winner: Option[User]
+      winner: Option[Userdata]
   ): Task[Unit]
 
   def create(gameId: ID[Game], state: State): Task[Game]

@@ -7,6 +7,7 @@ import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
+import ru.quoridor.model.User.Userdata
 import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
@@ -54,7 +55,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
       step: Int,
       state: State,
       move: Move,
-      winner: Option[User]
+      winner: Option[Userdata]
   ): Task[Unit] = transaction {
     val activePlayer = state.players.activePlayer
     for {
@@ -202,13 +203,13 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
 
   private def findWinnerByGameId(
       gameId: ID[Game]
-  ): IO[SQLException, Option[User]] = {
+  ): IO[SQLException, Option[Userdata]] = {
     run(quote {
       for {
         winner <- query[dto.Winner]
         user <- query[dto.Userdata].join(_.userId == winner.userId)
         if winner.gameId == lift(gameId)
-      } yield User(user.userId, user.username)
+      } yield User.Userdata(user.userId, user.username)
     }).map(_.headOption)
   }
 
@@ -274,13 +275,13 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
       }
   }
 
-  private def findUsersByGameId(gameId: ID[Game]): Task[List[User]] = {
+  private def findUsersByGameId(gameId: ID[Game]): Task[List[Userdata]] = {
     run(quote {
       for {
         player <- query[dto.Player]
         user <- query[dto.Userdata].join(_.userId == player.userId)
         if player.gameId == lift(gameId)
-      } yield User(user.userId, user.username)
+      } yield User.Userdata(user.userId, user.username)
     })
       .reject { case Nil =>
         GameNotFoundException(gameId)
