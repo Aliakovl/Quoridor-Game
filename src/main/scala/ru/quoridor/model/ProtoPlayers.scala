@@ -1,11 +1,9 @@
 package ru.quoridor.model
 
 import cats.data.NonEmptyList
-import ru.quoridor.model.GameException.{
-  NotEnoughPlayersException,
-  PlayersNumberLimitException
-}
-import ru.quoridor.model.game.{Player, Players}
+import ru.quoridor.model.GameException._
+import ru.quoridor.model.User.{Player, ProtoPlayer}
+import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.Board
 
 final case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {

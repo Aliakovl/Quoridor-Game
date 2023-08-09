@@ -3,8 +3,9 @@ package ru.quoridor.services
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.game.geometry.Side._
 import ru.quoridor.model.game.{Game, State}
-import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import ru.quoridor.model.{ProtoGame, ProtoPlayers, User}
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
+import ru.quoridor.model.User.ProtoPlayer
 import ru.quoridor.model.game.geometry.Side
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits._

@@ -7,7 +7,7 @@ import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game._
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
-import ru.quoridor.model.User.Userdata
+import ru.quoridor.model.User.{Player, Userdata}
 import ru.utils.ZIOExtensions.OrFail
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}

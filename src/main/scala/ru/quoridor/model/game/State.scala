@@ -1,12 +1,8 @@
 package ru.quoridor.model.game
 
+import ru.quoridor.model.User.Player
 import ru.quoridor.model.game.geometry.Direction._
-import ru.quoridor.model.game.geometry.{
-  Board,
-  Direction,
-  PawnPosition,
-  WallPosition
-}
+import ru.quoridor.model.game.geometry._
 
 final case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {

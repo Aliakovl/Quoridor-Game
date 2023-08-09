@@ -4,9 +4,10 @@ import io.getquill.Ord
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.User
+import ru.quoridor.model.User.ProtoPlayer
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.game.geometry.Side
-import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers}
+import ru.quoridor.model.{ProtoGame, ProtoPlayers}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 

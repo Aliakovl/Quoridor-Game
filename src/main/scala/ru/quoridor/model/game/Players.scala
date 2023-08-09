@@ -1,6 +1,7 @@
 package ru.quoridor.model.game
 
 import cats.data.NonEmptyList
+import ru.quoridor.model.User.Player
 import ru.utils.Shifting
 
 final case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
