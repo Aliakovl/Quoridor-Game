@@ -8,7 +8,7 @@ import ru.quoridor.model.GameException.{
 import ru.quoridor.model.game.{Player, Players}
 import ru.quoridor.model.game.geometry.Board
 
-case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
+final case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
   lazy val toList: List[ProtoPlayer] = creator :: guests
 
   lazy val toPlayers: Either[GameException, Players] = {

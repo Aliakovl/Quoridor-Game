@@ -3,7 +3,7 @@ package ru.quoridor.model
 import ru.quoridor.auth.model.{UserSecret, Username}
 import ru.utils.tagging.ID
 
-case class UserWithSecret(
+final case class UserWithSecret(
     id: ID[User],
     username: Username,
     userSecret: UserSecret

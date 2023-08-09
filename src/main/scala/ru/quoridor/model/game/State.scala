@@ -8,7 +8,7 @@ import ru.quoridor.model.game.geometry.{
   WallPosition
 }
 
-case class State(players: Players, walls: Set[WallPosition]) {
+final case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {
     List(
       possibleStep(_, ToNorth),

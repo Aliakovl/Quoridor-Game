@@ -2,7 +2,7 @@ package ru.quoridor.auth.model
 
 import io.circe.{Decoder, Encoder, HCursor, Json}
 
-case class AccessToken(value: String) extends AnyVal
+final case class AccessToken(value: String) extends AnyVal
 
 object AccessToken {
   implicit val encoder: Encoder[AccessToken] = (a: AccessToken) =>

@@ -4,7 +4,7 @@ import zio._
 import zio.config.typesafe._
 import zio.config.magnolia._
 
-case class Configuration(
+final case class Configuration(
     auth: Auth,
     address: Address,
     tokenKeys: TokenKeys,

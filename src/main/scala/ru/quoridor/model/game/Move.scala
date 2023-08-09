@@ -66,7 +66,7 @@ sealed trait Move extends MoveValidator {
   protected def legalMove(state: State): State
 }
 
-case class PawnMove(pawnPosition: PawnPosition) extends Move {
+final case class PawnMove(pawnPosition: PawnPosition) extends Move {
   override protected def legalMove(state: State): State = {
     val activePlayer =
       state.players.activePlayer.copy(pawnPosition = pawnPosition)
@@ -75,7 +75,7 @@ case class PawnMove(pawnPosition: PawnPosition) extends Move {
   }
 }
 
-case class PlaceWall(wallPosition: WallPosition) extends Move {
+final case class PlaceWall(wallPosition: WallPosition) extends Move {
   override protected def legalMove(state: State): State = {
     val walls = state.walls + wallPosition
     val activePlayer = state.players.activePlayer

@@ -1,6 +1,6 @@
 package ru.quoridor.dao.dto
 
-case class PawnPosition(
+final case class PawnPosition(
     gameId: GameId,
     step: Int,
     userId: UserId,

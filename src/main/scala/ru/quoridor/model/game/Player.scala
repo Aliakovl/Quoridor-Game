@@ -5,7 +5,7 @@ import ru.quoridor.model.User
 import ru.quoridor.model.game.geometry.{PawnPosition, Side}
 import ru.utils.tagging.ID
 
-case class Player(
+final case class Player(
     id: ID[User],
     username: Username,
     pawnPosition: PawnPosition,

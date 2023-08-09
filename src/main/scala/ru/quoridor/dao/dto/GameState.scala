@@ -1,6 +1,6 @@
 package ru.quoridor.dao.dto
 
-case class GameState(
+final case class GameState(
     gameId: GameId,
     step: Int,
     activePlayer: UserId

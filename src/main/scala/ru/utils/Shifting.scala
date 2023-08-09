@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import scala.collection.mutable.ListBuffer
 import scala.math.Ordering.Implicits._
 
-case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
+final case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
   def shift[TT >: T](implicit ord: Ordering[TT]): Shifting[TT] = {
     ar match {
       case NonEmptyList(h, t) =>

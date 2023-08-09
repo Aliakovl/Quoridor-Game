@@ -2,7 +2,7 @@ package ru.quoridor.model.game.geometry
 
 import Direction._
 import Side._
-import ru.quoridor.model.game.geometry.Orientation.{Horizontal, Vertical}
+import ru.quoridor.model.game.geometry.Orientation._
 
 object Board {
   private val width: Int = 9
@@ -38,10 +38,10 @@ object Board {
       walls: Set[WallPosition],
       direction: Direction
   ): Option[PawnPosition] = {
-    val wp1 = direction.toWallPosition(pawnPosition)
+    val wp1 = pawnPosition.wall(direction)
     val wp2 = wp1.copy(column = wp1.column - 1)
     val wayIsBlocked = (walls contains wp1) || (walls contains wp2)
-    val newPosition = direction.step(pawnPosition)
+    val newPosition = pawnPosition.step(direction)
     if (!wayIsBlocked && isPawnOnBoard(newPosition)) {
       Some(newPosition)
     } else {
@@ -103,13 +103,13 @@ object Board {
       }
   }
 
-  import scala.collection.mutable
-
   def existsPath(
       from: PawnPosition,
       target: Side,
       walls: Set[WallPosition]
   ): Boolean = {
+    import scala.collection.mutable
+
     val queue = mutable.Queue.empty[PawnPosition]
     val used = mutable.Set.empty[PawnPosition]
     queue.enqueue(from)

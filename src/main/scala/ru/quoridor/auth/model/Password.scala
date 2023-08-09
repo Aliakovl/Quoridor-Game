@@ -2,7 +2,7 @@ package ru.quoridor.auth.model
 
 import io.circe.{Decoder, Encoder}
 
-case class Password(value: String) extends AnyVal
+final case class Password(value: String) extends AnyVal
 
 object Password {
   implicit val encoder: Encoder[Password] = Encoder[String].contramap(_.value)

@@ -3,7 +3,7 @@ package ru.quoridor.model.game
 import cats.data.NonEmptyList
 import ru.utils.Shifting
 
-case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
+final case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
   lazy val toList: List[Player] = activePlayer +: enemies.toList
 
   def shift: Players = {

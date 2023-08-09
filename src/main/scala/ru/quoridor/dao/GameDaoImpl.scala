@@ -16,7 +16,7 @@ import java.sql.SQLException
 class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   import quillContext._
 
-  override def find(gameId: ID[Game]): Task[Game] = transaction {
+  override def find(gameId: ID[Game]): Task[Game] = {
     for {
       step <- findLastStep(gameId)
       enemies <- findEnemiesByGameId(gameId, step)
@@ -31,7 +31,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     )
   }
 
-  override def find(gameId: ID[Game], step: Int): Task[Game] = transaction {
+  override def find(gameId: ID[Game], step: Int): Task[Game] = {
     for {
       enemies <- findEnemiesByGameId(gameId, step)
       activePlayer <- findActivePlayerByGameId(gameId, step)

@@ -5,7 +5,7 @@ import zio.{UIO, ZIO}
 import java.security.SecureRandom
 import java.util.Base64
 
-case class RefreshToken(value: String) extends AnyVal
+final case class RefreshToken(value: String) extends AnyVal
 
 object RefreshToken {
   private val random = new SecureRandom
