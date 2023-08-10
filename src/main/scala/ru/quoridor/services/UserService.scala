@@ -5,11 +5,11 @@ import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.dao.UserDao
 import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
 import ru.quoridor.model.User
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio._
 
 trait UserService {
-  def getUser(userId: ID[User]): Task[Userdata]
+  def getUser(userId: Id[User]): Task[Userdata]
 
   def getUser(username: Username): Task[Userdata]
 
@@ -25,7 +25,7 @@ object UserService {
   ] =
     ZLayer.fromFunction(new UserServiceImpl(_, _))
 
-  def getUser(userId: ID[User]): RIO[UserService, Userdata] =
+  def getUser(userId: Id[User]): RIO[UserService, Userdata] =
     ZIO.serviceWithZIO[UserService](_.getUser(userId))
 
   def getUser(username: Username): RIO[UserService, Userdata] =

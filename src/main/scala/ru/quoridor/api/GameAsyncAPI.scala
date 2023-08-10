@@ -6,7 +6,7 @@ import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import ru.utils.tagging.Tagged._
 import sttp.apispec.asyncapi.AsyncAPI
 import sttp.capabilities.WebSockets
@@ -27,7 +27,7 @@ object GameAsyncAPI {
 
   private val wsEndpoint = endpoint.get
     .in("ws")
-    .in("game" / path[ID[Game]]("gameId"))
+    .in("game" / path[Id[Game]]("gameId"))
     .securityIn(query[AccessToken]("token"))
     .errorOut(jsonBody[ExceptionResponse] and statusCode)
     .mapErrorOut(er => new Throwable(er._1.errorMessage))(ExceptionResponse(_))

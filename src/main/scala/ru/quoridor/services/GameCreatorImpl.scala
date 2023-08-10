@@ -7,7 +7,7 @@ import ru.quoridor.model.{ProtoGame, ProtoPlayers, User}
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.model.User.ProtoPlayer
 import ru.quoridor.model.game.geometry.Side
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import ru.utils.tagging.Tagged.Implicits._
 import zio.{Task, ZIO}
 
@@ -19,7 +19,7 @@ class GameCreatorImpl(
     gameDao: GameDao
 ) extends GameCreator {
 
-  override def createGame(userId: ID[User]): Task[ProtoGame] = {
+  override def createGame(userId: Id[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
     val target = North
     userDao.findById(userId).flatMap { user =>
@@ -33,8 +33,8 @@ class GameCreatorImpl(
   }
 
   override def joinPlayer(
-      gameId: ID[Game],
-      userId: ID[User]
+      gameId: Id[Game],
+      userId: Id[User]
   ): Task[ProtoGame] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
@@ -55,7 +55,7 @@ class GameCreatorImpl(
     )
   }
 
-  override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
+  override def startGame(gameId: Id[Game], userId: Id[User]): Task[Game] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
       _ <- ZIO.cond(

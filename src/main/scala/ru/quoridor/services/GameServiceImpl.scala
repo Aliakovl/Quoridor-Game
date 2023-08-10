@@ -7,18 +7,18 @@ import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
 import ru.quoridor.model.User.Player
 import ru.utils.ZIOExtensions.OrFail
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{Task, ZIO}
 
 class GameServiceImpl(gameDao: GameDao) extends GameService {
 
-  override def findGame(gameId: ID[Game]): Task[Game] = {
+  override def findGame(gameId: Id[Game]): Task[Game] = {
     gameDao.find(gameId)
   } // TODO: вернуть проверку на принадлежность игрока игре
 
   override def makeMove(
-      gameId: ID[Game],
-      userId: ID[User],
+      gameId: Id[Game],
+      userId: Id[User],
       move: Move
   ): Task[Game] = {
     for {
@@ -59,7 +59,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
     )
   }
 
-  override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
+  override def usersHistory(userId: Id[User]): Task[List[GamePreView]] = {
     for {
       gameIds <- gameDao.history(userId)
       gamePreViews <- ZIO.foreachPar(gameIds)(gameDao.findParticipants)
@@ -67,8 +67,8 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
   }
 
   override def gameHistory(
-      gameId: ID[Game],
-      userId: ID[User]
+      gameId: Id[Game],
+      userId: Id[User]
   ): Task[List[Game]] = {
     for {
       game <- gameDao.find(gameId)
@@ -86,8 +86,8 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
   }
 
   override def availablePawnMoves(
-      gameId: ID[Game],
-      userId: ID[User]
+      gameId: Id[Game],
+      userId: Id[User]
   ): Task[List[PawnPosition]] = {
     for {
       game <- gameDao.find(gameId)
@@ -101,7 +101,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
   }
 
   def availableWallMoves(
-      gameId: ID[Game]
+      gameId: Id[Game]
   ): Task[Set[WallPosition]] = {
     for {
       game <- gameDao.find(gameId)

@@ -9,7 +9,7 @@ import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.User.{Player, Userdata}
 import ru.utils.ZIOExtensions.OrFail
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{IO, Task, ZIO}
 
 import java.sql.SQLException
@@ -17,7 +17,7 @@ import java.sql.SQLException
 class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   import quillContext._
 
-  override def find(gameId: ID[Game]): Task[Game] = {
+  override def find(gameId: Id[Game]): Task[Game] = {
     for {
       step <- findLastStep(gameId)
       enemies <- findEnemiesByGameId(gameId, step)
@@ -32,7 +32,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     )
   }
 
-  override def find(gameId: ID[Game], step: Int): Task[Game] = {
+  override def find(gameId: Id[Game], step: Int): Task[Game] = {
     for {
       enemies <- findEnemiesByGameId(gameId, step)
       activePlayer <- findActivePlayerByGameId(gameId, step)
@@ -46,12 +46,12 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     )
   }
 
-  override def lastStep(gameId: ID[Game]): Task[Int] = {
+  override def lastStep(gameId: Id[Game]): Task[Int] = {
     findLastStep(gameId)
   }
 
   override def insert(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int,
       state: State,
       move: Move,
@@ -76,7 +76,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     } yield ()
   }
 
-  override def create(gameId: ID[Game], state: State): Task[Game] =
+  override def create(gameId: Id[Game], state: State): Task[Game] =
     transaction {
       val activePlayer = state.players.activePlayer
       val step = 0
@@ -90,7 +90,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
       } yield Game(gameId, 0, state, None)
     }
 
-  override def hasStarted(gameId: ID[Game]): Task[Boolean] = {
+  override def hasStarted(gameId: Id[Game]): Task[Boolean] = {
     run(quote {
       query[dto.GameState].filter { gameState =>
         gameState.gameId == lift(gameId) && gameState.step == 0
@@ -98,13 +98,13 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
     }).map(_.nonEmpty)
   }
 
-  override def history(userId: ID[User]): Task[List[ID[Game]]] = {
+  override def history(userId: Id[User]): Task[List[Id[Game]]] = {
     run(quote {
       query[dto.Player].filter(_.userId == lift(userId)).map(_.gameId)
     })
   }
 
-  override def findParticipants(gameId: ID[Game]): Task[GamePreView] = {
+  override def findParticipants(gameId: Id[Game]): Task[GamePreView] = {
     for {
       users <- findUsersByGameId(gameId)
       winner <- findWinnerByGameId(gameId)
@@ -112,7 +112,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def findLastStep(
-      gameId: ID[Game]
+      gameId: Id[Game]
   ): Task[Int] = {
     run(quote {
       query[dto.GameState]
@@ -123,7 +123,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def findEnemiesByGameId(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int
   ): Task[NonEmptyList[Player]] = {
     run(quote {
@@ -153,7 +153,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def findActivePlayerByGameId(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int
   ): Task[Player] = {
     run(quote {
@@ -182,7 +182,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def findWallsByGameId(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int
   ): IO[SQLException, Set[WallPosition]] = {
     run(quote {
@@ -202,7 +202,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def findWinnerByGameId(
-      gameId: ID[Game]
+      gameId: Id[Game]
   ): IO[SQLException, Option[Userdata]] = {
     run(quote {
       for {
@@ -214,9 +214,9 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def recordNextState(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int,
-      activePlayerId: ID[User]
+      activePlayerId: Id[User]
   ): Task[Unit] = {
     run(quote {
       query[dto.GameState].insert(
@@ -233,7 +233,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def recordPlayers(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int,
       players: List[Player]
   ): Task[Unit] = {
@@ -255,7 +255,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def recordWall(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int,
       wallPosition: WallPosition
   ): Task[Long] = {
@@ -275,7 +275,7 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
       }
   }
 
-  private def findUsersByGameId(gameId: ID[Game]): Task[List[Userdata]] = {
+  private def findUsersByGameId(gameId: Id[Game]): Task[List[Userdata]] = {
     run(quote {
       for {
         player <- query[dto.Player]
@@ -289,8 +289,8 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   }
 
   private def recordWinner(
-      gameId: ID[Game],
-      userId: ID[User]
+      gameId: Id[Game],
+      userId: Id[User]
   ): Task[Unit] = {
     run(quote {
       query[dto.Winner].insert(

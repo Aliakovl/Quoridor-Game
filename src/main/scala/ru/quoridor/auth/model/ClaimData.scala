@@ -1,6 +1,6 @@
 package ru.quoridor.auth.model
 
 import ru.quoridor.model.User
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 
-final case class ClaimData(userId: ID[User], username: Username)
+final case class ClaimData(userId: Id[User], username: Username)

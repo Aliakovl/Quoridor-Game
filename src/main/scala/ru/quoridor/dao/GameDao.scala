@@ -4,31 +4,31 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, State}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.User.Userdata
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{RLayer, Task, ZLayer}
 
 trait GameDao {
-  def find(gameId: ID[Game]): Task[Game]
+  def find(gameId: Id[Game]): Task[Game]
 
-  def find(gameId: ID[Game], step: Int): Task[Game]
+  def find(gameId: Id[Game], step: Int): Task[Game]
 
-  def lastStep(gameId: ID[Game]): Task[Int]
+  def lastStep(gameId: Id[Game]): Task[Int]
 
   def insert(
-      gameId: ID[Game],
+      gameId: Id[Game],
       step: Int,
       state: State,
       move: Move,
       winner: Option[Userdata]
   ): Task[Unit]
 
-  def create(gameId: ID[Game], state: State): Task[Game]
+  def create(gameId: Id[Game], state: State): Task[Game]
 
-  def hasStarted(gameId: ID[Game]): Task[Boolean]
+  def hasStarted(gameId: Id[Game]): Task[Boolean]
 
-  def history(userId: ID[User]): Task[List[ID[Game]]]
+  def history(userId: Id[User]): Task[List[Id[Game]]]
 
-  def findParticipants(gameId: ID[Game]): Task[GamePreView]
+  def findParticipants(gameId: Id[Game]): Task[GamePreView]
 }
 
 object GameDao {

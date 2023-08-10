@@ -5,15 +5,15 @@ import ru.quoridor.model.ProtoGame
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.User
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{RLayer, Task, ZLayer}
 
 trait ProtoGameDao {
-  def find(gameId: ID[Game]): Task[ProtoGame]
+  def find(gameId: Id[Game]): Task[ProtoGame]
 
-  def insert(gameId: ID[Game], userId: ID[User], target: Side): Task[Unit]
+  def insert(gameId: Id[Game], userId: Id[User], target: Side): Task[Unit]
 
-  def addPlayer(gameId: ID[Game], userId: ID[User], target: Side): Task[Unit]
+  def addPlayer(gameId: Id[Game], userId: Id[User], target: Side): Task[Unit]
 }
 
 object ProtoGameDao {

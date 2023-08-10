@@ -16,7 +16,7 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.model.User
 import ru.quoridor.model.game.Game
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import zio.interop.catz._
 import zio.logging.slf4j.bridge.Slf4jBridge
@@ -65,7 +65,7 @@ object QuoridorApp extends ZIOAppDefault {
       GameService.live,
       UserService.live,
       HashingService.live,
-      RedisStore.live[RefreshToken, ID[User]],
+      RedisStore.live[RefreshToken, Id[User]],
       RefreshTokenStore.live,
       AccessService.live,
       AuthorizationService.live,

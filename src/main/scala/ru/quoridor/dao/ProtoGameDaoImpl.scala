@@ -8,13 +8,13 @@ import ru.quoridor.model.User.ProtoPlayer
 import ru.quoridor.model.game.Game
 import ru.quoridor.model.game.geometry.Side
 import ru.quoridor.model.{ProtoGame, ProtoPlayers}
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{Task, ZIO}
 
 class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   import quillContext._
 
-  override def find(gameId: ID[Game]): Task[ProtoGame] = {
+  override def find(gameId: Id[Game]): Task[ProtoGame] = {
     val findProtoPlayersByGameId = quote {
       {
         for {
@@ -39,8 +39,8 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def insert(
-      gameId: ID[Game],
-      userId: ID[User],
+      gameId: Id[Game],
+      userId: Id[User],
       target: Side
   ): Task[Unit] = {
     val insertNewGame = quote {
@@ -57,8 +57,8 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def addPlayer(
-      gameId: ID[Game],
-      userId: ID[User],
+      gameId: Id[Game],
+      userId: Id[User],
       target: Side
   ): Task[Unit] = {
     val insertPlayer = quote {

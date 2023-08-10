@@ -6,7 +6,7 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException._
 import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
 import ru.quoridor.model.User
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import zio.{Task, ZIO}
 
 import java.sql.SQLException
@@ -26,7 +26,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       }
   }
 
-  override def findById(id: ID[User]): Task[Userdata] = {
+  override def findById(id: Id[User]): Task[Userdata] = {
     val findUserById = quote {
       query[dto.Userdata].filter(_.userId == lift(id))
     }

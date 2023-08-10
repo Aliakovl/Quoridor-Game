@@ -15,7 +15,7 @@ import ru.quoridor.services.GameCreator._
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService._
 import ru.quoridor.services.UserService.getUser
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 import ru.utils.tagging.Tagged._
 import sttp.model.StatusCode
 
@@ -57,8 +57,8 @@ object GameAPI {
 
   private val joinPlayerEndpoint =
     baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId"))
-      .in("join" / path[ID[User]]("userId"))
+      .in("game" / path[Id[Game]]("gameId"))
+      .in("join" / path[Id[User]]("userId"))
       .out(jsonBody[ProtoGame])
       .serverLogic { _ =>
         { case (gameId, userId) =>
@@ -68,7 +68,7 @@ object GameAPI {
 
   private val startGameEndpoint =
     baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "start")
+      .in("game" / path[Id[Game]]("gameId") / "start")
       .out(jsonBody[Game] and statusCode(StatusCode.Created))
       .serverLogic { claimData => gameId =>
         startGame(gameId, claimData.userId)
@@ -76,7 +76,7 @@ object GameAPI {
 
   private val gameHistoryEndpoint =
     baseEndpoint.get
-      .in("game" / path[ID[Game]]("gameId") / "history")
+      .in("game" / path[Id[Game]]("gameId") / "history")
       .out(jsonBody[List[Game]])
       .serverLogic { claimData => gameId =>
         gameHistory(gameId, claimData.userId)
@@ -92,7 +92,7 @@ object GameAPI {
 
   private val getGameEndpoint =
     baseEndpoint.get
-      .in("game" / path[ID[Game]]("gameId"))
+      .in("game" / path[Id[Game]]("gameId"))
       .out(jsonBody[Game])
       .serverLogic { _ => gameId =>
         findGame(gameId)
@@ -108,7 +108,7 @@ object GameAPI {
 
   private val moveEndpoint =
     baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "move")
+      .in("game" / path[Id[Game]]("gameId") / "move")
       .in(jsonBody[Move])
       .out(jsonBody[Game])
       .serverLogic { claimData =>
@@ -119,7 +119,7 @@ object GameAPI {
 
   private val pawnMoves =
     baseEndpoint.get
-      .in("game" / path[ID[Game]]("gameId") / "pawnMoves")
+      .in("game" / path[Id[Game]]("gameId") / "pawnMoves")
       .out(jsonBody[List[PawnPosition]])
       .serverLogic { claimData => gameId =>
         availablePawnMoves(gameId, claimData.userId)
@@ -127,7 +127,7 @@ object GameAPI {
 
   private val wallMoves =
     baseEndpoint.get
-      .in("game" / path[ID[Game]]("gameId") / "wallMoves")
+      .in("game" / path[Id[Game]]("gameId") / "wallMoves")
       .out(jsonBody[Set[WallPosition]])
       .serverLogic { _ => gameId =>
         availableWallMoves(gameId)

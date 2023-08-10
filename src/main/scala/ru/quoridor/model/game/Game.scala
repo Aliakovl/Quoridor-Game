@@ -1,10 +1,10 @@
 package ru.quoridor.model.game
 
 import ru.quoridor.model.User.Userdata
-import ru.utils.tagging.ID
+import ru.utils.tagging.Id
 
 final case class Game(
-    id: ID[Game],
+    id: Id[Game],
     step: Int,
     state: State,
     winner: Option[Userdata]
