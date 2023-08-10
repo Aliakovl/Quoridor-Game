@@ -2,9 +2,9 @@ package ru.quoridor.services
 
 import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
-import ru.quoridor.model.{User, UserWithSecret}
+import ru.quoridor.model.User
 import ru.quoridor.dao.UserDao
-import ru.quoridor.model.User.Userdata
+import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.Implicits._
 import zio.Task
@@ -21,7 +21,7 @@ class UserServiceImpl(
 
   def getUser(username: Username): Task[Userdata] = {
     userDao.findByUsername(username).map {
-      case UserWithSecret(id, username, _) =>
+      case UserdataWithSecret(id, username, _) =>
         User.Userdata(id, username)
     }
   }
@@ -30,12 +30,12 @@ class UserServiceImpl(
     for {
       secret <- hashingService.hashPassword(credentials.password)
       userId = UUID.randomUUID().tag[User]
-      user = UserWithSecret(userId, credentials.username, secret)
+      user = UserdataWithSecret(userId, credentials.username, secret)
       _ <- userDao.insert(user)
-    } yield user.toUser
+    } yield user
   }
 
-  override def getUserSecret(username: Username): Task[UserWithSecret] = {
+  override def getUserSecret(username: Username): Task[UserdataWithSecret] = {
     userDao.findByUsername(username)
   }
 }

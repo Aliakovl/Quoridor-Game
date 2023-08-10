@@ -3,8 +3,8 @@ package ru.quoridor.services
 import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.dao.UserDao
-import ru.quoridor.model.User.Userdata
-import ru.quoridor.model.{User, UserWithSecret}
+import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
+import ru.quoridor.model.User
 import ru.utils.tagging.ID
 import zio._
 
@@ -15,7 +15,7 @@ trait UserService {
 
   def createUser(credentials: Credentials): Task[Userdata]
 
-  def getUserSecret(username: Username): Task[UserWithSecret]
+  def getUserSecret(username: Username): Task[UserdataWithSecret]
 }
 
 object UserService {
@@ -34,6 +34,6 @@ object UserService {
   def createUser(credentials: Credentials): RIO[UserService, Userdata] =
     ZIO.serviceWithZIO[UserService](_.createUser(credentials))
 
-  def getUserSecret(username: Username): RIO[UserService, UserWithSecret] =
+  def getUserSecret(username: Username): RIO[UserService, UserdataWithSecret] =
     ZIO.serviceWithZIO[UserService](_.getUserSecret(username))
 }

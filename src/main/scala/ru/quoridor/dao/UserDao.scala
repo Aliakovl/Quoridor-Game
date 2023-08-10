@@ -1,18 +1,18 @@
 package ru.quoridor.dao
 
 import ru.quoridor.auth.model.Username
-import ru.quoridor.model.{User, UserWithSecret}
+import ru.quoridor.model.User
 import ru.quoridor.dao.quill.QuillContext
-import ru.quoridor.model.User.Userdata
+import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
 trait UserDao {
-  def findByUsername(username: Username): Task[UserWithSecret]
+  def findByUsername(username: Username): Task[UserdataWithSecret]
 
   def findById(id: ID[User]): Task[Userdata]
 
-  def insert(user: UserWithSecret): Task[Unit]
+  def insert(user: UserdataWithSecret): Task[Unit]
 }
 
 object UserDao {

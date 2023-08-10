@@ -4,8 +4,8 @@ import org.postgresql.util.PSQLState
 import ru.quoridor.auth.model.Username
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException._
-import ru.quoridor.model.User.Userdata
-import ru.quoridor.model.{User, UserWithSecret}
+import ru.quoridor.model.User.{UserdataWithSecret, Userdata}
+import ru.quoridor.model.User
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
@@ -14,7 +14,7 @@ import java.sql.SQLException
 class UserDaoImpl(quillContext: QuillContext) extends UserDao {
   import quillContext._
 
-  override def findByUsername(username: Username): Task[UserWithSecret] = {
+  override def findByUsername(username: Username): Task[UserdataWithSecret] = {
     val findUserByUsername = quote {
       query[dto.Userdata].filter(_.username == lift(username))
     }
@@ -22,7 +22,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       .map(_.headOption)
       .someOrFail(UsernameNotFoundException(username))
       .map { case dto.Userdata(id, username, secret) =>
-        UserWithSecret(id, username, secret)
+        UserdataWithSecret(id, username, secret)
       }
   }
 
@@ -38,7 +38,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       }
   }
 
-  override def insert(user: UserWithSecret): Task[Unit] = {
+  override def insert(user: UserdataWithSecret): Task[Unit] = {
     val registerUser = quote {
       query[dto.Userdata].insert(
         _.userId -> lift(user.id),
