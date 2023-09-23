@@ -13,7 +13,7 @@ case class Configuration(
 
 object Configuration {
   val live: ULayer[Configuration] = ZLayer {
-    TypesafeConfigProvider.fromResourcePath
+    TypesafeConfigProvider.fromResourcePath()
       .load(deriveConfig[Configuration])
       .orDie
   }

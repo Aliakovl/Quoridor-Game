@@ -19,7 +19,7 @@ frontend-dev:
 	cd frontend && npm run dev
 
 backend-dev:
-	export $$(cat .env.dev) && sbt run
+	export $$(cat .env.dev) && sbt "compile; run"
 
 local: build-backend build-frontend-dev
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d

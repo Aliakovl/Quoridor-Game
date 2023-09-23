@@ -1,14 +1,16 @@
-CREATE TYPE side as ENUM (
+CREATE TYPE side as ENUM
+(
     'north',
     'south',
     'west',
     'east'
-    );
+);
 
-CREATE TYPE orientation as ENUM (
+CREATE TYPE orientation as ENUM
+(
     'horizontal',
     'vertical'
-    );
+);
 
 CREATE TABLE userdata
 (

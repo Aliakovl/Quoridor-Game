@@ -5,6 +5,7 @@ import io.getquill.jdbczio.Quill
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import org.http4s.HttpRoutes
+import org.http4s.server.websocket.WebSocketBuilder2
 import ru.quoridor.api.{AuthorizationAPI, GameAPI, GameAsyncAPI}
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth._
@@ -24,12 +25,12 @@ import zio.{ExitCode, Hub, ULayer, ZIO, ZIOAppDefault, ZLayer}
 
 object QuoridorApp extends ZIOAppDefault {
   private val apiRoutes: HttpRoutes[EnvTask] =
-    ZHttp4sServerInterpreter()
+    ZHttp4sServerInterpreter[Env]()
       .from(GameAPI[Env] ++ AuthorizationAPI[Env])
       .toRoutes
 
-  private val asyncApiRoutes =
-    ZHttp4sServerInterpreter().fromWebSocket(GameAsyncAPI[Env]).toRoutes
+  private val asyncApiRoutes: WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
+    ZHttp4sServerInterpreter[Env]().fromWebSocket(GameAsyncAPI[Env]).toRoutes
 
   override def run: ZIO[Any, Any, ExitCode] = ZIO
     .serviceWithZIO[Address] { case Address(host, port) =>

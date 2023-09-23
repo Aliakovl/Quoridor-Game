@@ -13,5 +13,5 @@ package object app {
     with AuthorizationService
     with Hub[Game]
 
-  type EnvTask[A] = RIO[Env, A]
+  type EnvTask[+A] = RIO[Env, A]
 }
