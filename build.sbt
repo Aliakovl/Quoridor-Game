@@ -18,46 +18,75 @@ val quillVersion = "4.6.0"
 val zioInteropCatsVersion = "23.0.0.8"
 val zioNioVersion = "2.0.2"
 
+val cats = Seq(
+  "org.typelevel" %% "cats-core" % catsVersion
+)
 
-ThisBuild / libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % catsVersion,
+val tapir = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs" % tapirVersion,
   "com.softwaremill.sttp.apispec" %% "asyncapi-circe-yaml" % apispecVersion,
-  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion,
-  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion,
-  "io.circe" %% "circe-core" % circeVersion,
-  "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion,
+)
+
+val server = Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
-  "com.beachape" %% "enumeratum" % enumeratumVersion,
-  "com.beachape" %% "enumeratum-circe" % enumeratumVersion,
   "org.http4s" %% "http4s-blaze-server" % http4sBlazeVersion,
   "org.http4s" %% "http4s-circe" % http4sVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion
+)
+
+val zio = Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-nio" % zioNioVersion,
-  "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion,
-  "io.getquill" %% "quill-jdbc-zio" % quillVersion,
+  "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
+)
+
+val circe = Seq(
+  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion
+)
+
+val config = Seq(
+  "dev.zio" %% "zio-config" % zioConfigVersion,
+  "dev.zio" %% "zio-config-typesafe" % zioConfigVersion,
+  "dev.zio" %% "zio-config-magnolia" % zioConfigVersion
+)
+
+val security = Seq(
+  "com.password4j" % "password4j" % password4jVersion,
+  "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion
+)
+
+val database = Seq(
   "org.postgresql" % "postgresql" % postgresqlVersion,
+  "io.getquill" %% "quill-jdbc-zio" % quillVersion
+)
+
+val redis = Seq(
+  "io.lettuce" % "lettuce-core" % lettuceVersion
+)
+
+val enumeratum = Seq(
+  "com.beachape" %% "enumeratum" % enumeratumVersion,
+  "com.beachape" %% "enumeratum-circe" % enumeratumVersion
+)
+
+val logging = Seq(
   "dev.zio" %% "zio-logging" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
   "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
-  "dev.zio" %% "zio-config" % zioConfigVersion,
-  "dev.zio" %% "zio-config-typesafe" % zioConfigVersion,
-  "dev.zio" %% "zio-config-magnolia" % zioConfigVersion,
-  "com.github.jwt-scala" %% "jwt-circe" % jwtCirceVersion,
-  "io.lettuce" % "lettuce-core" % lettuceVersion,
-  "com.password4j" % "password4j" % password4jVersion
 )
 
-lazy val root = (project in file("."))
+lazy val `quoridor-game` = (project in file("."))
   .settings(
-    name := "Quoridor Game",
+    name := "quoridor-game",
     version := "0.1.0",
     Compile / mainClass := Some("ru.quoridor.app.QuoridorApp"),
     dockerBaseImage := "quoridor-runtime:latest",
@@ -72,6 +101,9 @@ lazy val root = (project in file("."))
       "-Xlint",
       "-Xlint:-byname-implicit"
     ),
+    libraryDependencies ++= cats ++ tapir ++ server ++ zio ++ circe ++ config ++
+      security ++ database ++ redis ++ enumeratum ++ logging,
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     Compile / doc / sources := Nil
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)
