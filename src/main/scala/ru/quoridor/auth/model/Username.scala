@@ -1,10 +1,11 @@
 package ru.quoridor.auth.model
 
-import io.circe.{Decoder, Encoder}
+import io.circe.*
+import sttp.tapir.*
 
 case class Username(value: String) extends AnyVal
 
-object Username {
-  implicit val encoder: Encoder[Username] = Encoder[String].contramap(_.value)
-  implicit val decoder: Decoder[Username] = Decoder[String].map(Username(_))
-}
+object Username:
+  given Encoder[Username] = Encoder[String].contramap(_.value)
+  given Decoder[Username] = Decoder[String].map(Username(_))
+  given Schema[Username] = Schema(SchemaType.SString())

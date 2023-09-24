@@ -1,6 +1,6 @@
 package ru.quoridor.dao
 
-import io.getquill.Ord
+import io.getquill.*
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.model.GameException.GameNotFoundException
 import ru.quoridor.model.game.Game
@@ -10,10 +10,11 @@ import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
 class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
-  import quillContext._
+  import quillContext.*
+  import quillContext.given
 
   override def find(gameId: ID[Game]): Task[ProtoGame] = {
-    val findProtoPlayersByGameId = quote {
+    val findProtoPlayersByGameId = run {
       {
         for {
           player <- query[dto.Player]
@@ -29,7 +30,7 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
       ).map(_._1)
     }
 
-    run(findProtoPlayersByGameId).flatMap {
+    findProtoPlayersByGameId.flatMap {
       case Nil => ZIO.fail(GameNotFoundException(gameId))
       case creator :: guests =>
         ZIO.succeed(ProtoGame(gameId, ProtoPlayers(creator, guests)))
@@ -37,11 +38,11 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def insert(
-      gameId: ID[Game],
-      userId: ID[User],
-      target: Side
+    gameId: ID[Game],
+    userId: ID[User],
+    target: Side
   ): Task[Unit] = {
-    val insertNewGame = quote {
+    inline def insertNewGame = quote {
       query[dto.Game].insert(
         _.gameId -> lift(gameId),
         _.creator -> lift(userId)
@@ -55,11 +56,11 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def addPlayer(
-      gameId: ID[Game],
-      userId: ID[User],
-      target: Side
+    gameId: ID[Game],
+    userId: ID[User],
+    target: Side
   ): Task[Unit] = {
-    val insertPlayer = quote {
+    inline def insertPlayer = quote {
       query[dto.Player].insert(
         _.gameId -> lift(gameId),
         _.userId -> lift(userId),

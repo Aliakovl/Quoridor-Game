@@ -1,3 +1,6 @@
 package ru.quoridor.auth.model
 
-case class Credentials(username: Username, password: Password)
+import sttp.tapir.generic.auto.*
+import sttp.tapir.Schema
+
+case class Credentials(username: Username, password: Password) derives Schema

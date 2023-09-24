@@ -2,9 +2,9 @@ package ru.quoridor.auth
 
 import ru.quoridor.auth.model.AuthException.InvalidPassword
 import ru.quoridor.auth.model.{InvalidPassword, Password, UserSecret}
-import ru.utils.ZIOExtensions.OrFail
+import ru.utils.ZIOExtensions.*
 import zio.System.env
-import zio._
+import zio.*
 
 trait HashingService[P, S] {
   def hashPassword(password: P): UIO[S]
@@ -30,7 +30,7 @@ class HashingServiceImpl(pepper: String)
         .withArgon2()
         .getResultAsBytes
     }
-    .map(UserSecret)
+    .map(UserSecret(_))
 
   override def verifyPassword(
       password: Password,

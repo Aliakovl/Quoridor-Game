@@ -5,7 +5,7 @@ import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.dao.UserDao
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.utils.tagging.ID
-import zio._
+import zio.*
 
 trait UserService {
   def getUser(userId: ID[User]): Task[User]

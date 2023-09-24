@@ -1,23 +1,32 @@
 package ru.quoridor.model.game.geometry
 
-import enumeratum.EnumEntry.Snakecase
-import enumeratum.{CirceEnum, Enum, EnumEntry}
+import io.circe.{Decoder, Encoder}
+import sttp.tapir.generic.auto.*
+import sttp.tapir.Schema
 
-sealed trait Orientation
-    extends Opposite[Orientation]
-    with EnumEntry
-    with Snakecase { self =>
-  import Orientation._
+import scala.util.Try
+
+enum Orientation extends Opposite[Orientation] { self =>
+  case Horizontal extends Orientation
+  case Vertical extends Orientation
 
   override def opposite: Orientation = self match {
-    case Horizontal => Vertical
-    case Vertical   => Horizontal
+    case Orientation.Horizontal => Vertical
+    case Orientation.Vertical   => Horizontal
   }
+
+  def entryName: String = self match
+    case Orientation.Horizontal => "horizontal"
+    case Orientation.Vertical => "vertical"
 }
 
-object Orientation extends Enum[Orientation] with CirceEnum[Orientation] {
-  case object Horizontal extends Orientation
-  case object Vertical extends Orientation
+object Orientation:
+  def withName(name: String): Orientation = name match
+    case "horizontal" => Horizontal
+    case "vertical" => Vertical
 
-  override def values: IndexedSeq[Orientation] = findValues
-}
+  given Encoder[Orientation] = Encoder.encodeString.contramap(_.entryName)
+  given Decoder[Orientation] = Decoder.decodeString.emapTry {name =>
+    Try(withName(name))
+  }
+  given Schema[Orientation] = Schema.derivedSchema[Orientation]

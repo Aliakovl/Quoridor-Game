@@ -6,7 +6,7 @@ import ru.quoridor.config.{Auth, TokenKeys}
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
 import zio.nio.file.Path
-import zio._
+import zio.*
 
 import java.security.interfaces.RSAPrivateKey
 import java.time.Clock
@@ -40,7 +40,7 @@ class AccessServiceImpl(private val privateKey: RSAPrivateKey, ttl: Duration)
 
   private def generatePayload(
       claimData: ClaimData
-  )(implicit clock: Clock) = JwtClaim()
+  )(using clock: Clock) = JwtClaim()
     .expiresIn(ttlSeconds)
     .++(
       "userId" -> claimData.userId,

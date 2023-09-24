@@ -1,7 +1,7 @@
 package ru.quoridor.api
 
 import ru.quoridor.auth.model.AuthException
-import ru.quoridor.model.GameException._
+import ru.quoridor.model.GameException.*
 import ru.quoridor.model.{GameException, GameMoveException}
 import sttp.model.StatusCode
 

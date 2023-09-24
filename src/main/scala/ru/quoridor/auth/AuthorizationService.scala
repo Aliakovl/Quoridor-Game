@@ -1,16 +1,16 @@
 package ru.quoridor.auth
 
-import io.circe.generic.auto._
+import io.circe.generic.auto.*
 import io.circe.parser
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim, JwtOptions}
 import ru.quoridor.auth.model.AuthException.InvalidAccessToken
-import ru.quoridor.auth.model._
+import ru.quoridor.auth.model.*
 import ru.quoridor.config.TokenKeys
 import ru.utils.RSAKeyReader
 import zio.Clock.javaClock
 import zio.ZIO.ifZIO
 import zio.nio.file.Path
-import zio._
+import zio.*
 
 import java.security.interfaces.RSAPublicKey
 
