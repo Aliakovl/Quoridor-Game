@@ -23,9 +23,8 @@ trait PostgresExtensions:
     )
 
   given Decoder[Side] =
-    decoder[Side] { row =>
-      index =>
-        Side.withName(row.getObject(index, classOf[String]))
+    decoder[Side] { row => index =>
+      Side.withName(row.getObject(index, classOf[String]))
     }
 
   given Encoder[Orientation] =
@@ -40,15 +39,14 @@ trait PostgresExtensions:
     )
 
   given Decoder[Orientation] =
-    decoder[Orientation] { row =>
-      index =>
-        Orientation.withName(row.getObject(index, classOf[String]))
+    decoder[Orientation] { row => index =>
+      Orientation.withName(row.getObject(index, classOf[String]))
     }
 
-  given[A, B](using Encoder[A]): Encoder[Tagged[A, B]] =
+  given [A, B](using Encoder[A]): Encoder[Tagged[A, B]] =
     given MappedEncoding[Tagged[A, B], A] = MappedEncoding(_.untag)
     mappedEncoder[Tagged[A, B], A]
 
-  given[A, B](using Decoder[A]): Decoder[Tagged[A, B]] =
+  given [A, B](using Decoder[A]): Decoder[Tagged[A, B]] =
     given MappedEncoding[A, Tagged[A, B]] = MappedEncoding(_.tag)
     mappedDecoder[A, Tagged[A, B]]

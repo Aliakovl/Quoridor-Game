@@ -4,7 +4,11 @@ import io.getquill.*
 import org.postgresql.util.PSQLState
 import ru.quoridor.auth.model.Username
 import ru.quoridor.dao.quill.QuillContext
-import ru.quoridor.model.GameException.{UserNotFoundException, UsernameNotFoundException, UsernameOccupiedException}
+import ru.quoridor.model.GameException.{
+  UserNotFoundException,
+  UsernameNotFoundException,
+  UsernameOccupiedException
+}
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
@@ -55,7 +59,7 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
       .unit
       .catchSome {
         case x: SQLException
-          if x.getSQLState == PSQLState.UNIQUE_VIOLATION.getState =>
+            if x.getSQLState == PSQLState.UNIQUE_VIOLATION.getState =>
           ZIO.fail(UsernameOccupiedException(user.username))
       }
   }

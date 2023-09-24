@@ -2,8 +2,9 @@ import Versions.*
 import sbt.*
 
 object Dependencies {
-  lazy val dependencies: Seq[ModuleID] = cats ++ tapir ++ server ++ zio ++ circe ++ config ++
-    security ++ database ++ redis ++ enumeratum ++ logging
+  lazy val dependencies: Seq[ModuleID] =
+    cats ++ tapir ++ server ++ zio ++ circe ++ config ++
+      security ++ database ++ redis ++ enumeratum ++ logging
 
   private val cats = Seq(
     "org.typelevel" %% "cats-core" % catsVersion
@@ -16,7 +17,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs" % tapirVersion,
     "com.softwaremill.sttp.apispec" %% "asyncapi-circe-yaml" % apispecVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion
   )
 
   private val server = Seq(
@@ -68,6 +69,6 @@ object Dependencies {
   private val logging = Seq(
     "dev.zio" %% "zio-logging" % zioLoggingVersion,
     "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
-    "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
+    "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion
   )
 }

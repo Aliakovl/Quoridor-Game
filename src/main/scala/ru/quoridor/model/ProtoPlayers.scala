@@ -1,7 +1,10 @@
 package ru.quoridor.model
 
 import cats.data.NonEmptyList
-import ru.quoridor.model.GameException.{NotEnoughPlayersException, PlayersNumberLimitException}
+import ru.quoridor.model.GameException.{
+  NotEnoughPlayersException,
+  PlayersNumberLimitException
+}
 import ru.quoridor.model.game.{Player, Players}
 import ru.quoridor.model.game.geometry.Board
 import sttp.tapir.generic.auto.*
