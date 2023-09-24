@@ -12,19 +12,11 @@ import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}
 
-import io.circe.*
-import io.circe.generic.auto.*
-
 import java.sql.SQLException
 
 class GameDaoImpl(quillContext: QuillContext) extends GameDao {
-
   import quillContext.*
   import quillContext.given
-
-  private inline def queryPlayer = quote(querySchema[dto.Player](entity = "player"))
-
-  private inline def queryGameState = quote(querySchema[dto.GameState](entity = "gameState"))
 
   override def find(gameId: ID[Game]): Task[Game] = transaction {
     for {
@@ -79,8 +71,8 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
       }
       _ <- recordPlayers(gameId, step, state.players.toList)
       _ <- move match {
-        case PawnMove(_) => ZIO.unit
-        case PlaceWall(wallPosition) => recordWall(gameId, step, wallPosition)
+        case Move.PawnMove(_) => ZIO.unit
+        case Move.PlaceWall(wallPosition) => recordWall(gameId, step, wallPosition)
       }
     } yield ()
   }
@@ -102,11 +94,11 @@ class GameDaoImpl(quillContext: QuillContext) extends GameDao {
   import ru.utils.tagging.Tagged.given
 
   override def history(userId: ID[User]): Task[List[ID[Game]]] = run {
-    queryPlayer.filter(_.userId == lift(userId)).map(_.gameId)
+    query[dto.Player].filter(_.userId == lift(userId)).map(_.gameId)
   }
 
   override def hasStarted(gameId: ID[Game]): Task[Boolean] = run {
-    queryGameState.filter { gameState =>
+    query[dto.GameState].filter { gameState =>
       gameState.gameId == lift(gameId) && gameState.step == 0
     }
   }.map(_.nonEmpty)

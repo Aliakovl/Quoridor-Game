@@ -6,7 +6,7 @@ import ru.quoridor.model.GameException.{
   WrongPlayersTurnException
 }
 import ru.quoridor.model.{GamePreView, User}
-import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
+import ru.quoridor.model.game.{Game, Move, Player}
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
 import ru.utils.ZIOExtensions.*
@@ -46,7 +46,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
       } yield newState
 
       newState <- ZIO.fromEither(either)
-      winner = Some(move).collect { case PawnMove(pawnPosition) =>
+      winner = Some(move).collect { case Move.PawnMove(pawnPosition) =>
         Some(game.state.players.activePlayer).collect {
           case Player(id, username, _, _, target)
               if Board.isPawnOnEdge(pawnPosition, target) =>

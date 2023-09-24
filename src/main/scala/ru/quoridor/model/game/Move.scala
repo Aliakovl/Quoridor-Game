@@ -7,8 +7,8 @@ import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =
     self match {
-      case PawnMove(pawnPosition)  => pawnMoveValidate(state, pawnPosition)
-      case PlaceWall(wallPosition) => placeWallValidate(state, wallPosition)
+      case Move.PawnMove(pawnPosition)  => pawnMoveValidate(state, pawnPosition)
+      case Move.PlaceWall(wallPosition) => placeWallValidate(state, wallPosition)
     }
 
   private def pawnMoveValidate(
@@ -59,42 +59,37 @@ trait MoveValidator { self: Move =>
   }
 }
 
-sealed trait Move extends MoveValidator {
+enum Move extends MoveValidator { self =>
+  case PawnMove(pawnPosition: PawnPosition) extends Move
+  case PlaceWall(wallPosition: WallPosition) extends Move
+
   def makeAt(state: State): Either[GameMoveException, State] =
     validate(state).map(_ => legalMove(state))
 
-  protected def legalMove(state: State): State
-}
-
-case class PawnMove(pawnPosition: PawnPosition) extends Move {
-  override protected def legalMove(state: State): State = {
-    val activePlayer =
-      state.players.activePlayer.copy(pawnPosition = pawnPosition)
-    val players = state.players.copy(activePlayer = activePlayer)
-    state.copy(players = players.shift)
-  }
-}
-
-case class PlaceWall(wallPosition: WallPosition) extends Move {
-  override protected def legalMove(state: State): State = {
-    val walls = state.walls + wallPosition
-    val activePlayer = state.players.activePlayer
-      .copy(wallsAmount = state.players.activePlayer.wallsAmount - 1)
-    val players = state.players.copy(activePlayer = activePlayer)
-    State(players.shift, walls)
-  }
+  private def legalMove(state: State): State = self match
+    case PawnMove(pawnPosition: PawnPosition) =>
+      val activePlayer =
+        state.players.activePlayer.copy(pawnPosition = pawnPosition)
+      val players = state.players.copy(activePlayer = activePlayer)
+      state.copy(players = players.shift)
+    case PlaceWall(wallPosition: WallPosition) =>
+      val walls = state.walls + wallPosition
+      val activePlayer = state.players.activePlayer
+        .copy(wallsAmount = state.players.activePlayer.wallsAmount - 1)
+      val players = state.players.copy(activePlayer = activePlayer)
+      State(players.shift, walls)
 }
 
 object Move {
-  import cats.syntax.functor.*
-  import sttp.tapir.Schema
-  import sttp.tapir.generic.auto.schemaForCaseClass
-  import io.circe.{Decoder, Encoder}
-  import io.circe.generic.auto.*
+  import io.circe.*
   import io.circe.syntax.*
+  import io.circe.generic.auto.*
+  import sttp.tapir.Schema
+  import sttp.tapir.generic.auto.*
+  import cats.syntax.functor.given
 
   given Encoder[Move] = Encoder.instance {
-    case pm: PawnMove  => pm.asJson
+    case pm: PawnMove => pm.asJson
     case pw: PlaceWall => pw.asJson
   }
 
@@ -103,5 +98,5 @@ object Move {
     Decoder[PlaceWall].widen
   ).reduceLeft(_ or _)
 
-  given Schema[Move] = Schema.derivedSchema
+  given Schema[Move] = Schema.derivedSchema[Move]
 }

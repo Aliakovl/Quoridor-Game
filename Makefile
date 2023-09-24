@@ -40,10 +40,10 @@ delete-builders:
 	docker rmi $$(docker images | grep '<none>' | awk '{print $$3}')
 
 down:
-	docker-compose down
+	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
 	docker stop $$(docker ps -q) | true
 	docker rm $$(docker ps -aq) | true
-	docker-compose down
+	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
 
 build-config:
 	docker build -t "quoridor-config" configs

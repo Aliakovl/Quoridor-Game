@@ -50,7 +50,7 @@ object GameAsyncAPI {
     }
     .serverLogic { claimData => gameId =>
       ZIO.serviceWithZIO[GameService] { gameService =>
-        ZIO.service[Hub[Game]].map { hub => in =>
+        ZIO.serviceWith[Hub[Game]] { hub => in =>
           ZStream.fromZIO(gameService.findGame(gameId)) ++ ZStream
             .fromHub(hub)
             .filter(_.id == gameId)

@@ -9,7 +9,7 @@ import ru.utils.tagging.Tagged.*
 
 import java.sql.Types
 
-trait PostgresExtensions {
+trait PostgresExtensions:
   this: JdbcContextTypes[_, _] =>
   given Encoder[Side] =
     encoder[Side](
@@ -52,4 +52,3 @@ trait PostgresExtensions {
   given[A, B](using Decoder[A]): Decoder[Tagged[A, B]] =
     given MappedEncoding[A, Tagged[A, B]] = MappedEncoding(_.tag)
     mappedDecoder[A, Tagged[A, B]]
-}

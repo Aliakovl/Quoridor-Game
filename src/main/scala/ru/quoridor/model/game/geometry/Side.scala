@@ -1,11 +1,13 @@
 package ru.quoridor.model.game.geometry
 
+import io.circe.{Decoder, Encoder}
 import ru.quoridor.model.game.geometry.Side.order
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema
 
-enum Side extends Opposite[Side] with Ordered[Side] {
-  self =>
+import scala.util.Try
+
+enum Side extends Opposite[Side] with Ordered[Side] { self =>
 
   case North extends Side
   case South extends Side
@@ -35,11 +37,14 @@ object Side:
     case South => 2
     case West => 3
 
-
   def withName(name: String): Side = name match
     case "north" => North
     case "south" => South
     case "west" => West
     case "east" => East
 
+  given Encoder[Side] = Encoder.encodeString.contramap(_.entryName)
+  given Decoder[Side] = Decoder.decodeString.emapTry { name =>
+    Try(withName(name))
+  }
   given Schema[Side] = Schema.derivedSchema[Side]
