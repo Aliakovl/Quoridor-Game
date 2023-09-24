@@ -1,6 +1,6 @@
 package ru.quoridor.auth
 
-import ru.quoridor.auth.model.AuthException._
+import ru.quoridor.auth.model.AuthException.*
 
 package object model {
   type InvalidPassword = InvalidPassword.type

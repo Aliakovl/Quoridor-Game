@@ -1,21 +1,21 @@
 package ru.quoridor.api
 
-import sttp.tapir.ztapir._
-import sttp.tapir.json.circe._
-import sttp.tapir.generic.auto._
-import io.circe.generic.auto._
+import sttp.tapir.ztapir.{*, given}
+import sttp.tapir.json.circe.{*, given}
+import sttp.tapir.generic.auto.{*, given}
+import io.circe.generic.auto.{*, given}
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}
-import ru.quoridor.services.GameCreator._
+import ru.quoridor.services.GameCreator.*
 import ru.quoridor.services.{GameCreator, GameService, UserService}
-import ru.quoridor.services.GameService._
+import ru.quoridor.services.GameService.*
 import ru.quoridor.services.UserService.getUser
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged._
+import ru.utils.tagging.Tagged.*
 import sttp.model.StatusCode
 
 object GameAPI {

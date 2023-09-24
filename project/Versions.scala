@@ -12,8 +12,8 @@ object Versions {
   val zioConfigVersion = "4.0.0-RC16"
   val lettuceVersion = "6.2.6.RELEASE"
   val password4jVersion = "1.7.3"
-  val postgresqlVersion = "42.6.0"
-  val quillVersion = "4.6.0"
+  val postgresqlVersion = "42.5.4"
+  val quillVersion = "4.6.0.1"
   val zioInteropCatsVersion = "23.0.0.8"
   val zioNioVersion = "2.0.2"
 }

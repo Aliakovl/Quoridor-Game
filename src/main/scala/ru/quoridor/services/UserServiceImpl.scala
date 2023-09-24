@@ -5,7 +5,7 @@ import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
 import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.UserDao
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.Implicits._
+import ru.utils.tagging.Tagged.*
 import zio.Task
 
 import java.util.UUID

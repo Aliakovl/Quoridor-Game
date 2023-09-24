@@ -1,8 +1,8 @@
 package ru.quoridor.config
 
-import zio._
-import zio.config.typesafe._
-import zio.config.magnolia._
+import zio.*
+import zio.config.typesafe.*
+import zio.config.magnolia.*
 
 case class Configuration(
     auth: Auth,

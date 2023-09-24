@@ -1,29 +1,27 @@
 package ru.utils.tagging
 
 import io.circe.{Decoder, Encoder}
-import ru.utils.tagging.Tagged.Implicits._
+import io.getquill.context.jdbc.Encoders
+import ru.quoridor.model.User
+import ru.utils.tagging.Tagged.*
 import sttp.tapir.{Codec, CodecFormat, Schema}
+import zio.Tag
 
-case class Tagged[+A, B](untag: A) extends AnyVal {
-  override def toString: String = untag.toString
-}
+opaque type Tagged[+A, B] = A
 
-object Tagged {
-  object Implicits {
-    implicit class TaggedOps[A](private val a: A) extends AnyVal {
-      def tag[B]: A @@ B = Tagged[A, B](a)
-    }
-  }
+object Tagged:
+  extension[A](a: A)
+    inline def tag[B]: A @@ B = a
 
-  implicit def decoder[A, B](implicit ev: Decoder[A]): Decoder[A @@ B] =
-    ev.map(_.tag[B])
-  implicit def encoder[A, B](implicit ev: Encoder[A]): Encoder[A @@ B] =
-    ev.contramap(_.untag)
-  implicit def schema[A, B](implicit ev: Schema[A]): Schema[A @@ B] =
-    ev.as
+  extension[A, B](t: A @@ B)
+    inline def untag: A = t
 
-  implicit def codec[A, B, L, CF <: CodecFormat](implicit
+  given[A, B](using ev: Decoder[A]): Decoder[A @@ B] = ev
+  given[A, B](using ev: Encoder[A]): Encoder[A @@ B] = ev
+  given[A, B](using ev: Schema[A]): Schema[A @@ B] = ev.as
+
+  given[A, B, L, CF <: CodecFormat](using
       ev: Codec[L, A, CF]
-  ): Codec[L, A @@ B, CF] =
-    ev.map(_.tag[B])(_.untag)
-}
+  ): Codec[L, A @@ B, CF] = ev
+
+  given[A: Tag, B]: Tag[Tagged[A, B]] = Tag[A]

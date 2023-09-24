@@ -9,7 +9,7 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, PawnMove, Player}
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
-import ru.utils.ZIOExtensions.OrFail
+import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 

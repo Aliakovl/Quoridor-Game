@@ -1,6 +1,6 @@
 package ru.quoridor.model.game
 
-import ru.quoridor.model.GameMoveException._
+import ru.quoridor.model.GameMoveException.*
 import ru.quoridor.model.GameMoveException
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 
@@ -86,22 +86,22 @@ case class PlaceWall(wallPosition: WallPosition) extends Move {
 }
 
 object Move {
-  import cats.syntax.functor._
+  import cats.syntax.functor.*
   import sttp.tapir.Schema
   import sttp.tapir.generic.auto.schemaForCaseClass
   import io.circe.{Decoder, Encoder}
-  import io.circe.generic.auto._
-  import io.circe.syntax._
+  import io.circe.generic.auto.*
+  import io.circe.syntax.*
 
-  implicit val jsonEncoder: Encoder[Move] = Encoder.instance {
+  given Encoder[Move] = Encoder.instance {
     case pm: PawnMove  => pm.asJson
     case pw: PlaceWall => pw.asJson
   }
 
-  implicit val jsonDecoder: Decoder[Move] = List[Decoder[Move]](
+  given Decoder[Move] = List[Decoder[Move]](
     Decoder[PawnMove].widen,
     Decoder[PlaceWall].widen
   ).reduceLeft(_ or _)
 
-  implicit val schema: Schema[Move] = Schema.derivedSchema
+  given Schema[Move] = Schema.derivedSchema
 }

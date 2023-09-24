@@ -1,5 +1,5 @@
-import Versions._
-import sbt._
+import Versions.*
+import sbt.*
 
 object Dependencies {
   lazy val dependencies: Seq[ModuleID] = cats ++ tapir ++ server ++ zio ++ circe ++ config ++

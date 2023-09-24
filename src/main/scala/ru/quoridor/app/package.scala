@@ -1,8 +1,8 @@
 package ru.quoridor
 
-import ru.quoridor.auth._
+import ru.quoridor.auth.*
 import ru.quoridor.model.game.Game
-import ru.quoridor.services._
+import ru.quoridor.services.*
 import zio.{Hub, RIO}
 
 package object app {

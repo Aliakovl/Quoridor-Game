@@ -1,7 +1,7 @@
 package ru.quoridor.model.game.geometry
 
-import Direction._
-import Side._
+import Direction.*
+import Side.*
 import ru.quoridor.model.game.geometry.Orientation.{Horizontal, Vertical}
 
 object Board {

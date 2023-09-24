@@ -4,7 +4,7 @@ lazy val `quoridor-game` = (project in file("."))
   .settings(
     name := "quoridor-game",
     version := "0.1.0",
-    scalaVersion := "2.13.10",
+    scalaVersion := "3.3.0",
     Compile / mainClass := Some("ru.quoridor.app.QuoridorApp"),
     dockerBaseImage := "quoridor-runtime:latest",
     dockerUpdateLatest := true,
@@ -15,8 +15,6 @@ lazy val `quoridor-game` = (project in file("."))
       "-feature",
       "-unchecked",
       "-Werror",
-      "-Xlint",
-      "-Xlint:-byname-implicit"
     ),
     libraryDependencies ++= dependencies,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),

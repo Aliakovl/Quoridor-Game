@@ -1,21 +1,21 @@
 package ru.quoridor.api
 
-import io.circe.generic.auto._
+import io.circe.generic.auto.*
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged._
+import ru.utils.tagging.Tagged.*
 import sttp.apispec.asyncapi.AsyncAPI
 import sttp.capabilities.WebSockets
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.CodecFormat
 import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
-import sttp.tapir.generic.auto._
-import sttp.tapir.json.circe._
-import sttp.tapir.ztapir._
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.*
+import sttp.tapir.ztapir.*
 import zio.stream.ZStream
 import zio.{Hub, ZIO}
 

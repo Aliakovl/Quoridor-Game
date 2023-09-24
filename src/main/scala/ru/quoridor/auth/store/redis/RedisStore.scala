@@ -3,11 +3,11 @@ package ru.quoridor.auth.store.redis
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.support._
+import io.lettuce.core.support.*
 import io.lettuce.core.{RedisClient, RedisURI, SetArgs}
 import ru.quoridor.auth.store.KVStore
 import ru.quoridor.config.TokenStore
-import zio._
+import zio.*
 
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
@@ -115,7 +115,7 @@ object RedisStore {
       }
   }
 
-  def live[K: Tag, V: Tag](implicit
+  def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
   ): RLayer[TokenStore, KVStore[K, V]] = ZLayer {
     ZIO.serviceWithZIO[TokenStore] {

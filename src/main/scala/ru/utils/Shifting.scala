@@ -2,10 +2,10 @@ package ru.utils
 
 import cats.data.NonEmptyList
 import scala.collection.mutable.ListBuffer
-import scala.math.Ordering.Implicits._
+import scala.math.Ordering.Implicits.*
 
 case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
-  def shift[TT >: T](implicit ord: Ordering[TT]): Shifting[TT] = {
+  def shift[TT >: T](using ord: Ordering[TT]): Shifting[TT] = {
     ar match {
       case NonEmptyList(h, t) =>
         val buf = ListBuffer.empty[TT]
@@ -24,13 +24,13 @@ case class Shifting[+T](el: T, ar: NonEmptyList[T]) {
     }
   }
 
-  private def evenPermutation[TT >: T](x: TT, y: TT, z: TT)(implicit
+  private def evenPermutation[TT >: T](x: TT, y: TT, z: TT)(using
       ord: Ordering[TT]
   ): Boolean = {
     evenOrder(x, y, z) || evenOrder(y, z, x) || evenOrder(z, x, y)
   }
 
-  private def evenOrder[TT >: T](x: TT, y: TT, z: TT)(implicit
+  private def evenOrder[TT >: T](x: TT, y: TT, z: TT)(using
       ord: Ordering[TT]
   ): Boolean = {
     x <= y && y <= z

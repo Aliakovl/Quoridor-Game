@@ -1,9 +1,9 @@
 package ru.quoridor.auth
 
-import ru.quoridor.auth.model._
+import ru.quoridor.auth.model.*
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.services.UserService
-import zio._
+import zio.*
 
 trait AuthenticationService {
   def signIn(credentials: Credentials): Task[(AccessToken, RefreshToken)]

@@ -1,6 +1,6 @@
 package ru.quoridor.config
 
-import zio._
+import zio.*
 
 final case class TokenKeys(privateKeyPath: String, publicKeyPath: String)
 

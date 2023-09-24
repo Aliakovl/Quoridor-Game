@@ -1,11 +1,11 @@
 package ru.quoridor.auth.store
 
 import ru.quoridor.auth.model.AuthException.InvalidRefreshToken
-import ru.quoridor.auth.model._
+import ru.quoridor.auth.model.*
 import ru.quoridor.model.User
-import ru.utils.ZIOExtensions.OrFail
+import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
-import zio._
+import zio.*
 
 trait RefreshTokenStore {
   def add(

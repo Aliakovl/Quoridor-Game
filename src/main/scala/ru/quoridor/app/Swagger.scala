@@ -7,7 +7,7 @@ import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
 
-object Swagger {
+object Swagger:
   private val openApi =
     OpenAPIDocsInterpreter().serverEndpointsToOpenAPI(
       GameAPI[Env] ++ AuthorizationAPI[Env],
@@ -19,4 +19,3 @@ object Swagger {
     ZHttp4sServerInterpreter()
       .from(SwaggerUI[EnvTask](openApi.toYaml))
       .toRoutes
-}

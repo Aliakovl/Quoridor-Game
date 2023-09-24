@@ -1,12 +1,11 @@
 package ru.quoridor.model.game
 
-import ru.quoridor.model.game.geometry.Direction._
-import ru.quoridor.model.game.geometry.{
-  Board,
-  Direction,
-  PawnPosition,
-  WallPosition
-}
+import io.circe.*
+import io.circe.generic.semiauto.*
+import sttp.tapir.generic.auto.*
+import ru.quoridor.model.game.geometry.Direction.*
+import ru.quoridor.model.game.geometry.*
+import sttp.tapir.Schema
 
 case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {
@@ -39,3 +38,8 @@ case class State(players: Players, walls: Set[WallPosition]) {
     }
   }
 }
+
+object State:
+  given Encoder[State] = deriveEncoder
+  given Decoder[State] = deriveDecoder
+  given Schema[State] = Schema.derivedSchema[State]

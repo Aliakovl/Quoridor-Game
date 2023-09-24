@@ -1,7 +1,7 @@
 package ru.quoridor.model.game.geometry
 
-import Orientation._
-import Direction._
+import Orientation.*
+import Direction.*
 
 sealed trait Direction extends Cross with StepForward with WallConverter
 

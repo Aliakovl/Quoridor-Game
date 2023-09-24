@@ -1,11 +1,11 @@
 package ru.quoridor.api
 
 import sttp.tapir.json.circe.jsonBody
-import sttp.tapir.ztapir._
-import sttp.tapir.generic.auto._
-import io.circe.generic.auto._
+import sttp.tapir.ztapir.*
+import sttp.tapir.generic.auto.*
+import io.circe.generic.auto.*
 import ru.quoridor.auth.AuthenticationService
-import ru.quoridor.auth.AuthenticationService._
+import ru.quoridor.auth.AuthenticationService.*
 import ru.quoridor.auth.model.{AccessToken, Credentials, RefreshToken}
 import ru.quoridor.services.UserService
 import ru.quoridor.services.UserService.createUser
