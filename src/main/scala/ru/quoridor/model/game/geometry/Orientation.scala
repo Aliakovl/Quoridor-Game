@@ -17,16 +17,16 @@ enum Orientation extends Opposite[Orientation] { self =>
 
   def entryName: String = self match
     case Orientation.Horizontal => "horizontal"
-    case Orientation.Vertical => "vertical"
+    case Orientation.Vertical   => "vertical"
 }
 
 object Orientation:
   def withName(name: String): Orientation = name match
     case "horizontal" => Horizontal
-    case "vertical" => Vertical
+    case "vertical"   => Vertical
 
   given Encoder[Orientation] = Encoder.encodeString.contramap(_.entryName)
-  given Decoder[Orientation] = Decoder.decodeString.emapTry {name =>
+  given Decoder[Orientation] = Decoder.decodeString.emapTry { name =>
     Try(withName(name))
   }
   given Schema[Orientation] = Schema.derivedSchema[Orientation]

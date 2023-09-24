@@ -18,10 +18,16 @@ trait AuthenticationService {
 }
 
 object AuthenticationService {
-  val live: RLayer[UserService with AccessService with HashingService[
-    Password,
-    UserSecret
-  ] with RefreshTokenStore, AuthenticationService] =
+  val live: RLayer[
+    UserService
+      with AccessService
+      with HashingService[
+        Password,
+        UserSecret
+      ]
+      with RefreshTokenStore,
+    AuthenticationService
+  ] =
     ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _))
 
   def signIn(

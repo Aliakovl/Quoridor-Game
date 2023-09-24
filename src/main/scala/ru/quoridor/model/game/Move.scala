@@ -7,8 +7,9 @@ import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =
     self match {
-      case Move.PawnMove(pawnPosition)  => pawnMoveValidate(state, pawnPosition)
-      case Move.PlaceWall(wallPosition) => placeWallValidate(state, wallPosition)
+      case Move.PawnMove(pawnPosition) => pawnMoveValidate(state, pawnPosition)
+      case Move.PlaceWall(wallPosition) =>
+        placeWallValidate(state, wallPosition)
     }
 
   private def pawnMoveValidate(
@@ -89,7 +90,7 @@ object Move {
   import cats.syntax.functor.given
 
   given Encoder[Move] = Encoder.instance {
-    case pm: PawnMove => pm.asJson
+    case pm: PawnMove  => pm.asJson
     case pw: PlaceWall => pw.asJson
   }
 

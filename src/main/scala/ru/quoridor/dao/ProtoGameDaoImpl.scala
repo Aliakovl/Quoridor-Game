@@ -38,9 +38,9 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def insert(
-    gameId: ID[Game],
-    userId: ID[User],
-    target: Side
+      gameId: ID[Game],
+      userId: ID[User],
+      target: Side
   ): Task[Unit] = {
     inline def insertNewGame = quote {
       query[dto.Game].insert(
@@ -56,9 +56,9 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
   }
 
   override def addPlayer(
-    gameId: ID[Game],
-    userId: ID[User],
-    target: Side
+      gameId: ID[Game],
+      userId: ID[User],
+      target: Side
   ): Task[Unit] = {
     inline def insertPlayer = quote {
       query[dto.Player].insert(

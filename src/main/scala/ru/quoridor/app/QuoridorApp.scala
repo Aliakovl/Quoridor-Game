@@ -32,7 +32,8 @@ object QuoridorApp extends ZIOAppDefault:
       .from(GameAPI[Env] ++ AuthorizationAPI[Env])
       .toRoutes
 
-  private val asyncApiRoutes: WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
+  private val asyncApiRoutes
+      : WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter[Env]().fromWebSocket(GameAsyncAPI[Env]).toRoutes
 
   override def run: ZIO[Any, Any, ExitCode] = ZIO
