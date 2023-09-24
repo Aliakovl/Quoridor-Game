@@ -15,7 +15,7 @@ import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService.*
 import ru.quoridor.services.UserService.getUser
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.*
+import ru.utils.tagging.Tagged.{*, given}
 import sttp.model.StatusCode
 
 object GameAPI {

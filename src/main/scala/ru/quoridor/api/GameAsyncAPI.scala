@@ -7,7 +7,7 @@ import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.services.GameService
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.*
+import ru.utils.tagging.Tagged.{*, given}
 import sttp.apispec.asyncapi.AsyncAPI
 import sttp.capabilities.WebSockets
 import sttp.capabilities.zio.ZioStreams

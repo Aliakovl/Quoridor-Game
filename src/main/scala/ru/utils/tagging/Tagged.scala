@@ -1,27 +1,22 @@
 package ru.utils.tagging
 
 import io.circe.{Decoder, Encoder}
-import io.getquill.context.jdbc.Encoders
-import ru.quoridor.model.User
 import ru.utils.tagging.Tagged.*
-import sttp.tapir.{Codec, CodecFormat, Schema}
-import zio.Tag
+import sttp.tapir.*
 
-opaque type Tagged[+A, B] = A
+case class Tagged[+A, B](untag: A) extends AnyVal:
+  override def toString: String = untag.toString
 
 object Tagged:
-  extension[A](a: A)
-    inline def tag[B]: A @@ B = a
+  extension[A] (a: A)
+    inline def tag[B]: A @@ B = Tagged(a)
 
-  extension[A, B](t: A @@ B)
-    inline def untag: A = t
+  given[A, B](using ev: Decoder[A]): Decoder[A @@ B] = ev.map(_.tag[B])
 
-  given[A, B](using ev: Decoder[A]): Decoder[A @@ B] = ev
-  given[A, B](using ev: Encoder[A]): Encoder[A @@ B] = ev
+  given[A, B](using ev: Encoder[A]): Encoder[A @@ B] = ev.contramap(_.untag)
+
   given[A, B](using ev: Schema[A]): Schema[A @@ B] = ev.as
 
   given[A, B, L, CF <: CodecFormat](using
-      ev: Codec[L, A, CF]
-  ): Codec[L, A @@ B, CF] = ev
-
-  given[A: Tag, B]: Tag[Tagged[A, B]] = Tag[A]
+    ev: Codec[L, A, CF]
+  ): Codec[L, A @@ B, CF] = ev.map(_.tag[B])(_.untag)

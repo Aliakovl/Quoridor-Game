@@ -10,7 +10,7 @@ import ru.quoridor.api.{AuthorizationAPI, GameAPI, GameAsyncAPI}
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth.*
 import ru.quoridor.auth.model.RefreshToken
-import ru.quoridor.auth.store.redis.*
+import ru.quoridor.auth.store.redis.{*, given}
 import ru.quoridor.config.*
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
