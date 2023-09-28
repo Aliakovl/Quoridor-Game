@@ -1,4 +1,4 @@
-VERSION := $(shell git log -1 --pretty=tformat:"%h" master)
+VERSION := "$(shell date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")"
 DOCKER_REGISTRY = quoridor.online:5000
 DOCKER_CONTEXT = quoridor
 
@@ -21,20 +21,32 @@ frontend-dev:
 backend-dev:
 	export $$(cat .env.dev) && sbt "compile; run"
 
-local: build-backend build-frontend-dev
+local: build-backend-dev build-frontend-dev
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
 
 build-runtime-image:
-	docker build --no-cache --force-rm -t "quoridor-runtime" ./
+	docker build --no-cache --force-rm -t "quoridor-runtime" ./runtime
 
-build-backend: build-runtime-image
+build-backend-dev: build-runtime-image
 	sbt "Docker/publishLocal"
 
 build-frontend-dev:
 	docker build --no-cache --force-rm -t "quoridor-frontend" --build-arg NODE_ENV_ARG=development frontend/
+	docker image prune --filter label=stage=builder
+
+build-backend: build-runtime-image
+	docker build --no-cache -t "quoridor-build" .
+	docker run --name "quoridor-build" "quoridor-build"
+	docker cp quoridor-build:/build/ ./build
+	docker rm "quoridor-build"
+	docker build --no-cache -t "quoridor-game" build
+	docker image prune -f --filter label=stage=builder
+	docker image rm -f quoridor-build
+	docker image prune -f --filter label=snp-multi-stage=intermediate
 
 build-frontend:
 	docker build --no-cache --force-rm -t "quoridor-frontend" --build-arg NODE_ENV_ARG=production frontend/
+	docker image prune --filter label=stage=builder
 
 delete-builders:
 	docker rmi $$(docker images | grep '<none>' | awk '{print $$3}')

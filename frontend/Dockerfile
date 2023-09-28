@@ -1,4 +1,5 @@
 FROM node:lts-alpine AS builder
+LABEL stage=builder
 WORKDIR /home
 COPY ./ ./
 ARG NODE_ENV_ARG
