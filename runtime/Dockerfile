@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.7_7-jre
+FROM eclipse-temurin:17.0.8.1_1-jre
 WORKDIR /var/keys/
 RUN openssl genrsa -out jwtRSA256.pem 2048
 RUN openssl rsa -in jwtRSA256.pem -pubout -outform PEM -out jwtRSA256.pem.pub

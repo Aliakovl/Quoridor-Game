@@ -2,12 +2,12 @@ version: "2.4"
 
 services:
   quoridor-api-conf:
-    image: ${DOCKER_REGISTRY}/quoridor-config:latest
+    image: ${DOCKER_REGISTRY}/quoridor/config:latest
     volumes:
       - conf:/conf
 
   quoridor-api:
-    image: ${DOCKER_REGISTRY}/quoridor-game:latest
+    image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
     restart: on-failure:3
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
@@ -48,7 +48,7 @@ services:
       - rdata:/data
 
   nginx:
-    image: ${DOCKER_REGISTRY}/quoridor-nginx:latest
+    image: ${DOCKER_REGISTRY}/quoridor/nginx:latest
     restart: on-failure:3
     ports:
       - "80:80"
@@ -58,7 +58,7 @@ services:
       - frontend
 
   frontend:
-    image: ${DOCKER_REGISTRY}/quoridor-frontend:latest
+    image: ${DOCKER_REGISTRY}/quoridor/frontend:latest
     restart: on-failure:3
 
 volumes:
