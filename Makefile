@@ -1,4 +1,4 @@
-VERSION := "$(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")"
+VERSION := $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
 DOCKER_REGISTRY = quoridor.online:5000
 DOCKER_CONTEXT = quoridor
 DOCKER_USERNAME = quoridor
@@ -59,8 +59,9 @@ down:
 	docker rm $$(docker ps -aq) | true
 	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
 
-remove: down
-	docker rmi -f $$({ docker images -q 'quoridor/*' && docker images -q '*/quoridor/*' } | cat | sort -u)
+remove:
+	$(eval TMP := $(shell docker images -q 'quoridor/*' && docker images -q '*/quoridor/*'))
+	docker rmi -f $$(echo $(TMP) | sort -u)
 
 build-config:
 	docker build -t $(DOCKER_USERNAME)/config configs
