@@ -22,7 +22,7 @@ frontend-dev:
 backend-dev:
 	export $$(cat .env.dev) && sbt "compile; run"
 
-local: build-backend-dev build-frontend-dev
+local: build-config build-backend-dev build-frontend-dev
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
 
 build-runtime-image:
@@ -39,9 +39,9 @@ build-frontend-dev:
 build-backend: build-runtime-image
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
-	docker cp quoridor-build:/build/ ./build
+	docker cp quoridor-build:/build .
 	docker rm quoridor-build
-	docker build --no-cache -t $(DOCKER_USERNAME)/game ./build
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api ./build
 	docker image prune -f --filter label=stage=builder
 	docker image rm -f quoridor-build
 	docker image prune -f --filter label=snp-multi-stage=intermediate
@@ -64,10 +64,11 @@ remove:
 	docker rmi -f $$(echo $(TMP) | sort -u)
 
 build-config:
-	docker build -t $(DOCKER_USERNAME)/config configs
+	docker volume rm quoridor-game_conf
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config configs
 
 build-nginx:
-	docker build -t $(DOCKER_USERNAME)/nginx --progress=plain nginx/
+	docker build --no-cache -t $(DOCKER_USERNAME)/nginx --progress=plain nginx/
 
 build: build-config build-backend build-nginx build-frontend
 

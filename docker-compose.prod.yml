@@ -1,12 +1,12 @@
 version: "2.4"
 
 services:
-  quoridor-api-conf:
-    image: ${DOCKER_REGISTRY}/quoridor/config:latest
+  game-api-conf:
+    image: ${DOCKER_REGISTRY}/quoridor/game-api-config:latest
     volumes:
       - conf:/conf
 
-  quoridor-api:
+  game-api:
     image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
     restart: on-failure:3
     environment:
@@ -17,7 +17,7 @@ services:
     volumes:
       - conf:/conf:ro
     depends_on:
-      - quoridor-api-conf
+      - game-api-conf
       - flyway
       - token-store
 
@@ -54,7 +54,7 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - quoridor-api
+      - game-api
       - frontend
 
   frontend:
