@@ -97,5 +97,23 @@ deploy:
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
  	docker-compose -f docker-compose.prod.yml --env-file .env up -d
 
+deploy-game:
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d flyway && \
+	docker volume rm quoridor-game_conf && \
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api-conf && \
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api
+
+deploy-frontend:
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d frontend
+
+deploy-nginx:
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d nginx
+
 version:
 	@echo $(VERSION)
