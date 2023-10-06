@@ -26,7 +26,7 @@ object GameAsyncAPI {
   )
 
   private val wsEndpoint = endpoint.get
-    .in("ws")
+    .in("ws" / "v1")
     .in("game" / path[ID[Game]]("gameId"))
     .securityIn(query[AccessToken]("token"))
     .errorOut(jsonBody[ExceptionResponse] and statusCode)
