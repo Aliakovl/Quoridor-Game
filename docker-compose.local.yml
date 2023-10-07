@@ -57,5 +57,5 @@ services:
     image: quoridor/frontend:latest
 
 volumes:
-  conf: {}
+  conf:
   pgdata:

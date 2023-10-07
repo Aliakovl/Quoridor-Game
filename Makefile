@@ -14,7 +14,7 @@ init-frontend:
 	cd frontend && npm install
 
 containers-dev:
-	docker-compose -f docker-compose.dev.yml --env-file .env.dev up --build -d
+	docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
 
 frontend-dev:
 	cd frontend && npm run dev
@@ -23,7 +23,7 @@ backend-dev:
 	export $$(cat .env.dev) && sbt "compile; run"
 
 local: build-config build-migrations build-backend-dev build-frontend-dev
-	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
+	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
 
 build-runtime-image:
 	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/runtime ./runtime
@@ -122,6 +122,11 @@ deploy-nginx:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env up -d nginx
+
+down-prod:
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f docker-compose.prod.yml --env-file .env down
 
 version:
 	@echo $(VERSION)

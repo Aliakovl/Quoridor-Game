@@ -63,6 +63,6 @@ services:
     restart: on-failure:3
 
 volumes:
-  conf: {}
+  conf:
   pgdata:
   rdata:
