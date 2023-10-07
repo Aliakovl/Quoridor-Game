@@ -22,7 +22,7 @@ frontend-dev:
 backend-dev:
 	export $$(cat .env.dev) && sbt "compile; run"
 
-local: build-config build-backend-dev build-frontend-dev
+local: build-config build-migrations build-backend-dev build-frontend-dev
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up --build -d
 
 build-runtime-image:
@@ -64,18 +64,26 @@ remove:
 	docker rmi -f $$(echo $(TMP) | sort -u)
 
 build-config:
-	docker volume rm quoridor-game_conf
+	docker volume rm quoridor-game_conf | true
 	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config configs
+
+build-migrations:
+	docker build --no-cache -t $(DOCKER_USERNAME)/migrations migrations
 
 build-nginx:
 	docker build --no-cache -t $(DOCKER_USERNAME)/nginx --progress=plain nginx/
 
-build: build-config build-backend build-nginx build-frontend
+build: build-config build-migrations build-backend build-nginx build-frontend
 
 publish-config:
 	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:$(VERSION)
 	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config
+
+publish-migrations:
+	docker image tag $(DOCKER_USERNAME)/migrations:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations:$(VERSION)
+	docker image tag $(DOCKER_USERNAME)/migrations:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations
 
 publish-game:
 	docker image tag $(DOCKER_USERNAME)/game-api:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api:$(VERSION)
