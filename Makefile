@@ -78,19 +78,19 @@ publish-config:
 	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:latest
 
 publish-game:
-	docker image tag $(DOCKER_USERNAME)/game:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game:$(VERSION)
-	docker image tag $(DOCKER_USERNAME)/game:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game:latest
+	docker image tag $(DOCKER_USERNAME)/game-api:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api:$(VERSION)
+	docker image tag $(DOCKER_USERNAME)/game-api:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api
 
 publish-frontend:
 	docker image tag $(DOCKER_USERNAME)/frontend:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/frontend:$(VERSION)
 	docker image tag $(DOCKER_USERNAME)/frontend:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/frontend:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/frontend:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/frontend
 
 publish-nginx:
 	docker image tag $(DOCKER_USERNAME)/nginx:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx:$(VERSION)
 	docker image tag $(DOCKER_USERNAME)/nginx:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx
 
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
