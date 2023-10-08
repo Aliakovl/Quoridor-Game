@@ -16,6 +16,7 @@ services:
       TS_PASSWORD: ${TS_PASSWORD}
     volumes:
       - conf:/conf:ro
+      - secret_keys:/var/keys
     depends_on:
       - game-api-conf
       - migrations
@@ -50,10 +51,14 @@ services:
 
   nginx:
     image: ${DOCKER_REGISTRY}/quoridor/nginx:latest
+    pull_policy: always
     restart: on-failure:3
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - tsl_certs:/etc/nginx/certs
+      - ssl_dhparam:/etc/nginx/ssl
     depends_on:
       - game-api
       - frontend
@@ -66,3 +71,12 @@ volumes:
   conf:
   pgdata:
   rdata:
+  tsl_certs:
+    name: tsl_certs
+    external: true
+  secret_keys:
+    name: secret_keys
+    external: true
+  ssl_dhparam:
+    name: ssl_dhparam
+    external: true

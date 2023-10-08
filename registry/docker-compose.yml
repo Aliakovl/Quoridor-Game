@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  registry:
+    restart: always
+    image: registry:2
+    ports:
+      - "5000:5000"
+    environment:
+      REGISTRY_HTTP_ADDR: 0.0.0.0:5000
+      REGISTRY_HTTP_TLS_CERTIFICATE: certs/live/quoridor.online/fullchain.pem
+      REGISTRY_HTTP_TLS_KEY: certs/live/quoridor.online/privkey.pem
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    volumes:
+      - registry:/var/lib/registry
+      - registry_auth:/auth
+      - tsl_certs:/certs
+
+  registry_user:
+    image: httpd:2
+    entrypoint:
+      - htpasswd
+    command:
+      -Bbc /auth/htpasswd ${DOCKER_REGISTRY_USERNAME} ${DOCKER_REGISTRY_PASSWORD}
+    volumes:
+      - registry_auth:/auth
+
+volumes:
+  registry:
+  registry_auth:
+  tsl_certs:
+    name: tsl_certs
+    external: true

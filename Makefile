@@ -3,12 +3,7 @@ DOCKER_REGISTRY = quoridor.online:5000
 DOCKER_CONTEXT = quoridor
 DOCKER_USERNAME = quoridor
 
-init-dev: init-keys init-frontend containers-dev
-
-init-keys: build-runtime-image
-	docker create --name quoridor-keys $(DOCKER_USERNAME)/runtime echo
-	docker cp quoridor-keys:/var/keys/ keys/
-	docker rm -f quoridor-keys
+init-dev: init-frontend containers-dev
 
 init-frontend:
 	cd frontend && npm install
@@ -25,10 +20,7 @@ backend-dev:
 local: build-config build-migrations build-backend-dev build-frontend-dev
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
 
-build-runtime-image:
-	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/runtime ./runtime
-
-build-backend-dev: build-runtime-image
+build-backend-dev:
 	sbt "Docker/publishLocal"
 	docker image prune -f --filter label=snp-multi-stage=intermediate
 
@@ -36,7 +28,7 @@ build-frontend-dev:
 	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/frontend --build-arg NODE_ENV_ARG=development frontend/
 	docker image prune --filter label=stage=builder
 
-build-backend: build-runtime-image
+build-backend:
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
 	docker cp quoridor-build:/build .
@@ -71,7 +63,7 @@ build-migrations:
 	docker build --no-cache -t $(DOCKER_USERNAME)/migrations migrations
 
 build-nginx:
-	docker build --no-cache -t $(DOCKER_USERNAME)/nginx --progress=plain nginx/
+	docker build --no-cache -t $(DOCKER_USERNAME)/nginx nginx
 
 build: build-config build-migrations build-backend build-nginx build-frontend
 
@@ -122,6 +114,14 @@ deploy-nginx:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env up -d nginx
+
+deploy-init:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f certbot/docker-compose.yml --env-file .env up --build -d
+
+deploy-registry:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+    docker-compose -f registry/docker-compose.yml --env-file .env up -d
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \

@@ -1,0 +1,49 @@
+version: "2.4"
+
+services:
+  init-nginx:
+    build:
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - tsl_certs:/etc/nginx/certs:ro
+      - www_certbot:/var/www/certbot:ro
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:80" ]
+      interval: 2s
+      timeout: 3s
+      retries: 5
+
+  certbot:
+    image: certbot/certbot:latest
+    command: >-
+      certonly --webroot --webroot-path=/var/www/certbot
+      --email ${EMAIL} --agree-tos --no-eff-email
+      -d quoridor.online,www.quoridor.online
+    volumes:
+      - tsl_certs:/etc/letsencrypt
+      - www_certbot:/var/www/certbot
+    depends_on:
+      - init-nginx
+
+  init:
+    build: .
+    entrypoint: chown 1001:0 -R /var/certs
+    volumes:
+      - secret_keys:/var/keys
+      - ssl_dhparam:/var/ssl
+      - tsl_certs:/var/certs
+    depends_on:
+      - certbot
+
+volumes:
+  tsl_certs:
+    name: tsl_certs
+  www_certbot:
+    name: www_certbot
+  secret_keys:
+    name: secret_keys
+  ssl_dhparam:
+    name: ssl_dhparam
