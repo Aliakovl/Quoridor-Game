@@ -28,11 +28,16 @@ services:
     depends_on:
       - init-nginx
 
-  init:
-    build: .
-    entrypoint: chown 1001:0 -R /var/certs
+  init-keys:
+    build:
+      dockerfile: Dockerfile.keys
     volumes:
       - secret_keys:/var/keys
+
+  init-ssl:
+    build:
+      dockerfile: Dockerfile.ssl
+    volumes:
       - ssl_dhparam:/var/ssl
       - tsl_certs:/var/certs
     depends_on:

@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  flyway:
+  migrations:
     image: flyway/flyway:latest
     command: -url=jdbc:postgresql://db:5432/quoridor -user=${DB_USER} -password=${DB_PASSWORD} -connectRetries=60 migrate
     volumes:

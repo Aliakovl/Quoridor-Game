@@ -1,10 +1,10 @@
 version: "3.8"
 
 services:
-  game-api-conf:
-    image: quoridor/game-api-config:latest
+  game-api-config:
+    image: quoridor/game-api-config-local:latest
     volumes:
-      - conf:/conf
+      - game-api-config:/conf
 
   game-api:
     image: quoridor/game-api:latest
@@ -14,9 +14,10 @@ services:
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
     volumes:
-      - conf:/conf:ro
+      - game-api-config:/conf:ro
+      - secret_keys:/var/keys
     depends_on:
-      - game-api-conf
+      - game-api-config
       - migrations
       - token-store
 
@@ -57,5 +58,9 @@ services:
     image: quoridor/frontend:latest
 
 volumes:
-  conf:
+  game-api-config:
+    name: game-api-config
+  secret_keys:
+    name: secret_keys
+    external: true
   pgdata:

@@ -1,10 +1,10 @@
 version: "3.8"
 
 services:
-  game-api-conf:
+  game-api-config:
     image: ${DOCKER_REGISTRY}/quoridor/game-api-config:latest
     volumes:
-      - conf:/conf
+      - game-api-config:/conf
 
   game-api:
     image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
@@ -15,10 +15,10 @@ services:
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
     volumes:
-      - conf:/conf:ro
+      - game-api-config:/conf:ro
       - secret_keys:/var/keys
     depends_on:
-      - game-api-conf
+      - game-api-config
       - migrations
       - token-store
 
@@ -68,9 +68,10 @@ services:
     restart: on-failure:3
 
 volumes:
-  conf:
   pgdata:
   rdata:
+  game-api-config:
+    name: game-api-config
   tsl_certs:
     name: tsl_certs
     external: true
