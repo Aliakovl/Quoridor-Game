@@ -3,11 +3,13 @@ version: "3.8"
 services:
   game-api-config:
     image: ${DOCKER_REGISTRY}/quoridor/game-api-config:latest
+    pull_policy: always
     volumes:
       - game-api-config:/conf
 
   game-api:
     image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
+    pull_policy: always
     restart: on-failure:3
     environment:
       DB_USER: ${DB_USER}
@@ -24,6 +26,7 @@ services:
 
   migrations:
     image: ${DOCKER_REGISTRY}/quoridor/migrations:latest
+    pull_policy: always
     restart: on-failure:3
     environment:
       DB_USER: ${DB_USER}
@@ -65,6 +68,7 @@ services:
 
   frontend:
     image: ${DOCKER_REGISTRY}/quoridor/frontend:latest
+    pull_policy: always
     restart: on-failure:3
 
 volumes:
