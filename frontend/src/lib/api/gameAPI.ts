@@ -53,7 +53,7 @@ export class GameAPI {
     }
 
     async createGame() {
-        const response = await this.call('/api/game/create', 'POST');
+        const response = await this.call('/api/v1/game/create', 'POST');
         if (!response.ok) {
             throw new Error("createGame failed");
         }
@@ -61,7 +61,7 @@ export class GameAPI {
     }
 
     async joinPlayer(gameId: string, userId: string) {
-        const response = await this.call(`/api/game/${gameId}/join/${userId}`, 'POST');
+        const response = await this.call(`/api/v1/game/${gameId}/join/${userId}`, 'POST');
         if (!response.ok) {
             throw new Error("joinPlayer failed");
         }
@@ -69,7 +69,7 @@ export class GameAPI {
     }
 
     async startGame(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/start`, 'POST');
+        const response = await this.call(`/api/v1/game/${gameId}/start`, 'POST');
         if (!response.ok) {
             throw new Error("startGame failed");
         }
@@ -77,7 +77,7 @@ export class GameAPI {
     }
 
     async gameHistory(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/history`);
+        const response = await this.call(`/api/v1/game/${gameId}/history`);
         if (!response.ok) {
             throw new Error("gameHistory failed");
         }
@@ -85,7 +85,7 @@ export class GameAPI {
     }
 
     async history() {
-        const response = await this.call('/api/history');
+        const response = await this.call('/api/v1/history');
         if (!response.ok) {
             throw new Error("history failed");
         }
@@ -93,7 +93,7 @@ export class GameAPI {
     }
 
     async getGame(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}`);
+        const response = await this.call(`/api/v1/game/${gameId}`);
         if (!response.ok) {
             throw new Error("getGame failed");
         }
@@ -101,7 +101,7 @@ export class GameAPI {
     }
 
     async getUser(username: string) {
-        const response = await this.call(`/api/user/${username}`);
+        const response = await this.call(`/api/v1/user/${username}`);
         if (!response.ok) {
             throw new Error("getGame failed");
         }
@@ -109,7 +109,7 @@ export class GameAPI {
     }
 
     async move(gameId: string, move: Move) {
-        const response = await this.call(`/api/game/${gameId}/move`, 'POST', JSON.stringify(move));
+        const response = await this.call(`/api/v1/game/${gameId}/move`, 'POST', JSON.stringify(move));
         if (!response.ok) {
             throw new Error("move failed");
         }
@@ -117,7 +117,7 @@ export class GameAPI {
     }
 
     async pawnMoves(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/pawnMoves`);
+        const response = await this.call(`/api/v1/game/${gameId}/pawnMoves`);
         if (!response.ok) {
             throw new Error("pawnMoves failed");
         }
@@ -125,7 +125,7 @@ export class GameAPI {
     }
 
     async wallMoves(gameId: string) {
-        const response = await this.call(`/api/game/${gameId}/wallMoves`);
+        const response = await this.call(`/api/v1/game/${gameId}/wallMoves`);
         if (!response.ok) {
             throw new Error("wallMoves failed");
         }

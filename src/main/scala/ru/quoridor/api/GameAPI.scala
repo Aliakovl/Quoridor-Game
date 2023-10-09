@@ -36,7 +36,7 @@ object GameAPI {
 
   private val baseEndpoint =
     endpoint
-      .in("api")
+      .in("api" / "v1")
       .securityIn(auth.bearer[AccessToken]())
       .errorOut(jsonBody[ExceptionResponse] and statusCode)
       .mapErrorOut(er => new Throwable(er._1.errorMessage))(
