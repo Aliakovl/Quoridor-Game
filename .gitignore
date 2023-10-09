@@ -15,3 +15,4 @@ frontend/.svelte-kit/
 frontend/package-lock.json
 nginx/certbot
 .env
+build/

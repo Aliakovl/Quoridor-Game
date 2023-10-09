@@ -1,14 +1,19 @@
-import Dependencies._
+import Dependencies.*
+import com.typesafe.sbt.packager.docker.*
 
 lazy val `quoridor-game` = (project in file("."))
   .settings(
-    name := "quoridor-game",
+    name := "game-api",
     version := "0.1.0",
-    scalaVersion := "3.3.0",
+    scalaVersion := "3.3.1",
     Compile / mainClass := Some("ru.quoridor.app.QuoridorApp"),
-    dockerBaseImage := "quoridor-runtime:latest",
-    dockerUpdateLatest := true,
+    dockerBaseImage := "eclipse-temurin:17.0.8.1_1-jre",
     dockerExposedPorts := Seq(8080),
+    dockerUsername := Some("quoridor"),
+    daemonUserUid := Some("1001"),
+    daemonGroupGid := Some("0"),
+    version := "latest",
+    dockerApiVersion := Some(DockerApiVersion(1, 43)),
     bashScriptConfigLocation := Some("/conf/application.ini"),
     scalacOptions ++= Seq(
       "-encoding", "utf8",

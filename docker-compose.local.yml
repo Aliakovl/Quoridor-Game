@@ -1,38 +1,40 @@
-version: "2.4"
+version: "3.8"
 
 services:
-  quoridor-api-conf:
-    build: configs
+  game-api-config:
+    image: quoridor/game-api-config-local:latest
     volumes:
-      - conf:/conf
+      - game-api-config:/conf
 
-  quoridor-api:
-    image: quoridor-game:latest
+  game-api:
+    image: quoridor/game-api:latest
     environment:
-      DB_PASSWORD: ${DB_PASSWORD}
       DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
     volumes:
-      - conf:/conf:ro
+      - game-api-config:/conf:ro
+      - secret_keys:/var/keys
     depends_on:
-      - quoridor-api-conf
-      - flyway
+      - game-api-config
+      - migrations
       - token-store
 
-  flyway:
-    image: flyway/flyway:latest
-    command: -url=jdbc:postgresql://db:5432/quoridor -user=${DB_USER} -password=${DB_PASSWORD} -connectRetries=60 migrate
-    volumes:
-      - ./migrations:/flyway/sql
+  migrations:
+    image: quoridor/migrations:latest
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_URL: "jdbc:postgresql://db:5432/quoridor"
     depends_on:
       - db
 
   db:
     image: postgres:latest
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: quoridor
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -49,12 +51,16 @@ services:
     volumes:
       - ./nginx/local/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - quoridor-api
+      - game-api
       - frontend
 
   frontend:
-    image: quoridor-frontend:latest
+    image: quoridor/frontend:latest
 
 volumes:
-  conf:
+  game-api-config:
+    name: game-api-config
+  secret_keys:
+    name: secret_keys
+    external: true
   pgdata:
