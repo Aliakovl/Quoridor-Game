@@ -3,7 +3,7 @@ DOCKER_REGISTRY := $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 
 DOCKER_CONTEXT = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT") { print $$2 } }' .env)
 DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 } }' .env)
 
-init-dev: init-keys init-frontend containers-dev
+init-dev: init-keys init-frontend
 
 init-frontend:
 	cd frontend && npm install
@@ -16,28 +16,28 @@ init-keys:
 	docker rm quoridor-keys
 	docker rmi quoridor/keys
 
-containers-dev:
+run-infra-dev:
 	docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
 
-frontend-dev:
+run-frontend-dev:
 	cd frontend && npm run dev
 
-backend-dev:
+run-game-api-dev:
 	export $$(cat .env.dev) && sbt "compile; run"
 
 build-game-api-config-local:
 	docker volume rm game-api-config | true
 	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config-local configs
 
-build-backend-dev:
+build-game-api-local:
 	sbt "Docker/publishLocal"
 	docker image prune -f --filter label=snp-multi-stage=intermediate
 
-build-frontend-dev:
+build-frontend-local:
 	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/frontend --build-arg NODE_ENV_ARG=development frontend/
 	docker image prune --filter label=stage=builder
 
-build-local: build-game-api-config-local build-migrations build-backend-dev build-frontend-dev
+build-local: build-game-api-config-local build-migrations build-game-api-local build-frontend-local
 
 local:
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
@@ -63,7 +63,7 @@ deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
     docker-compose -f registry/docker-compose.yml --env-file .env up -d
 
-build-backend:
+build-game-api:
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
 	docker cp quoridor-build:/build .
@@ -87,7 +87,7 @@ build-migrations:
 build-nginx:
 	docker build --no-cache -t $(DOCKER_USERNAME)/nginx nginx
 
-build: build-game-api-config build-migrations build-backend build-nginx build-frontend
+build: build-game-api-config build-migrations build-game-api build-nginx build-frontend
 
 publish-config:
 	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:$(VERSION)
