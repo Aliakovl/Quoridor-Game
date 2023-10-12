@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   game-api-config:
-    image: quoridor/game-api-config-local:latest
+    image: quoridor/game-api-config:local
     volumes:
       - game-api-config:/conf
 
@@ -55,7 +55,7 @@ services:
       - frontend
 
   frontend:
-    image: quoridor/frontend:latest
+    image: quoridor/frontend:local
 
 volumes:
   game-api-config:
