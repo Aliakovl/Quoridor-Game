@@ -27,14 +27,14 @@ run-game-api-dev:
 
 build-game-api-config-local:
 	docker volume rm game-api-config | true
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config-local configs
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config:local configs
 
 build-game-api-local:
 	sbt "Docker/publishLocal"
 	docker image prune -f --filter label=snp-multi-stage=intermediate
 
 build-frontend-local:
-	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/frontend --build-arg NODE_ENV_ARG=development frontend/
+	docker build --no-cache --force-rm -t $(DOCKER_USERNAME)/frontend:local --build-arg NODE_ENV_ARG=development frontend/
 	docker image prune --filter label=stage=builder
 
 build-local: build-game-api-config-local build-migrations build-game-api-local build-frontend-local
