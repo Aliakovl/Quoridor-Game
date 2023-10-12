@@ -66,7 +66,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
     for {
       gameIds <- gameDao.history(userId)
       gamePreViews <- ZIO.foreachPar(gameIds)(gameDao.findParticipants)
-    } yield gamePreViews
+    } yield gamePreViews.filter(_.players.length > 1)
   }
 
   override def gameHistory(

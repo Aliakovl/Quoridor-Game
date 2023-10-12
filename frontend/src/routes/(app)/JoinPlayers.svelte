@@ -18,6 +18,7 @@
     let players = [creator];
 
     let username = "";
+    $: notEnoughPlayers = players.length < 2;
 
     async function handleAddPlayer(event) {
         const user = await gameAPI.getUser(username).catch(() => {
@@ -47,7 +48,7 @@
         </div>
         <div class="submits">
             <input id="add-player" type="submit" value="Add player" on:click={handleAddPlayer}/>
-            <input id="start-game" type="button" value="Start game" on:click={handleStartGame}/>
+            <input id="start-game" type="button" value="Start game" on:click={handleStartGame} disabled={notEnoughPlayers}/>
         </div>
     </div>
     <div id="players">
@@ -92,6 +93,15 @@
         color: ghostwhite;
         box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.1);
     }
+
+    input[type="button"]:disabled {
+        color: #636363;
+    }
+    input[type="button"]:disabled:hover {
+        color: #636363;
+        border-color: transparent;
+    }
+
 
     #user-login:hover {
         border-color: #646cff;
