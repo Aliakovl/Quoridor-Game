@@ -6,18 +6,35 @@ async function signUp(username: string, password: string) {
         body: JSON.stringify({"username": username, "password": password})
     });
     if (!response.ok) {
-        throw new Error("signUp failed");
+        const error = await response.text();
+        const message = JSON.parse(error).errorMessage;
+        if (message.endsWith("already exists")) {
+            throw new Error("Username is taken");
+        }
     }
     return await response.text();
 }
 
 async function signIn(username: string, password: string) {
+    if (username === "") {
+        throw new Error("Invalid Username");
+    }
+    if (password === "") {
+        throw new Error("Invalid Password");
+    }
     const response = await fetch("/auth/sign-in", {
         method: 'POST',
         body: JSON.stringify({"username": username, "password": password})
     });
     if (!response.ok) {
-        throw new Error("signIn failed");
+        const error = await response.text();
+        const message = JSON.parse(error).errorMessage;
+        if (response.status === 404) {
+            throw new Error("Invalid Username");
+        }
+        if (message === "Invalid password") {
+            throw new Error("Invalid Password");
+        }
     }
     return await response.text();
 }

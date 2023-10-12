@@ -5,22 +5,46 @@
     let username = "";
     let password = "";
 
+    let styles = {
+        'username_bc': 'transparent',
+        'password_bc': 'transparent'
+    };
+
+    $: cssVarStyles = Object.entries(styles)
+        .map(([key, value]) => `--${key}:${value}`)
+        .join(';');
+
     async function signInHandler(event) {
+        console.log(event);
+        styles.username_bc = 'transparent';
+        styles.password_bc = 'transparent';
         await signIn(username, password).then(accessToken => {
             saveToken(accessToken);
             directHome();
+        }).catch(error => {
+            if (error.message === "Invalid Username") {
+                styles.username_bc = "#AA0000";
+            } else if (error.message === "Invalid Password") {
+                styles.password_bc = "#AA0000";
+            }
         })
     }
 
     async function signUpHandler(event) {
+        styles.username_bc = 'transparent';
+        styles.password_bc = 'transparent';
         await signUp(username, password).then(accessToken => {
             saveToken(accessToken);
             directHome();
+        }).catch(error => {
+            if (error.message === "Username is taken") {
+                styles.username_bc = "#AA0000";
+            }
         })
     }
 </script>
 
-<div class="form">
+<div class="form" style="{cssVarStyles}">
     <form id="credentials" on:submit|preventDefault>
         <div class="field">
             <input bind:value={username} id="username-field" type="text" name="username" form="credentials"
@@ -65,10 +89,12 @@
 
     #username-field {
         margin-bottom: 0.4em;
+        border-color: var(--username_bc);
     }
 
     #password-field {
         margin-bottom: 0.8em;
+        border-color: var(--password_bc);
     }
 
     input {
