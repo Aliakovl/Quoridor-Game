@@ -3,7 +3,7 @@ version: "2.4"
 services:
   init-nginx:
     build:
-      dockerfile: Dockerfile.nginx
+      dockerfile: nginx.Dockerfile
     ports:
       - "80:80"
       - "443:443"
@@ -30,18 +30,27 @@ services:
 
   init-keys:
     build:
-      dockerfile: Dockerfile.keys
+      dockerfile: jwt-keys.Dockerfile
     volumes:
       - secret_keys:/var/keys
 
-  init-ssl:
+  init-tls:
     build:
-      dockerfile: Dockerfile.ssl
+      dockerfile: tls.Dockerfile
     volumes:
       - ssl_dhparam:/var/ssl
       - tsl_certs:/var/certs
     depends_on:
       - certbot
+
+  init-game-api-tls:
+    build:
+      dockerfile: game-api-tls.Dockerfile
+      args:
+        STOREPASS: ${STOREPASS}
+    volumes:
+      - game-api-jks:/var/tmp/ks
+      - game-api-tls:/var/tmp/cert
 
 volumes:
   tsl_certs:
@@ -52,3 +61,7 @@ volumes:
     name: secret_keys
   ssl_dhparam:
     name: ssl_dhparam
+  game-api-jks:
+    name: game-api-jks
+  game-api-tls:
+    name: game-api-tls

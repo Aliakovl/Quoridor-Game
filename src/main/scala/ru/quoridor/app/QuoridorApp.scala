@@ -24,7 +24,10 @@ import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
 import ru.utils.tagging.Tagged
 
+import java.io.FileInputStream
+import java.security.{KeyStore, SecureRandom}
 import java.util.UUID
+import javax.net.ssl.{KeyManagerFactory, SSLContext}
 
 object QuoridorApp extends ZIOAppDefault:
   private val apiRoutes: HttpRoutes[EnvTask] =
@@ -36,10 +39,24 @@ object QuoridorApp extends ZIOAppDefault:
       : WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter[Env]().fromWebSocket(GameAsyncAPI[Env]).toRoutes
 
+  private def getSslContext: SSLContext = {
+    val keyStore: KeyStore = KeyStore.getInstance("PKCS12")
+    val pwdArray = "qwerty1234".toCharArray
+    val in = new FileInputStream("/var/game_certs/game-api.jks")
+    keyStore.load(in, pwdArray)
+    val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
+    keyManagerFactory.init(keyStore, pwdArray)
+    val sslContext = SSLContext.getInstance("TLS")
+    sslContext.init(keyManagerFactory.getKeyManagers, null, new SecureRandom())
+    sslContext
+  }
+
   override def run: ZIO[Any, Any, ExitCode] = ZIO
     .serviceWithZIO[Address] { case Address(host, port) =>
       BlazeServerBuilder[EnvTask]
         .bindHttp(port, host)
+        .withSslContext(getSslContext)
+        .enableHttp2(true)
         .withHttpWebSocketApp({ wsb =>
           (asyncApiRoutes(wsb) <+> apiRoutes <+> Swagger.docs).orNotFound
         })

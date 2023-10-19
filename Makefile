@@ -9,7 +9,7 @@ init-frontend:
 	cd frontend && npm install
 
 init-keys:
-	docker build -t quoridor/keys --file certbot/Dockerfile.keys certbot/
+	docker build -t quoridor/keys --file certbot/jwt-keys.Dockerfile certbot/
 	docker volume create secret_keys
 	docker run --name quoridor-keys -v secret_keys:/var/keys quoridor/keys
 	docker cp quoridor-keys:/var/keys ./keys
@@ -90,9 +90,9 @@ build-nginx:
 build: build-game-api-config build-migrations build-game-api build-nginx build-frontend
 
 publish-config:
-	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:$(VERSION)
-	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config
+	docker image tag $(DOCKER_USERNAME)/game-api-config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config:$(VERSION)
+	docker image tag $(DOCKER_USERNAME)/game-api-config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config
 
 publish-migrations:
 	docker image tag $(DOCKER_USERNAME)/migrations:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations:$(VERSION)

@@ -19,6 +19,7 @@ services:
     volumes:
       - game-api-config:/conf:ro
       - secret_keys:/var/keys
+      - game-api-jks:/var/game_certs
     depends_on:
       - game-api-config
       - migrations
@@ -62,6 +63,7 @@ services:
     volumes:
       - tsl_certs:/etc/nginx/certs
       - ssl_dhparam:/etc/nginx/ssl
+      - game-api-tls:/etc/nginx/game_certs
     depends_on:
       - game-api
       - frontend
@@ -84,4 +86,10 @@ volumes:
     external: true
   ssl_dhparam:
     name: ssl_dhparam
+    external: true
+  game-api-jks:
+    name: game-api-jks
+    external: true
+  game-api-tls:
+    name: game-api-tls
     external: true
