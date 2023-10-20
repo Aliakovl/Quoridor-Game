@@ -63,7 +63,7 @@ services:
 volumes:
   pgdata:
   game-api-config:
-    name: game-api-config
+    name: game-api-config-${VERSION}
   secret_keys:
     name: secret_keys
     external: true

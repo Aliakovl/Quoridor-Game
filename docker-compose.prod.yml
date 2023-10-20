@@ -78,7 +78,7 @@ volumes:
   pgdata:
   rdata:
   game-api-config:
-    name: game-api-config
+    name: game-api-config-${VERSION}
   tsl_certs:
     name: tsl_certs
     external: true

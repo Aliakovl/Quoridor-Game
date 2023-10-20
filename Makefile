@@ -6,7 +6,8 @@ DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 }
 init-dev: init-keys init-frontend
 
 init-frontend:
-	cd frontend && npm install
+	cd frontend && \
+	npm install
 
 init-keys:
 	docker build -t quoridor/keys --file certbot/jwt-keys.Dockerfile certbot/
@@ -31,10 +32,12 @@ run-infra-dev:
 	docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
 
 run-frontend-dev:
-	cd frontend && npm run dev
+	cd frontend && \
+	npm run dev
 
 run-game-api-dev:
-	export $$(cat .env.dev) && sbt "compile; run"
+	@export $$(cat .env.dev) && \
+	sbt "compile; run"
 
 build-game-api-config-local:
 	docker volume rm game-api-config | true
@@ -51,6 +54,7 @@ build-frontend-local:
 build-local: build-game-api-config-local build-migrations build-game-api-local build-frontend-local
 
 local:
+	@export VERSION=$(VERSION) && \
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
 
 down:
@@ -127,30 +131,13 @@ publish-nginx:
 
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export VERSION=$(VERSION) && \
  	docker-compose -f docker-compose.prod.yml --env-file .env up -d
-
-deploy-game:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d migrations && \
-	docker volume rm game-api-config && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api-config && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api
-
-deploy-frontend:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d frontend
-
-deploy-nginx:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d nginx
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env down
 
 version:
