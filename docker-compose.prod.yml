@@ -16,10 +16,11 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
+      SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-config:/conf:ro
       - secret_keys:/var/keys
-      - game-api-jks:/var/game_certs
+      - game-api-jks:/var/game-api-jks
     depends_on:
       - game-api-config
       - migrations
@@ -63,7 +64,7 @@ services:
     volumes:
       - tsl_certs:/etc/nginx/certs
       - ssl_dhparam:/etc/nginx/ssl
-      - game-api-tls:/etc/nginx/game_certs
+      - game-api-tls:/etc/nginx/game-api-tls
     depends_on:
       - game-api
       - frontend
