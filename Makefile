@@ -1,5 +1,5 @@
-VERSION := $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
-DOCKER_REGISTRY := $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 } }' .env)
+VERSION = $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
+DOCKER_REGISTRY = $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 } }' .env)
 DOCKER_CONTEXT = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT") { print $$2 } }' .env)
 DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 } }' .env)
 
@@ -15,6 +15,17 @@ init-keys:
 	docker cp quoridor-keys:/var/keys ./keys
 	docker rm quoridor-keys
 	docker rmi quoridor/keys
+
+init-game-api-tls:
+	$(eval STOREPASS := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
+	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(STOREPASS) --file certbot/game-api-tls.Dockerfile certbot/
+	docker volume create game-api-jks
+	docker volume create game-api-tls
+	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
+	docker cp quoridor-game-api-tls:/var/tmp/ks ./game-api-jks
+	docker cp quoridor-game-api-tls:/var/tmp/cert ./game-api-tls
+	docker rm quoridor-game-api-tls
+	docker rmi quoridor/game-api-tls
 
 run-infra-dev:
 	docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d

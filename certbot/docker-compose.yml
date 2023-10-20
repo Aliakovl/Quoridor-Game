@@ -8,8 +8,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - tsl_certs:/etc/nginx/certs:ro
-      - www_certbot:/var/www/certbot:ro
+      - tsl_certs:/etc/nginx/certs
+      - www_certbot:/var/www/certbot
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:80" ]
       interval: 2s

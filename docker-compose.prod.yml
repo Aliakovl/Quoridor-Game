@@ -18,7 +18,7 @@ services:
       TS_PASSWORD: ${TS_PASSWORD}
       SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
-      - game-api-config:/conf:ro
+      - game-api-config:/conf
       - secret_keys:/var/keys
       - game-api-jks:/var/game-api-jks
     depends_on:

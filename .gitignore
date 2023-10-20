@@ -16,3 +16,5 @@ frontend/package-lock.json
 nginx/certbot
 .env
 build/
+game-api-jks/
+game-api-tls/
