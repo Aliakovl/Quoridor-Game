@@ -3,7 +3,6 @@
 project/target/
 project/project/
 target/
-keys/
 project/.bloop
 .bloop
 *metals
@@ -14,6 +13,5 @@ frontend/build/
 frontend/.svelte-kit/
 frontend/package-lock.json
 .env
-build/
-game-api-jks/
-game-api-tls/
+.build/
+.var/

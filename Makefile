@@ -13,18 +13,18 @@ init-keys:
 	docker build -t quoridor/keys --file init/jwt-keys.Dockerfile init/
 	docker volume create secret_keys
 	docker run --name quoridor-keys -v secret_keys:/var/keys quoridor/keys
-	docker cp quoridor-keys:/var/keys ./keys
+	docker cp quoridor-keys:/var/keys ./.var/keys
 	docker rm quoridor-keys
 	docker rmi quoridor/keys
 
 init-game-api-tls:
-	$(eval STOREPASS := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
-	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(STOREPASS) --file init/game-api-tls.Dockerfile init/
+	$(eval SSL_KS_PASSWORD := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
+	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
 	docker volume create game-api-jks
 	docker volume create game-api-tls
 	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
-	docker cp quoridor-game-api-tls:/var/tmp/ks ./game-api-jks
-	docker cp quoridor-game-api-tls:/var/tmp/cert ./game-api-tls
+	docker cp quoridor-game-api-tls:/var/tmp/ks ./.var/game-api-jks
+	docker cp quoridor-game-api-tls:/var/tmp/cert ./.var/game-api-tls
 	docker rm quoridor-game-api-tls
 	docker rmi quoridor/game-api-tls
 
@@ -81,9 +81,9 @@ deploy-registry:
 build-game-api:
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
-	docker cp quoridor-build:/build .
+	docker cp quoridor-build:/build ./.build
 	docker rm quoridor-build
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api ./build
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api ./.build
 	docker image prune -f --filter label=stage=builder
 	docker image rm -f quoridor-build
 	docker image prune -f --filter label=snp-multi-stage=intermediate
