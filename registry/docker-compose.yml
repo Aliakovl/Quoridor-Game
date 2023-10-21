@@ -29,7 +29,9 @@ services:
 
 volumes:
   registry:
+    name: registry
   registry-auth:
+    name: registry-auth
   public-certs:
     name: public-certs
     external: true
