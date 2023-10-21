@@ -18,7 +18,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: quoridor
     volumes:
-      - pgdata_dev:/var/lib/postgresql/data
+      - pgdata-dev:/var/lib/postgresql/data
 
   token-store:
     image: redis:latest
@@ -33,6 +33,7 @@ services:
     network_mode: host
     volumes:
       - ./nginx/dev/nginx.conf:/etc/nginx/nginx.conf
+      - ./.var/game-api-tls:/etc/nginx/game-api-tls
 
 volumes:
-  pgdata_dev:
+  pgdata-dev:

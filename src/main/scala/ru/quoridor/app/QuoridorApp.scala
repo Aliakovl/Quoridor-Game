@@ -17,14 +17,16 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.model.User
 import ru.quoridor.model.game.Game
+import ru.utils.SSLProvider
 import ru.utils.tagging.ID
+import ru.utils.ZIOExtensions.*
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import zio.interop.catz.*
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
 import ru.utils.tagging.Tagged
 
-import java.util.UUID
+import javax.net.ssl.SSLContext
 
 object QuoridorApp extends ZIOAppDefault:
   private val apiRoutes: HttpRoutes[EnvTask] =
@@ -36,24 +38,28 @@ object QuoridorApp extends ZIOAppDefault:
       : WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter[Env]().fromWebSocket(GameAsyncAPI[Env]).toRoutes
 
-  override def run: ZIO[Any, Any, ExitCode] = ZIO
-    .serviceWithZIO[Address] { case Address(host, port) =>
-      BlazeServerBuilder[EnvTask]
-        .bindHttp(port, host)
-        .withHttpWebSocketApp({ wsb =>
-          (asyncApiRoutes(wsb) <+> apiRoutes <+> Swagger.docs).orNotFound
-        })
-        .serve
-        .compile
-        .drain
-        .exitCode
-    }
-    .provide(
-      Slf4jBridge.initialize,
-      Address.live,
-      Configuration.live,
-      layers
-    )
+  override def run: ZIO[Any, Any, ExitCode] = (for {
+    Address(host, port) <- ZIO.service[Address]
+    sslContext <- ZIO.service[SSLContext]
+    exitCode <- BlazeServerBuilder[EnvTask]
+      .bindHttp(port, host)
+      .withSslContext(sslContext)
+      .enableHttp2(true)
+      .withHttpWebSocketApp({ wsb =>
+        (asyncApiRoutes(wsb) <+> apiRoutes <+> Swagger.docs).orNotFound
+      })
+      .serve
+      .compile
+      .drain
+      .exitCode
+  } yield exitCode).provide(
+    Slf4jBridge.initialize,
+    Configuration.live,
+    Address.live,
+    SSLKeyStore.live,
+    SSLProvider.live,
+    layers
+  )
 
   private lazy val layers = ZLayer
     .make[Env](

@@ -13,9 +13,11 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       PSWD_PEPPER: ${PSWD_PEPPER}
       TS_PASSWORD: ${TS_PASSWORD}
+      SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
-      - game-api-config:/conf:ro
-      - secret_keys:/var/keys
+      - game-api-config:/conf
+      - jwt-keys:/var/keys
+      - game-api-jks:/var/game-api-jks
     depends_on:
       - game-api-config
       - migrations
@@ -50,6 +52,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/local/nginx.conf:/etc/nginx/nginx.conf
+      - game-api-tls:/etc/nginx/game-api-tls
     depends_on:
       - game-api
       - frontend
@@ -58,9 +61,15 @@ services:
     image: quoridor/frontend:local
 
 volumes:
-  game-api-config:
-    name: game-api-config
-  secret_keys:
-    name: secret_keys
-    external: true
   pgdata:
+  game-api-config:
+    name: game-api-config-${VERSION}
+  jwt-keys:
+    name: jwt-keys
+    external: true
+  game-api-jks:
+    name: game-api-jks
+    external: true
+  game-api-tls:
+    name: game-api-tls
+    external: true

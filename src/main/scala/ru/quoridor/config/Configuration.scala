@@ -8,7 +8,8 @@ case class Configuration(
     auth: Auth,
     address: Address,
     tokenKeys: TokenKeys,
-    tokenStore: TokenStore
+    tokenStore: TokenStore,
+    sslKeyStore: SSLKeyStore
 )
 
 object Configuration {

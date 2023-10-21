@@ -1,33 +1,49 @@
-VERSION := $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
-DOCKER_REGISTRY := $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 } }' .env)
+VERSION = $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
+DOCKER_REGISTRY = $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 } }' .env)
 DOCKER_CONTEXT = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT") { print $$2 } }' .env)
 DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 } }' .env)
 
-init-dev: init-keys init-frontend
+init-dev: init-keys init-frontend init-game-api-tls
 
 init-frontend:
-	cd frontend && npm install
+	cd frontend && \
+	npm install
 
 init-keys:
-	docker build -t quoridor/keys --file certbot/Dockerfile.keys certbot/
-	docker volume create secret_keys
-	docker run --name quoridor-keys -v secret_keys:/var/keys quoridor/keys
-	docker cp quoridor-keys:/var/keys ./keys
+	docker build -t quoridor/keys --file init/jwt-keys.Dockerfile init/
+	docker volume create jwt-keys
+	docker run --name quoridor-keys -v jwt-keys:/var/keys quoridor/keys
+	mkdir -p .var
+	docker cp quoridor-keys:/var/keys ./.var/keys
 	docker rm quoridor-keys
 	docker rmi quoridor/keys
+
+init-game-api-tls:
+	$(eval SSL_KS_PASSWORD := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
+	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
+	docker volume create game-api-jks
+	docker volume create game-api-tls
+	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
+	mkdir -p .var
+	docker cp quoridor-game-api-tls:/var/tmp/ks ./.var/game-api-jks
+	docker cp quoridor-game-api-tls:/var/tmp/cert ./.var/game-api-tls
+	docker rm quoridor-game-api-tls
+	docker rmi quoridor/game-api-tls
 
 run-infra-dev:
 	docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
 
 run-frontend-dev:
-	cd frontend && npm run dev
+	cd frontend && \
+	npm run dev
 
 run-game-api-dev:
-	export $$(cat .env.dev) && sbt "compile; run"
+	@export $$(cat .env.dev) && \
+	sbt "compile; run"
 
 build-game-api-config-local:
 	docker volume rm game-api-config | true
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config:local configs
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config:local --build-arg ENV=local configs
 
 build-game-api-local:
 	sbt "Docker/publishLocal"
@@ -40,6 +56,7 @@ build-frontend-local:
 build-local: build-game-api-config-local build-migrations build-game-api-local build-frontend-local
 
 local:
+	@export VERSION=$(VERSION) && \
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
 
 down:
@@ -57,7 +74,7 @@ remove-none:
 
 deploy-init:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f certbot/docker-compose.yml --env-file .env up --build -d
+	docker-compose -f init/docker-compose.yml --env-file .env up --build -d
 
 deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
@@ -66,9 +83,9 @@ deploy-registry:
 build-game-api:
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
-	docker cp quoridor-build:/build .
+	docker cp quoridor-build:/build ./.build
 	docker rm quoridor-build
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api ./build
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api ./.build
 	docker image prune -f --filter label=stage=builder
 	docker image rm -f quoridor-build
 	docker image prune -f --filter label=snp-multi-stage=intermediate
@@ -79,7 +96,7 @@ build-frontend:
 
 build-game-api-config:
 	docker volume rm game-api-config | true
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config configs
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config --build-arg ENV=prod configs
 
 build-migrations:
 	docker build --no-cache -t $(DOCKER_USERNAME)/migrations migrations
@@ -90,9 +107,9 @@ build-nginx:
 build: build-game-api-config build-migrations build-game-api build-nginx build-frontend
 
 publish-config:
-	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:$(VERSION)
-	docker image tag $(DOCKER_USERNAME)/config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config:latest
-	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/config
+	docker image tag $(DOCKER_USERNAME)/game-api-config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config:$(VERSION)
+	docker image tag $(DOCKER_USERNAME)/game-api-config:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config:latest
+	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api-config
 
 publish-migrations:
 	docker image tag $(DOCKER_USERNAME)/migrations:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations:$(VERSION)
@@ -116,30 +133,13 @@ publish-nginx:
 
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export VERSION=$(VERSION) && \
  	docker-compose -f docker-compose.prod.yml --env-file .env up -d
-
-deploy-game:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d migrations && \
-	docker volume rm game-api-config && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api-config && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d game-api
-
-deploy-frontend:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d frontend
-
-deploy-nginx:
-	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f docker-compose.prod.yml --env-file .env up -d nginx
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env down
 
 version:

@@ -3,7 +3,6 @@
 project/target/
 project/project/
 target/
-keys/
 project/.bloop
 .bloop
 *metals
@@ -13,6 +12,6 @@ metals*
 frontend/build/
 frontend/.svelte-kit/
 frontend/package-lock.json
-nginx/certbot
 .env
-build/
+.build/
+.var/
