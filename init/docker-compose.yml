@@ -2,6 +2,7 @@ version: "2.4"
 
 services:
   init-nginx:
+    image: ${DOCKER_REGISTRY}/quoridor/nginx-certbot:latest
     build:
       dockerfile: nginx.Dockerfile
     ports:
@@ -29,12 +30,14 @@ services:
       - init-nginx
 
   init-keys:
+    image: ${DOCKER_REGISTRY}/quoridor/init-keys:latest
     build:
       dockerfile: jwt-keys.Dockerfile
     volumes:
       - jwt-keys:/var/keys
 
   init-tls:
+    image: ${DOCKER_REGISTRY}/quoridor/init-tls:latest
     build:
       dockerfile: tls.Dockerfile
     volumes:
@@ -44,10 +47,9 @@ services:
       - certbot
 
   init-game-api-tls:
+    image: ${DOCKER_REGISTRY}/quoridor/init-game-api-tls:latest
     build:
       dockerfile: game-api-tls.Dockerfile
-      args:
-        STOREPASS: ${STOREPASS}
     volumes:
       - game-api-jks:/var/tmp/ks
       - game-api-tls:/var/tmp/cert
