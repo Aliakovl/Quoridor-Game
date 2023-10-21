@@ -11,8 +11,8 @@ init-frontend:
 
 init-keys:
 	docker build -t quoridor/keys --file init/jwt-keys.Dockerfile init/
-	docker volume create secret_keys
-	docker run --name quoridor-keys -v secret_keys:/var/keys quoridor/keys
+	docker volume create jwt-keys
+	docker run --name quoridor-keys -v jwt-keys:/var/keys quoridor/keys
 	docker cp quoridor-keys:/var/keys ./.var/keys
 	docker rm quoridor-keys
 	docker rmi quoridor/keys

@@ -19,7 +19,7 @@ services:
       SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-config:/conf
-      - secret_keys:/var/keys
+      - jwt-keys:/var/keys
       - game-api-jks:/var/game-api-jks
     depends_on:
       - game-api-config
@@ -62,8 +62,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - tsl_certs:/etc/nginx/certs
-      - ssl_dhparam:/etc/nginx/ssl
+      - public-certs:/etc/nginx/certs
+      - ssl-dhparam:/etc/nginx/ssl
       - game-api-tls:/etc/nginx/game-api-tls
     depends_on:
       - game-api
@@ -79,14 +79,14 @@ volumes:
   rdata:
   game-api-config:
     name: game-api-config-${VERSION}
-  tsl_certs:
-    name: tsl_certs
+  public-certs:
+    name: public-certs
     external: true
-  secret_keys:
-    name: secret_keys
+  jwt-keys:
+    name: jwt-keys
     external: true
-  ssl_dhparam:
-    name: ssl_dhparam
+  ssl-dhparam:
+    name: ssl-dhparam
     external: true
   game-api-jks:
     name: game-api-jks

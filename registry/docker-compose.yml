@@ -15,8 +15,8 @@ services:
       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     volumes:
       - registry:/var/lib/registry
-      - registry_auth:/auth
-      - tsl_certs:/certs
+      - registry-auth:/auth
+      - public-certs:/certs
 
   registry_user:
     image: httpd:2
@@ -25,11 +25,11 @@ services:
     command:
       -Bbc /auth/htpasswd ${DOCKER_REGISTRY_USERNAME} ${DOCKER_REGISTRY_PASSWORD}
     volumes:
-      - registry_auth:/auth
+      - registry-auth:/auth
 
 volumes:
   registry:
-  registry_auth:
-  tsl_certs:
-    name: tsl_certs
+  registry-auth:
+  public-certs:
+    name: public-certs
     external: true

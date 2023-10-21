@@ -8,8 +8,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - tsl_certs:/etc/nginx/certs
-      - www_certbot:/var/www/certbot
+      - public-certs:/etc/nginx/certs
+      - www-certbot:/var/www/certbot
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:80" ]
       interval: 2s
@@ -23,8 +23,8 @@ services:
       --email ${EMAIL} --agree-tos --no-eff-email
       -d quoridor.online,www.quoridor.online
     volumes:
-      - tsl_certs:/etc/letsencrypt
-      - www_certbot:/var/www/certbot
+      - public-certs:/etc/letsencrypt
+      - www-certbot:/var/www/certbot
     depends_on:
       - init-nginx
 
@@ -32,14 +32,14 @@ services:
     build:
       dockerfile: jwt-keys.Dockerfile
     volumes:
-      - secret_keys:/var/keys
+      - jwt-keys:/var/keys
 
   init-tls:
     build:
       dockerfile: tls.Dockerfile
     volumes:
-      - ssl_dhparam:/var/ssl
-      - tsl_certs:/var/certs
+      - ssl-dhparam:/var/ssl
+      - public-certs:/var/certs
     depends_on:
       - certbot
 
@@ -53,14 +53,14 @@ services:
       - game-api-tls:/var/tmp/cert
 
 volumes:
-  tsl_certs:
-    name: tsl_certs
-  www_certbot:
-    name: www_certbot
-  secret_keys:
-    name: secret_keys
-  ssl_dhparam:
-    name: ssl_dhparam
+  public-certs:
+    name: public-certs
+  www-certbot:
+    name: www-certbot
+  jwt-keys:
+    name: jwt-keys
+  ssl-dhparam:
+    name: ssl-dhparam
   game-api-jks:
     name: game-api-jks
   game-api-tls:

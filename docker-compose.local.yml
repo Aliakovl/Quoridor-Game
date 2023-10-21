@@ -16,7 +16,7 @@ services:
       SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-config:/conf
-      - secret_keys:/var/keys
+      - jwt-keys:/var/keys
       - game-api-jks:/var/game-api-jks
     depends_on:
       - game-api-config
@@ -64,8 +64,8 @@ volumes:
   pgdata:
   game-api-config:
     name: game-api-config-${VERSION}
-  secret_keys:
-    name: secret_keys
+  jwt-keys:
+    name: jwt-keys
     external: true
   game-api-jks:
     name: game-api-jks
