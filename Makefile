@@ -3,7 +3,7 @@ DOCKER_REGISTRY = $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 }
 DOCKER_CONTEXT = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT") { print $$2 } }' .env)
 DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 } }' .env)
 
-init-dev: init-keys init-frontend
+init-dev: init-keys init-frontend init-game-api-tls
 
 init-frontend:
 	cd frontend && \
@@ -13,6 +13,7 @@ init-keys:
 	docker build -t quoridor/keys --file init/jwt-keys.Dockerfile init/
 	docker volume create jwt-keys
 	docker run --name quoridor-keys -v jwt-keys:/var/keys quoridor/keys
+	mkdir -p .var
 	docker cp quoridor-keys:/var/keys ./.var/keys
 	docker rm quoridor-keys
 	docker rmi quoridor/keys
@@ -23,6 +24,7 @@ init-game-api-tls:
 	docker volume create game-api-jks
 	docker volume create game-api-tls
 	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
+	mkdir -p .var
 	docker cp quoridor-game-api-tls:/var/tmp/ks ./.var/game-api-jks
 	docker cp quoridor-game-api-tls:/var/tmp/cert ./.var/game-api-tls
 	docker rm quoridor-game-api-tls
