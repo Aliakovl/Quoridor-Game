@@ -133,13 +133,14 @@ publish-nginx:
 
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	@export VERSION=$(VERSION) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	export VERSION=$(VERSION) && \
  	docker-compose -f docker-compose.prod.yml --env-file .env up -d
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	export VERSION=$(VERSION) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env down
 
 version:
