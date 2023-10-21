@@ -33,6 +33,7 @@ services:
     network_mode: host
     volumes:
       - ./nginx/dev/nginx.conf:/etc/nginx/nginx.conf
+      - ./.var/game-api-tls:/etc/nginx/game-api-tls
 
 volumes:
   pgdata-dev:

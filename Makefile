@@ -43,7 +43,7 @@ run-game-api-dev:
 
 build-game-api-config-local:
 	docker volume rm game-api-config | true
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config:local configs
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config:local --build-arg ENV=local configs
 
 build-game-api-local:
 	sbt "Docker/publishLocal"
@@ -96,7 +96,7 @@ build-frontend:
 
 build-game-api-config:
 	docker volume rm game-api-config | true
-	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config configs
+	docker build --no-cache -t $(DOCKER_USERNAME)/game-api-config --build-arg ENV=prod configs
 
 build-migrations:
 	docker build --no-cache -t $(DOCKER_USERNAME)/migrations migrations

@@ -1,4 +1,5 @@
 FROM alpine:latest
-COPY prod /conf
+ARG ENV
+COPY $ENV /conf
 WORKDIR /conf
 CMD ["ls", "-l"]
