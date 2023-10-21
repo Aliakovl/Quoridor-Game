@@ -74,7 +74,7 @@ remove-none:
 
 deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-    docker-compose -f registry/docker-compose.yml --env-file .env up -d
+    docker-compose -f registry/docker-compose.yml --env-file .env up --build -d
 
 build-init:
 	$(eval SSL_KS_PASSWORD = $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env))
