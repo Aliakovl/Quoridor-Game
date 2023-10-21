@@ -13,7 +13,6 @@ metals*
 frontend/build/
 frontend/.svelte-kit/
 frontend/package-lock.json
-nginx/certbot
 .env
 build/
 game-api-jks/

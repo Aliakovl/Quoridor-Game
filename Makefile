@@ -10,7 +10,7 @@ init-frontend:
 	npm install
 
 init-keys:
-	docker build -t quoridor/keys --file certbot/jwt-keys.Dockerfile certbot/
+	docker build -t quoridor/keys --file init/jwt-keys.Dockerfile init/
 	docker volume create secret_keys
 	docker run --name quoridor-keys -v secret_keys:/var/keys quoridor/keys
 	docker cp quoridor-keys:/var/keys ./keys
@@ -19,7 +19,7 @@ init-keys:
 
 init-game-api-tls:
 	$(eval STOREPASS := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
-	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(STOREPASS) --file certbot/game-api-tls.Dockerfile certbot/
+	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(STOREPASS) --file init/game-api-tls.Dockerfile init/
 	docker volume create game-api-jks
 	docker volume create game-api-tls
 	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
@@ -72,7 +72,7 @@ remove-none:
 
 deploy-init:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f certbot/docker-compose.yml --env-file .env up --build -d
+	docker-compose -f init/docker-compose.yml --env-file .env up --build -d
 
 deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
