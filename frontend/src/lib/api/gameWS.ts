@@ -5,7 +5,7 @@ export class GameWS {
     private ws: WebSocket;
 
     constructor(gameId: string, token: string, getGame: (game: Game) => void) {
-        const ws = dev ? "ws" : "wss";
+        const ws = dev ? "wss" : "wss";
         this.ws = new WebSocket(`${ws}://${location.host}/ws/v1/game/${gameId}?token=${token}`);
         this.ws.onmessage = message => {
             getGame(JSON.parse(message.data.toString()) as Game);

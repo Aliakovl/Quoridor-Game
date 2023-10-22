@@ -16,3 +16,4 @@ frontend/package-lock.json
 .build/
 .var/
 registry/certs/
+nginx/certs
