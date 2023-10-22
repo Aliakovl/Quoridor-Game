@@ -19,8 +19,8 @@ init-keys:
 	docker rmi quoridor/keys
 
 init-game-api-tls:
-	$(eval SSL_KS_PASSWORD := $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
-	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
+	$(eval SSL_KS_PASSWORD = $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
+	docker build -t quoridor/game-api-tls --build-arg SSL_KS_PASSWORD=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
 	docker volume create game-api-jks
 	docker volume create game-api-tls
 	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
@@ -66,19 +66,30 @@ down:
 	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
 
 remove:
-	$(eval TMP := $(shell docker images -q 'quoridor/*' && docker images -q '*/quoridor/*'))
+	$(eval TMP = $(shell docker images -q 'quoridor/*' && docker images -q '*/quoridor/*'))
 	docker rmi -f $$(echo $(TMP) | sort -u)
 
 remove-none:
 	docker rmi $$(docker images -f "dangling=true" -q | sort -u)
 
-deploy-init:
-	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f init/docker-compose.yml --env-file .env up --build -d
-
 deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-    docker-compose -f registry/docker-compose.yml --env-file .env up -d
+	docker-compose -f registry/docker-compose.yml --env-file .env up --build -d
+
+build-init:
+	$(eval SSL_KS_PASSWORD = $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env))
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	docker-compose -f init/docker-compose.yml --env-file .env build
+
+publish-init:
+	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx-certbot:latest
+	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/init-keys:latest
+	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/init-tls:latest
+	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/init-game-api-tls:latest
+
+deploy-init:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f init/docker-compose.yml --env-file .env up -d
 
 build-game-api:
 	docker build --no-cache -t quoridor/build .
@@ -131,11 +142,13 @@ publish-nginx:
 	docker image tag $(DOCKER_USERNAME)/nginx:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx:latest
 	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx
 
+publish: publish-config publish-migrations publish-game publish-frontend publish-nginx
+
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	export VERSION=$(VERSION) && \
- 	docker-compose -f docker-compose.prod.yml --env-file .env up -d
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \

@@ -1,6 +1,12 @@
 version: "3.8"
 
 services:
+  registry_certs:
+    image: ${DOCKER_REGISTRY}/quoridor/registry-cert
+    build: .
+    volumes:
+      - registry-certs:/var/certs
+
   registry:
     restart: always
     image: registry:2
@@ -8,15 +14,18 @@ services:
       - "5000:5000"
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
-      REGISTRY_HTTP_TLS_CERTIFICATE: certs/live/quoridor.online/fullchain.pem
-      REGISTRY_HTTP_TLS_KEY: certs/live/quoridor.online/privkey.pem
+      REGISTRY_HTTP_TLS_CERTIFICATE: certs/registry.crt
+      REGISTRY_HTTP_TLS_KEY: certs/registry.key
       REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_PATH: auth/htpasswd
       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     volumes:
       - registry:/var/lib/registry
       - registry-auth:/auth
-      - public-certs:/certs
+      - registry-certs:/certs
+    depends_on:
+      - registry_certs
+      - registry_user
 
   registry_user:
     image: httpd:2
@@ -32,6 +41,5 @@ volumes:
     name: registry
   registry-auth:
     name: registry-auth
-  public-certs:
-    name: public-certs
-    external: true
+  registry-certs:
+    name: registry-certs
