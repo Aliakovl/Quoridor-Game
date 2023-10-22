@@ -1,5 +1,5 @@
 FROM openjdk:17-alpine
-ARG STOREPASS
+ARG SSL_KS_PASSWORD
 WORKDIR /var/tmp/ks
 RUN keytool -genkeypair \
     -keyalg RSA \
@@ -8,12 +8,12 @@ RUN keytool -genkeypair \
     -keystore game-api.jks \
     -storetype pkcs12 \
     -validity 365 \
-    -storepass $STOREPASS \
+    -storepass $SSL_KS_PASSWORD \
     -dname "CN=ll, OU=ll, O=ll, L=ll, S=ll, C=ll"
 WORKDIR /var/tmp/cert
 RUN keytool -export \
     -alias game-api \
     -keystore /var/tmp/ks/game-api.jks \
-    -storepass $STOREPASS \
+    -storepass $SSL_KS_PASSWORD \
     -file game-api-cert.pem \
     -rfc

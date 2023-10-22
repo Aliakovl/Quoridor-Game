@@ -50,6 +50,8 @@ services:
     image: ${DOCKER_REGISTRY}/quoridor/init-game-api-tls:latest
     build:
       dockerfile: game-api-tls.Dockerfile
+      args:
+        SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-jks:/var/tmp/ks
       - game-api-tls:/var/tmp/cert

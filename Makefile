@@ -20,7 +20,7 @@ init-keys:
 
 init-game-api-tls:
 	$(eval SSL_KS_PASSWORD = $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env.dev))
-	docker build -t quoridor/game-api-tls --build-arg STOREPASS=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
+	docker build -t quoridor/game-api-tls --build-arg SSL_KS_PASSWORD=$(SSL_KS_PASSWORD) --file init/game-api-tls.Dockerfile init/
 	docker volume create game-api-jks
 	docker volume create game-api-tls
 	docker run --name quoridor-game-api-tls -v game-api-jks:/var/tmp/ks -v game-api-tls:/var/tmp/cert quoridor/game-api-tls
@@ -74,12 +74,12 @@ remove-none:
 
 deploy-registry:
 	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-    docker-compose -f registry/docker-compose.yml --env-file .env up --build -d
+	docker-compose -f registry/docker-compose.yml --env-file .env up --build -d
 
 build-init:
 	$(eval SSL_KS_PASSWORD = $(shell awk -F= '{ if ($$1 == "SSL_KS_PASSWORD") { print $$2 } }' .env))
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
-	docker-compose -f init/docker-compose.yml build --build-arg STOREPASS=$(SSL_KS_PASSWORD)
+	docker-compose -f init/docker-compose.yml --env-file .env build
 
 publish-init:
 	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx-certbot:latest
@@ -142,13 +142,13 @@ publish-nginx:
 	docker image tag $(DOCKER_USERNAME)/nginx:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx:latest
 	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/nginx
 
-publish-all: publish-config publish-migrations publish-game publish-frontend publish-nginx
+publish: publish-config publish-migrations publish-game publish-frontend publish-nginx
 
 deploy:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
 	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
 	export VERSION=$(VERSION) && \
- 	docker-compose -f docker-compose.prod.yml --env-file .env up -d
+	docker-compose -f docker-compose.prod.yml --env-file .env up -d
 
 down-prod:
 	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
