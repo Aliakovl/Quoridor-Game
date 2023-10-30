@@ -48,11 +48,11 @@
     <form id="credentials" on:submit|preventDefault>
         <div class="field">
             <input bind:value={username} id="username-field" type="text" name="username" form="credentials"
-                   required placeholder="Username"/>
+                   required placeholder="Username" autocomplete="username"/>
         </div>
         <div class="field">
             <input bind:value={password} id="password-field" type="password" name="password" form="credentials"
-                   required placeholder="Password"/>
+                   required placeholder="Password" autocomplete="current-password"/>
         </div>
         <div class="submits">
             <input id="sign-in" type="submit" value="Sign In" form="credentials" on:click={signInHandler}/>
