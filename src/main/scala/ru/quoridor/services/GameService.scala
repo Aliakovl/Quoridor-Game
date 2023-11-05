@@ -4,11 +4,17 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move}
 import ru.quoridor.dao.GameDao
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
+import ru.quoridor.mq.{GameUpdatePublisher, GameUpdateSubscriber}
 import ru.utils.tagging.ID
-import zio.{RIO, Task, URLayer, ZIO, ZLayer}
+import zio.stream.ZStream
+import zio.{RIO, Task, ZIO, ZLayer}
 
 trait GameService {
   def findGame(gameId: ID[Game]): Task[Game]
+
+  def subscribeOnGame(
+      gameId: ID[Game]
+  ): ZIO[Any, Nothing, ZStream[Any, Nothing, Game]]
 
   def makeMove(gameId: ID[Game], userId: ID[User], move: Move): Task[Game]
 
@@ -27,11 +33,20 @@ trait GameService {
 }
 
 object GameService {
-  val live: URLayer[GameDao, GameService] =
-    ZLayer.fromFunction(new GameServiceImpl(_))
+  val live: ZLayer[
+    GameDao with GameUpdatePublisher with GameUpdateSubscriber,
+    Nothing,
+    GameService
+  ] =
+    ZLayer.fromFunction(new GameServiceImpl(_, _, _))
 
   def findGame(gameId: ID[Game]): RIO[GameService, Game] =
     ZIO.serviceWithZIO[GameService](_.findGame(gameId))
+
+  def subscribeOnGame(
+      gameId: ID[Game]
+  ): ZIO[GameService, Nothing, ZStream[Any, Nothing, Game]] =
+    ZIO.serviceWithZIO[GameService](_.subscribeOnGame(gameId))
 
   def makeMove(
       gameId: ID[Game],

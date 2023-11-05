@@ -4,13 +4,13 @@
     import {onMount} from "svelte";
     import Spinner from "$lib/Spinner.svelte";
 
-    let logged = true
+    let logged = true;
 
     onMount(async () => {
         logged = await refresh().then(accessToken => {
-            saveToken(accessToken)
-            directHome()
-            return true
+            saveToken(accessToken);
+            directHome();
+            return true;
         }).catch(() => false)
     })
 </script>

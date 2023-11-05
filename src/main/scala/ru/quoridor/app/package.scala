@@ -1,9 +1,8 @@
 package ru.quoridor
 
 import ru.quoridor.auth.*
-import ru.quoridor.model.game.Game
 import ru.quoridor.services.*
-import zio.{Hub, RIO}
+import zio.RIO
 
 package object app {
   type Env = GameService
@@ -11,7 +10,6 @@ package object app {
     with UserService
     with AuthenticationService
     with AuthorizationService
-    with Hub[Game]
 
   type EnvTask[+A] = RIO[Env, A]
 }

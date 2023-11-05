@@ -100,6 +100,19 @@ export class GameAPI {
         return await response.json() as Game;
     }
 
+    async subGame(gameId: string, token: string, onMessage: (game: Game) => void) {
+        const response = await this.call(`/stream/api/v1/game/${gameId}`, 'GET');
+        const writable = new WritableStream({
+            write(chunk) {
+                const game: Game = JSON.parse(chunk);
+                onMessage(game);
+            }
+        });
+        await response.body
+            .pipeThrough(new TextDecoderStream("utf-8"))
+            .pipeTo(writable);
+    }
+
     async getUser(username: string) {
         const response = await this.call(`/api/v1/user/${username}`);
         if (!response.ok) {

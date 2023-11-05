@@ -1,9 +1,10 @@
 package ru.quoridor.api
 
-import sttp.tapir.ztapir.{*, given}
-import sttp.tapir.json.circe.{*, given}
-import sttp.tapir.generic.auto.{*, given}
-import io.circe.generic.auto.{*, given}
+import io.circe.{Decoder, Encoder}
+import sttp.tapir.ztapir.*
+import sttp.tapir.json.circe.*
+import sttp.tapir.generic.auto.*
+import io.circe.generic.auto.*
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
@@ -15,8 +16,9 @@ import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService.*
 import ru.quoridor.services.UserService.getUser
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.{*, given}
+import ru.utils.tagging.Tagged.given
 import sttp.model.StatusCode
+import sttp.tapir.CodecFormat
 
 object GameAPI {
   def apply[
@@ -31,7 +33,9 @@ object GameAPI {
     getUserEndpoint.widen[Env],
     moveEndpoint.widen[Env],
     pawnMoves.widen[Env],
-    wallMoves.widen[Env]
+    wallMoves.widen[Env],
+    pawnMove.widen[Env],
+    placeWall.widen[Env]
   )
 
   private val baseEndpoint =
@@ -131,4 +135,27 @@ object GameAPI {
       .serverLogic { _ => gameId =>
         availableWallMoves(gameId)
       }
+
+  private val pawnMove =
+    baseEndpoint.post
+      .in("game" / path[ID[Game]]("gameId") / "movePawn")
+      .in(jsonBody[Move.PawnMove])
+      .out(jsonBody[Game])
+      .serverLogic { claimData =>
+        { case (gameId, move) =>
+          makeMove(gameId, claimData.userId, move)
+        }
+      }
+
+  private val placeWall =
+    baseEndpoint.post
+      .in("game" / path[ID[Game]]("gameId") / "placeWall")
+      .in(jsonBody[Move.PlaceWall])
+      .out(jsonBody[Game])
+      .serverLogic { claimData =>
+        { case (gameId, move) =>
+          makeMove(gameId, claimData.userId, move)
+        }
+      }
+
 }
