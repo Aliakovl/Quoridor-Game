@@ -8,6 +8,8 @@ services:
 
   game-api:
     image: quoridor/game-api:latest
+    deploy:
+      replicas: 3
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}

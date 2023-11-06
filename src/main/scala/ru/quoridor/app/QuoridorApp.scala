@@ -75,7 +75,8 @@ object QuoridorApp extends ZIOAppDefault:
       AccessService.live,
       AuthorizationService.live,
       AuthenticationService.live,
-      GameUpdateSubscriber.InMemLive,
-      GameUpdatePublisher.InMemLive,
-      ZLayer(Hub.sliding[ID[Game]](1000))
+      GameUpdateSubscriber.live,
+      GameUpdatePublisher.live,
+      RedisPubSub.live[ID[Game], Game],
+      zio.Scope.default
     )

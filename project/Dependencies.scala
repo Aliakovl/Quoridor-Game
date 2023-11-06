@@ -32,7 +32,8 @@ object Dependencies {
     "dev.zio" %% "zio" % zioVersion,
     "dev.zio" %% "zio-streams" % zioVersion,
     "dev.zio" %% "zio-nio" % zioNioVersion,
-    "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
+    "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion,
+    "dev.zio" %% "zio-interop-reactivestreams" % zioInteropReactiveStreams
   )
 
   private val circe = Seq(
