@@ -1,9 +1,10 @@
 package ru.quoridor.api
 
-import sttp.tapir.ztapir.{*, given}
-import sttp.tapir.json.circe.{*, given}
-import sttp.tapir.generic.auto.{*, given}
-import io.circe.generic.auto.{*, given}
+import io.circe.{Decoder, Encoder}
+import sttp.tapir.ztapir.*
+import sttp.tapir.json.circe.*
+import sttp.tapir.generic.auto.*
+import io.circe.generic.auto.*
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
@@ -15,8 +16,9 @@ import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService.*
 import ru.quoridor.services.UserService.getUser
 import ru.utils.tagging.ID
-import ru.utils.tagging.Tagged.{*, given}
+import ru.utils.tagging.Tagged.given
 import sttp.model.StatusCode
+import sttp.tapir.CodecFormat
 
 object GameAPI {
   def apply[
@@ -29,9 +31,10 @@ object GameAPI {
     historyEndpoint.widen[Env],
     getGameEndpoint.widen[Env],
     getUserEndpoint.widen[Env],
-    moveEndpoint.widen[Env],
     pawnMoves.widen[Env],
-    wallMoves.widen[Env]
+    wallMoves.widen[Env],
+    pawnMove.widen[Env],
+    placeWall.widen[Env]
   )
 
   private val baseEndpoint =
@@ -59,10 +62,8 @@ object GameAPI {
       .in("game" / path[ID[Game]]("gameId"))
       .in("join" / path[ID[User]]("userId"))
       .out(jsonBody[ProtoGame])
-      .serverLogic { _ =>
-        { case (gameId, userId) =>
-          joinPlayer(gameId, userId)
-        }
+      .serverLogic { _ => (gameId, userId) =>
+        joinPlayer(gameId, userId)
       }
 
   private val startGameEndpoint =
@@ -105,15 +106,20 @@ object GameAPI {
         getUser(username)
       }
 
-  private val moveEndpoint =
+  private val pawnMove =
     baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "move")
-      .in(jsonBody[Move])
-      .out(jsonBody[Game])
-      .serverLogic { claimData =>
-        { case (gameId, move) =>
-          makeMove(gameId, claimData.userId, move)
-        }
+      .in("game" / path[ID[Game]]("gameId") / "movePawn")
+      .in(jsonBody[Move.PawnMove])
+      .serverLogic { claimData => (gameId, move) =>
+        makeMove(gameId, claimData.userId, move).unit
+      }
+
+  private val placeWall =
+    baseEndpoint.post
+      .in("game" / path[ID[Game]]("gameId") / "placeWall")
+      .in(jsonBody[Move.PlaceWall])
+      .serverLogic { claimData => (gameId, move) =>
+        makeMove(gameId, claimData.userId, move).unit
       }
 
   private val pawnMoves =

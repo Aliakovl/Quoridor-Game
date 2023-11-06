@@ -5,8 +5,7 @@ import io.getquill.jdbczio.Quill
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits.*
 import org.http4s.HttpRoutes
-import org.http4s.server.websocket.WebSocketBuilder2
-import ru.quoridor.api.{AuthorizationAPI, GameAPI, GameAsyncAPI}
+import ru.quoridor.api.{AuthorizationAPI, GameAPI, StreamAPI}
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth.*
 import ru.quoridor.auth.model.RefreshToken
@@ -25,18 +24,15 @@ import zio.interop.catz.*
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
 import ru.utils.tagging.Tagged
+import ru.quoridor.mq.*
 
 import javax.net.ssl.SSLContext
 
 object QuoridorApp extends ZIOAppDefault:
   private val apiRoutes: HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter[Env]()
-      .from(GameAPI[Env] ++ AuthorizationAPI[Env])
+      .from(GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env])
       .toRoutes
-
-  private val asyncApiRoutes
-      : WebSocketBuilder2[EnvTask] => HttpRoutes[EnvTask] =
-    ZHttp4sServerInterpreter[Env]().fromWebSocket(GameAsyncAPI[Env]).toRoutes
 
   override def run: ZIO[Any, Any, ExitCode] = (for {
     Address(host, port) <- ZIO.service[Address]
@@ -45,9 +41,7 @@ object QuoridorApp extends ZIOAppDefault:
       .bindHttp(port, host)
       .withSslContext(sslContext)
       .enableHttp2(true)
-      .withHttpWebSocketApp({ wsb =>
-        (asyncApiRoutes(wsb) <+> apiRoutes <+> Swagger.docs).orNotFound
-      })
+      .withHttpApp((apiRoutes <+> Swagger.docs).orNotFound)
       .serve
       .compile
       .drain
@@ -81,5 +75,7 @@ object QuoridorApp extends ZIOAppDefault:
       AccessService.live,
       AuthorizationService.live,
       AuthenticationService.live,
-      ZLayer(Hub.sliding[Game](1000))
+      GameUpdateSubscriber.InMemLive,
+      GameUpdatePublisher.InMemLive,
+      ZLayer(Hub.sliding[ID[Game]](1000))
     )

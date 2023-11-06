@@ -9,11 +9,17 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, Player}
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
+import ru.quoridor.mq.{GameUpdatePublisher, GameUpdateSubscriber}
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
-import zio.{Task, ZIO}
+import zio.stream.ZStream
+import zio.{Task, ZIO, durationInt}
 
-class GameServiceImpl(gameDao: GameDao) extends GameService {
+class GameServiceImpl(
+    gameDao: GameDao,
+    gameUpdatePublisher: GameUpdatePublisher,
+    gameUpdateSubscriber: GameUpdateSubscriber
+) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
     gameDao.find(gameId)
@@ -54,6 +60,7 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
         }
       }.flatten
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
+      _ <- gameUpdatePublisher.publish(gameId)
     } yield Game(
       gameId,
       step = game.step + 1,
@@ -119,4 +126,17 @@ class GameServiceImpl(gameDao: GameDao) extends GameService {
       }
     )
   }
+
+  override def subscribeOnGame(
+      gameId: ID[Game]
+  ): ZStream[Any, Throwable, Game] =
+    ZStream
+      .unwrapScoped(gameUpdateSubscriber.subscribe)
+      .filter(_ == gameId)
+      .mapZIO { _ =>
+        findGame(gameId)
+      }
+      .mergeHaltLeft(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
+      .takeWhile(_.winner.isEmpty) ++
+      ZStream.fromZIO(findGame(gameId))
 }

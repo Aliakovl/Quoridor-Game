@@ -1,6 +1,6 @@
 import {refresh} from "../auth/authAPI";
 import {getToken, saveToken} from "../auth/auth";
-import type {Game, GamePreView, Move, PawnPosition, ProtoGame, User, WallPosition} from "./types";
+import type {Game, GamePreView, Move, PawnMove, PawnPosition, PlaceWall, ProtoGame, User, WallPosition} from "./types";
 import {browser} from "$app/environment";
 
 export function directLogin() {
@@ -100,6 +100,19 @@ export class GameAPI {
         return await response.json() as Game;
     }
 
+    async subGame(gameId: string, token: string, onMessage: (game: Game) => void) {
+        const response = await this.call(`/stream/api/v1/game/${gameId}`, 'GET');
+        const writable = new WritableStream({
+            write(chunk) {
+                const game: Game = JSON.parse(chunk);
+                onMessage(game);
+            }
+        });
+        await response.body
+            .pipeThrough(new TextDecoderStream("utf-8"))
+            .pipeTo(writable);
+    }
+
     async getUser(username: string) {
         const response = await this.call(`/api/v1/user/${username}`);
         if (!response.ok) {
@@ -108,12 +121,18 @@ export class GameAPI {
         return await response.json() as User;
     }
 
-    async move(gameId: string, move: Move) {
-        const response = await this.call(`/api/v1/game/${gameId}/move`, 'POST', JSON.stringify(move));
+    async pawnMove(gameId: string, move: PawnMove) {
+        const response = await this.call(`/api/v1/game/${gameId}/movePawn`, 'POST', JSON.stringify(move));
         if (!response.ok) {
-            throw new Error("move failed");
+            throw new Error("pawnMove failed");
         }
-        return await response.json() as Game;
+    }
+
+    async placeWall(gameId: string, move: PlaceWall) {
+        const response = await this.call(`/api/v1/game/${gameId}/placeWall`, 'POST', JSON.stringify(move));
+        if (!response.ok) {
+            throw new Error("placeWall failed");
+        }
     }
 
     async pawnMoves(gameId: string) {

@@ -2,7 +2,6 @@
     import '$lib/forms.css';
     import Board from "./Board.svelte";
     import type {Game, Move} from "$lib/api/types";
-    import {GameWS} from "$lib/api/gameWS";
     import {onMount} from "svelte";
     import {browser} from "$app/environment";
     import {directHome, saveToken, getUser} from "$lib/auth/auth";
@@ -15,8 +14,8 @@
     import type {PawnPosition} from "$lib/api/types";
     import {GameAPI} from "$lib/api/gameAPI";
     import type {WallPosition} from "$lib/api/types";
+    import {isPawnMove, isPlaceWall} from "$lib/api/types";
 
-    let gameWS: GameWS;
     let game: Game;
     let user: Claim;
     let gameId: string;
@@ -35,22 +34,34 @@
             user = getUser(token);
             gameAPI = new GameAPI(token);
             saveToken(token);
-            gameWS = new GameWS(gameId, token, update);
+            await gameAPI.subGame(gameId, token, update);
         }
     })
 
     async function update(newGame: Game) {
+        if (game != undefined && game.id === newGame.id && game.step === newGame.step) {
+            return;
+        }
         game = newGame;
+        if (game != undefined && newGame.winner != undefined) {
+            pawnMoves = [];
+            wallMoves = [];
+            return;
+        }
         if (game.state.players.activePlayer.id === user.userId) {
             pawnMoves = await gameAPI.pawnMoves(gameId).catch(() => []);
             wallMoves = await gameAPI.wallMoves(gameId).catch(() => []);
         } else {
-            pawnMoves = []
+            pawnMoves = [];
         }
     }
 
     function onMove(move: Move) {
-        gameWS.send(move);
+        if (isPawnMove(move)) {
+            gameAPI.pawnMove(gameId, move);
+        } else if (isPlaceWall(move)) {
+            gameAPI.placeWall(gameId, move);
+        }
     }
 
     function collapse(event) {
@@ -59,13 +70,13 @@
 
     let innerWidth;
     let innerHeight;
-    let width
+    let width;
     $: if (innerWidth > 961) {
-        width = Math.min(innerWidth, innerHeight) - 50
+        width = Math.min(innerWidth, innerHeight) - 50;
     } else {
-        width = Math.min(innerWidth, innerHeight - 200)
+        width = Math.min(innerWidth, innerHeight - 200);
     }
-    $: qd = width / 45
+    $: qd = width / 45;
 </script>
 
 <svelte:window bind:innerWidth={innerWidth} bind:innerHeight={innerHeight}></svelte:window>
