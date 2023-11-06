@@ -80,24 +80,3 @@ enum Move extends MoveValidator { self =>
       val players = state.players.copy(activePlayer = activePlayer)
       State(players.shift, walls)
 }
-
-object Move {
-  import io.circe.*
-  import io.circe.syntax.*
-  import io.circe.generic.auto.*
-  import sttp.tapir.Schema
-  import sttp.tapir.generic.auto.*
-  import cats.syntax.functor.given
-
-  given Encoder[Move] = Encoder.instance {
-    case pm: PawnMove  => pm.asJson
-    case pw: PlaceWall => pw.asJson
-  }
-
-  given Decoder[Move] = List[Decoder[Move]](
-    Decoder[PawnMove].widen,
-    Decoder[PlaceWall].widen
-  ).reduceLeft(_ or _)
-
-  given Schema[Move] = Schema.derivedSchema[Move]
-}

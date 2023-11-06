@@ -31,7 +31,6 @@ object GameAPI {
     historyEndpoint.widen[Env],
     getGameEndpoint.widen[Env],
     getUserEndpoint.widen[Env],
-    moveEndpoint.widen[Env],
     pawnMoves.widen[Env],
     wallMoves.widen[Env],
     pawnMove.widen[Env],
@@ -63,10 +62,8 @@ object GameAPI {
       .in("game" / path[ID[Game]]("gameId"))
       .in("join" / path[ID[User]]("userId"))
       .out(jsonBody[ProtoGame])
-      .serverLogic { _ =>
-        { case (gameId, userId) =>
-          joinPlayer(gameId, userId)
-        }
+      .serverLogic { _ => (gameId, userId) =>
+        joinPlayer(gameId, userId)
       }
 
   private val startGameEndpoint =
@@ -109,15 +106,20 @@ object GameAPI {
         getUser(username)
       }
 
-  private val moveEndpoint =
+  private val pawnMove =
     baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "move")
-      .in(jsonBody[Move])
-      .out(jsonBody[Game])
-      .serverLogic { claimData =>
-        { case (gameId, move) =>
-          makeMove(gameId, claimData.userId, move)
-        }
+      .in("game" / path[ID[Game]]("gameId") / "movePawn")
+      .in(jsonBody[Move.PawnMove])
+      .serverLogic { claimData => (gameId, move) =>
+        makeMove(gameId, claimData.userId, move).unit
+      }
+
+  private val placeWall =
+    baseEndpoint.post
+      .in("game" / path[ID[Game]]("gameId") / "placeWall")
+      .in(jsonBody[Move.PlaceWall])
+      .serverLogic { claimData => (gameId, move) =>
+        makeMove(gameId, claimData.userId, move).unit
       }
 
   private val pawnMoves =
@@ -135,27 +137,4 @@ object GameAPI {
       .serverLogic { _ => gameId =>
         availableWallMoves(gameId)
       }
-
-  private val pawnMove =
-    baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "movePawn")
-      .in(jsonBody[Move.PawnMove])
-      .out(jsonBody[Game])
-      .serverLogic { claimData =>
-        { case (gameId, move) =>
-          makeMove(gameId, claimData.userId, move)
-        }
-      }
-
-  private val placeWall =
-    baseEndpoint.post
-      .in("game" / path[ID[Game]]("gameId") / "placeWall")
-      .in(jsonBody[Move.PlaceWall])
-      .out(jsonBody[Game])
-      .serverLogic { claimData =>
-        { case (gameId, move) =>
-          makeMove(gameId, claimData.userId, move)
-        }
-      }
-
 }

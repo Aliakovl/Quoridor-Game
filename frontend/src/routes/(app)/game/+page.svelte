@@ -14,6 +14,7 @@
     import type {PawnPosition} from "$lib/api/types";
     import {GameAPI} from "$lib/api/gameAPI";
     import type {WallPosition} from "$lib/api/types";
+    import {isPawnMove, isPlaceWall} from "$lib/api/types";
 
     let game: Game;
     let user: Claim;
@@ -33,7 +34,6 @@
             user = getUser(token);
             gameAPI = new GameAPI(token);
             saveToken(token);
-            await update(await gameAPI.getGame(gameId));
             await gameAPI.subGame(gameId, token, update);
         }
     })
@@ -57,7 +57,11 @@
     }
 
     function onMove(move: Move) {
-        gameAPI.move(gameId, move);
+        if (isPawnMove(move)) {
+            gameAPI.pawnMove(gameId, move);
+        } else if (isPlaceWall(move)) {
+            gameAPI.placeWall(gameId, move);
+        }
     }
 
     function collapse(event) {

@@ -129,16 +129,14 @@ class GameServiceImpl(
 
   override def subscribeOnGame(
       gameId: ID[Game]
-  ): ZIO[Any, Nothing, ZStream[Any, Nothing, Game]] = ZIO.succeed(
+  ): ZStream[Any, Throwable, Game] =
     ZStream
       .unwrapScoped(gameUpdateSubscriber.subscribe)
       .filter(_ == gameId)
       .mapZIO { _ =>
-        gameDao.find(gameId).orDie
+        findGame(gameId)
       }
-      .merge(ZStream.tick(30.seconds).mapZIO(_ => gameDao.find(gameId).orDie))
-      .takeWhile(_.winner.isEmpty) ++ ZStream.fromZIO(
-      gameDao.find(gameId).orDie
-    )
-  )
+      .mergeHaltLeft(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
+      .takeWhile(_.winner.isEmpty) ++
+      ZStream.fromZIO(findGame(gameId))
 }

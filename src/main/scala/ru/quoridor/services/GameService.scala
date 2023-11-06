@@ -14,7 +14,7 @@ trait GameService {
 
   def subscribeOnGame(
       gameId: ID[Game]
-  ): ZIO[Any, Nothing, ZStream[Any, Nothing, Game]]
+  ): ZStream[Any, Throwable, Game]
 
   def makeMove(gameId: ID[Game], userId: ID[User], move: Move): Task[Game]
 
@@ -45,8 +45,8 @@ object GameService {
 
   def subscribeOnGame(
       gameId: ID[Game]
-  ): ZIO[GameService, Nothing, ZStream[Any, Nothing, Game]] =
-    ZIO.serviceWithZIO[GameService](_.subscribeOnGame(gameId))
+  ): ZIO[GameService, Nothing, ZStream[Any, Throwable, Game]] =
+    ZIO.serviceWith[GameService](_.subscribeOnGame(gameId))
 
   def makeMove(
       gameId: ID[Game],

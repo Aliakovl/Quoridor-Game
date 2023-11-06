@@ -68,6 +68,14 @@ export type GamePreView = {
 
 export type Move = PawnMove | PlaceWall
 
+export function isPawnMove(move: Move): move is PawnMove {
+    return (move as PawnMove).pawnPosition !== undefined;
+}
+
+export function isPlaceWall(move: Move): move is PlaceWall {
+    return (move as PlaceWall).wallPosition !== undefined;
+}
+
 export type PawnMove = {
     pawnPosition: PawnPosition
 }
