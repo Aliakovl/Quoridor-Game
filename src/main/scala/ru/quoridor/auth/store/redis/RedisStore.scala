@@ -13,8 +13,8 @@ import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
 final class RedisStore[K, V](
-                              private val pool: RedisPool[K, V],
-                              private val ttl: Long
+    private val pool: RedisPool[K, V],
+    private val ttl: Long
 ) extends KVStore[K, V] {
   override def set(key: K, value: V): Task[Boolean] = ZIO.scoped {
     pool.withConnection.flatMap { connection =>
