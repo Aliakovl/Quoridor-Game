@@ -7,7 +7,15 @@ import sttp.tapir.{CodecFormat, StreamBodyIO, streamBinaryBody}
 import zio.{Chunk, ZIO}
 import zio.stream.{Stream, ZPipeline}
 
-trait TapirExtensions {
+trait TapirExtensions:
+  def zioStreamBody[T: Encoder: Decoder]: StreamBodyIO[
+    Stream[Throwable, Byte],
+    Stream[Throwable, T],
+    ZioStreams
+  ] =
+    streamBinaryBody(ZioStreams)(CodecFormat.OctetStream())
+      .map(parseBytes)(serialiseToBytes)
+
   private def parseBytes[T: Decoder]
       : Stream[Throwable, Byte] => Stream[Throwable, T] =
     stream => {
@@ -24,12 +32,3 @@ trait TapirExtensions {
       .map(Printer.noSpaces.printToByteBuffer)
       .mapConcatChunk(Chunk.fromByteBuffer)
   }
-
-  def zioStreamBody[T: Encoder: Decoder]: StreamBodyIO[
-    Stream[Throwable, Byte],
-    Stream[Throwable, T],
-    ZioStreams
-  ] =
-    streamBinaryBody(ZioStreams)(CodecFormat.OctetStream())
-      .map(parseBytes)(serialiseToBytes)
-}

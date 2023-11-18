@@ -6,21 +6,19 @@ import ru.utils.ZIOExtensions.*
 import zio.System.env
 import zio.*
 
-trait HashingService[P, S] {
+trait HashingService[P, S]:
   def hashPassword(password: P): UIO[S]
   def verifyPassword(password: P, secret: S): IO[InvalidPassword, Unit]
-}
 
-object HashingService {
+object HashingService:
   val live: ULayer[HashingService[Password, UserSecret]] = ZLayer(
     for {
       pepper <- env("PSWD_PEPPER").!
     } yield new HashingServiceImpl(pepper.orNull)
   )
-}
 
 class HashingServiceImpl(pepper: String)
-    extends HashingService[Password, UserSecret] {
+    extends HashingService[Password, UserSecret]:
   override def hashPassword(password: Password): UIO[UserSecret] = ZIO
     .succeed {
       com.password4j.Password
@@ -45,4 +43,3 @@ class HashingServiceImpl(pepper: String)
       )
       .orFail(InvalidPassword)
   }
-}

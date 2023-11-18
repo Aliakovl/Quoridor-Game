@@ -6,15 +6,13 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
-trait UserDao {
+trait UserDao:
   def findByUsername(username: Username): Task[UserWithSecret]
 
   def findById(id: ID[User]): Task[User]
 
   def insert(user: UserWithSecret): Task[Unit]
-}
 
-object UserDao {
+object UserDao:
   val live: RLayer[QuillContext, UserDao] =
     ZLayer.fromFunction(new UserDaoImpl(_))
-}

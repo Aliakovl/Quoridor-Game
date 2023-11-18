@@ -4,7 +4,7 @@ import ru.quoridor.auth.*
 import ru.quoridor.services.*
 import zio.RIO
 
-package object app {
+package object app:
   type Env = GameService
     with GameCreator
     with UserService
@@ -12,4 +12,3 @@ package object app {
     with AuthorizationService
 
   type EnvTask[+A] = RIO[Env, A]
-}

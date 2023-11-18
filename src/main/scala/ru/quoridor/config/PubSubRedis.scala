@@ -9,8 +9,7 @@ final case class PubSubRedis(
     password: String
 )
 
-object PubSubRedis {
+object PubSubRedis:
   val live: RLayer[Configuration, PubSubRedis] = ZLayer(
     ZIO.serviceWith[Configuration](_.pubSubRedis)
   )
-}

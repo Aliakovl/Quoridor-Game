@@ -8,7 +8,7 @@ import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext}
 
-object SSLProvider {
+object SSLProvider:
   def apply(path: Path, password: Array[Char]): Task[SSLContext] =
     ZIO.attemptBlocking {
       val keyStore = KeyStore.getInstance("PKCS12")
@@ -31,4 +31,3 @@ object SSLProvider {
       SSLProvider(Path(path), password.toCharArray)
     }
   )
-}

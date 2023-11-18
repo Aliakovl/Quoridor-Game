@@ -7,7 +7,7 @@ import ru.utils.pool.Pool
 import zio.{RIO, Scope, Task, ZIO}
 
 class RedisPool[K, V](pool: AsyncPool[StatefulRedisConnection[K, V]])
-    extends Pool[RedisAsyncCommands[K, V]] {
+    extends Pool[RedisAsyncCommands[K, V]]:
   private val acquire: Task[StatefulRedisConnection[K, V]] =
     ZIO.async { cb =>
       pool.acquire.handleAsync { (connection, e) =>
@@ -27,4 +27,3 @@ class RedisPool[K, V](pool: AsyncPool[StatefulRedisConnection[K, V]])
       }
       .map(_.async())
   }
-}

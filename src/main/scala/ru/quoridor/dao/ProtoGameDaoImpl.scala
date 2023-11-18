@@ -9,7 +9,7 @@ import ru.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import ru.utils.tagging.ID
 import zio.{Task, ZIO}
 
-class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
+class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao:
   import quillContext.*
   import quillContext.given
 
@@ -70,4 +70,3 @@ class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao {
 
     run(insertPlayer).unit
   }
-}

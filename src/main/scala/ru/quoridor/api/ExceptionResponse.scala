@@ -7,7 +7,7 @@ import sttp.model.StatusCode
 
 final case class ExceptionResponse(errorMessage: String)
 
-object ExceptionResponse {
+object ExceptionResponse:
   def apply(throwable: Throwable): (ExceptionResponse, StatusCode) = {
     exceptionCode(throwable) match {
       case s @ StatusCode.InternalServerError =>
@@ -28,4 +28,3 @@ object ExceptionResponse {
       case _: GameException             => StatusCode.BadRequest
       case _                            => StatusCode.InternalServerError
     }
-}

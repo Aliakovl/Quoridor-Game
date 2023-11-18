@@ -8,7 +8,7 @@ import java.security.interfaces.{RSAPrivateKey, RSAPublicKey}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.util.Base64
 
-object RSAKeyReader {
+object RSAKeyReader:
   def readPublicKey(path: Path): Task[RSAPublicKey] = for {
     publicKeyPEM <- Files
       .lines(path)
@@ -42,4 +42,3 @@ object RSAKeyReader {
         .asInstanceOf[RSAPrivateKey]
     )
   } yield privateKey
-}

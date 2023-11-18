@@ -13,11 +13,10 @@ case class Configuration(
     pubSubRedis: PubSubRedis
 )
 
-object Configuration {
+object Configuration:
   val live: ULayer[Configuration] = ZLayer {
     TypesafeConfigProvider
       .fromResourcePath()
       .load(deriveConfig[Configuration])
       .orDie
   }
-}

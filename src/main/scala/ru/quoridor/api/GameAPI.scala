@@ -20,7 +20,7 @@ import ru.utils.tagging.Tagged.given
 import sttp.model.StatusCode
 import sttp.tapir.CodecFormat
 
-object GameAPI {
+object GameAPI:
   def apply[
       Env <: GameService with GameCreator with UserService with AuthorizationService
   ]: List[ZServerEndpoint[Env, Any]] = List(
@@ -137,4 +137,3 @@ object GameAPI {
       .serverLogic { _ => gameId =>
         availableWallMoves(gameId)
       }
-}

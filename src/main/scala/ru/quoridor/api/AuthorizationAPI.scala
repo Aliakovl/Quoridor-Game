@@ -14,7 +14,7 @@ import sttp.model.headers.Cookie.SameSite
 import sttp.model.headers.CookieValueWithMeta
 import zio.{Task, ZIO}
 
-object AuthorizationAPI {
+object AuthorizationAPI:
   def apply[Env <: UserService with AuthenticationService]
       : List[ZServerEndpoint[Env, Any]] = List(
     singUpEndpoint.widen[Env],
@@ -96,4 +96,3 @@ object AuthorizationAPI {
 
   private val deleteCookie =
     CookieValueWithMeta.unsafeApply("", maxAge = Some(0))
-}

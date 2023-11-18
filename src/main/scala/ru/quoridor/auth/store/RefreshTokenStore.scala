@@ -10,7 +10,7 @@ import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.*
 
-trait RefreshTokenStore {
+trait RefreshTokenStore:
   def add(
       refreshToken: RefreshToken,
       userId: ID[User]
@@ -19,10 +19,9 @@ trait RefreshTokenStore {
   def remove(
       refreshToken: RefreshToken
   ): IO[InvalidRefreshToken, ID[User]]
-}
 
 class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
-    extends RefreshTokenStore {
+    extends RefreshTokenStore:
   def add(
       refreshToken: RefreshToken,
       userId: ID[User]
@@ -33,12 +32,10 @@ class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
       refreshToken: RefreshToken
   ): IO[InvalidRefreshToken, ID[User]] =
     store.getDel(refreshToken).!.someOrFail(InvalidRefreshToken)
-}
 
-object RefreshTokenStore {
+object RefreshTokenStore:
   val live: RLayer[TokenStore, RefreshTokenStore] =
     ZLayer.makeSome[TokenStore, RefreshTokenStore](
       RedisStore.live[RefreshToken, ID[User]],
       ZLayer.fromFunction(new RefreshTokenStoreImpl(_))
     )
-}

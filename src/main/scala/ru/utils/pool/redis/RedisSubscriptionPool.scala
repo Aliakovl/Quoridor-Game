@@ -16,7 +16,7 @@ class RedisSubscriptionPool[K, V](
 ) extends SubscriptionPool[
       RedisPubSubAsyncCommands[K, V],
       SubscriptionRef[Option[V]]
-    ] {
+    ]:
   override def withConnection(
       ref: SubscriptionRef[Option[V]]
   ): RIO[Scope, RedisPubSubAsyncCommands[K, V]] = {
@@ -56,4 +56,3 @@ class RedisSubscriptionPool[K, V](
         cb(ZIO.fail(e))
       }
     }
-}

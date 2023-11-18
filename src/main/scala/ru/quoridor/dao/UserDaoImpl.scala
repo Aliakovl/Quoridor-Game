@@ -15,7 +15,7 @@ import zio.{Task, ZIO}
 
 import java.sql.SQLException
 
-class UserDaoImpl(quillContext: QuillContext) extends UserDao {
+class UserDaoImpl(quillContext: QuillContext) extends UserDao:
 
   import quillContext.*
   import quillContext.given
@@ -63,4 +63,3 @@ class UserDaoImpl(quillContext: QuillContext) extends UserDao {
           ZIO.fail(UsernameOccupiedException(user.username))
       }
   }
-}
