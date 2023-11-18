@@ -60,6 +60,7 @@ object QuoridorApp extends ZIOAppDefault:
       Auth.live,
       TokenKeys.live,
       TokenStore.live,
+      PubSubRedis.live,
       Configuration.live,
       Quill.DataSource.fromPrefix("hikari"),
       QuillContext.live,

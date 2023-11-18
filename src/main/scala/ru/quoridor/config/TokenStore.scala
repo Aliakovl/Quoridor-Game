@@ -5,7 +5,7 @@ import zio.*
 final case class TokenStore(
     host: String,
     port: Int,
-    databaseNumber: Int,
+    database: Int,
     password: String,
     ttl: Duration
 )

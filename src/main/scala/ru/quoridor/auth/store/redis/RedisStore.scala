@@ -102,11 +102,11 @@ object RedisStore {
       redisCodec: RedisCodec[K, V]
   ): RLayer[TokenStore, KVStore[K, V]] = ZLayer {
     ZIO.serviceWithZIO[TokenStore] {
-      case TokenStore(host, port, databaseNumber, password, ttl) =>
+      case TokenStore(host, port, database, password, ttl) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)
-          .withDatabase(databaseNumber)
+          .withDatabase(database)
           .withAuthentication("default", password)
           .build()
         RedisStore(uri, redisCodec, ttl)

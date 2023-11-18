@@ -12,7 +12,7 @@ import io.lettuce.core.support.{
   AsyncPool,
   BoundedPoolConfig
 }
-import ru.quoridor.config.TokenStore
+import ru.quoridor.config.PubSubRedis
 import ru.utils.redis.{Pool, RedisPool, RedisSubscriptionPool, SubscriptionPool}
 import zio.*
 import zio.stream.{SubscriptionRef, ZStream}
@@ -136,13 +136,13 @@ object RedisPubSub {
 
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
-  ): RLayer[TokenStore with Scope, PubSubPattern[K, V]] = ZLayer {
-    ZIO.serviceWithZIO[TokenStore] {
-      case TokenStore(host, port, _, password, _) =>
+  ): RLayer[PubSubRedis with Scope, PubSubPattern[K, V]] = ZLayer {
+    ZIO.serviceWithZIO[PubSubRedis] {
+      case PubSubRedis(host, port, database, password) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)
-          .withDatabase(1)
+          .withDatabase(database)
           .withAuthentication("default", password)
           .build()
         RedisPubSub(uri, redisCodec)

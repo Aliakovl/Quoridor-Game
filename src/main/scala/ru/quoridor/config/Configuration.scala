@@ -9,7 +9,8 @@ case class Configuration(
     address: Address,
     tokenKeys: TokenKeys,
     tokenStore: TokenStore,
-    sslKeyStore: SSLKeyStore
+    sslKeyStore: SSLKeyStore,
+    pubSubRedis: PubSubRedis
 )
 
 object Configuration {
