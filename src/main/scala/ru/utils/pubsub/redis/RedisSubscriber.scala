@@ -15,14 +15,14 @@ import ru.utils.pool.SubscriptionPool
 import ru.utils.pool.redis.RedisSubscriptionPool
 import ru.utils.pubsub.Subscriber
 import zio.stream.{SubscriptionRef, ZStream}
-import zio.{RIO, Scope, Task, ZIO, ZLayer}
+import zio.{Task, ZIO, ZLayer}
 
 class RedisSubscriber[K, V](
     subscriptionPool: SubscriptionPool[
       RedisPubSubAsyncCommands[K, V],
       SubscriptionRef[Option[V]]
     ]
-) extends Subscriber[K, V] {
+) extends Subscriber[K, V]:
   override def subscribe(channel: K): ZStream[Any, Throwable, V] =
     ZStream.unwrapScoped(
       for {
@@ -42,13 +42,12 @@ class RedisSubscriber[K, V](
         }
       } yield stream
     )
-}
 
-object RedisSubscriber {
+object RedisSubscriber:
   def apply[K, V](
       redisURI: RedisURI,
       redisCodec: RedisCodec[K, V]
-  ): RIO[Scope, RedisSubscriber[K, V]] =
+  ): Task[RedisSubscriber[K, V]] =
     subscriptionPool(redisURI, redisCodec)
       .map(new RedisSubscriptionPool(_))
       .map(new RedisSubscriber(_))
@@ -56,7 +55,7 @@ object RedisSubscriber {
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
   ): ZLayer[
-    Scope with PubSubRedis,
+    PubSubRedis,
     Throwable,
     Subscriber[K, V]
   ] = ZLayer(
@@ -99,4 +98,3 @@ object RedisSubscriber {
           cb(ZIO.fail(error))
       }
   }
-}

@@ -19,7 +19,8 @@ lazy val `quoridor-game` = (project in file("."))
       "-encoding", "utf8",
       "-feature",
       "-unchecked",
-      "-Werror"
+      "-Werror",
+      "-Wunused:all"
     ),
     libraryDependencies ++= dependencies,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),

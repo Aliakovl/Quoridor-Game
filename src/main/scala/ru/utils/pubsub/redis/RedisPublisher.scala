@@ -18,7 +18,7 @@ import zio.*
 
 class RedisPublisher[K, V](
     publishingPool: Pool[RedisAsyncCommands[K, V]]
-) extends Publisher[K, V] {
+) extends Publisher[K, V]:
   override def publish(channel: K, message: V): Task[Unit] = ZIO.scoped {
     publishingPool.withConnection.flatMap { connection =>
       ZIO.async { cb =>
@@ -31,13 +31,12 @@ class RedisPublisher[K, V](
       }
     }
   }
-}
 
-object RedisPublisher {
+object RedisPublisher:
   def apply[K, V](
       redisURI: RedisURI,
       redisCodec: RedisCodec[K, V]
-  ): RIO[Scope, RedisPublisher[K, V]] =
+  ): Task[RedisPublisher[K, V]] =
     publishingPool(redisURI, redisCodec)
       .map(new RedisPool(_))
       .map(new RedisPublisher(_))
@@ -45,7 +44,7 @@ object RedisPublisher {
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
   ): ZLayer[
-    Scope with PubSubRedis,
+    PubSubRedis,
     Throwable,
     Publisher[K, V]
   ] = ZLayer(
@@ -85,4 +84,3 @@ object RedisPublisher {
           cb(ZIO.fail(error))
       }
   }
-}

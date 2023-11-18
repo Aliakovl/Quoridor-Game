@@ -69,6 +69,5 @@ object QuoridorApp extends ZIOAppDefault:
       AccessService.live,
       AuthorizationService.live,
       AuthenticationService.live,
-      GamePubSub.live,
-      Scope.default
+      GamePubSub.live
     )
