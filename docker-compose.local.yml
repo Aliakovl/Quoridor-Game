@@ -9,7 +9,8 @@ services:
   game-api:
     image: quoridor/game-api:latest
     deploy:
-      replicas: 3
+      replicas: 2
+      endpoint_mode: vip
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
