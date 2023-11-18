@@ -1,4 +1,4 @@
-package ru.utils.redis
+package ru.utils.pool
 
 import zio.{RIO, Scope}
 

@@ -9,7 +9,7 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, Player}
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
-import ru.quoridor.mq.{GameUpdatePublisher, GameUpdateSubscriber}
+import ru.quoridor.pubsub.GamePubSub
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.stream.ZStream
@@ -17,8 +17,7 @@ import zio.{Task, ZIO, durationInt}
 
 class GameServiceImpl(
     gameDao: GameDao,
-    gameUpdatePublisher: GameUpdatePublisher,
-    gameUpdateSubscriber: GameUpdateSubscriber
+    gamePubSub: GamePubSub
 ) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
@@ -66,7 +65,7 @@ class GameServiceImpl(
         state = newState,
         winner = winner
       )
-      _ <- gameUpdatePublisher.publish(newGame)
+      _ <- gamePubSub.publish(newGame)
     } yield newGame
   }
 
@@ -136,7 +135,7 @@ class GameServiceImpl(
       gameId: ID[Game]
   ): ZStream[Any, Throwable, Game] =
     ZStream
-      .unwrapScoped(gameUpdateSubscriber.subscribe(gameId))
+      .unwrapScoped(gamePubSub.subscribe(gameId))
       .mapZIO { _ =>
         findGame(gameId)
       }

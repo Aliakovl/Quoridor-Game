@@ -1,4 +1,4 @@
-package ru.utils.redis
+package ru.utils.pool.redis
 
 import io.lettuce.core.pubsub.{
   RedisPubSubAdapter,
@@ -7,14 +7,16 @@ import io.lettuce.core.pubsub.{
 }
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
 import io.lettuce.core.support.AsyncPool
+import ru.utils.pool.SubscriptionPool
 import zio.{RIO, Scope, Task, ZIO}
 import zio.stream.SubscriptionRef
 
 class RedisSubscriptionPool[K, V](
     pool: AsyncPool[StatefulRedisPubSubConnection[K, V]]
-) extends SubscriptionPool[RedisPubSubAsyncCommands[K, V], SubscriptionRef[
-      Option[V]
-    ]]:
+) extends SubscriptionPool[
+      RedisPubSubAsyncCommands[K, V],
+      SubscriptionRef[Option[V]]
+    ] {
   override def withConnection(
       ref: SubscriptionRef[Option[V]]
   ): RIO[Scope, RedisPubSubAsyncCommands[K, V]] = {
@@ -38,7 +40,7 @@ class RedisSubscriptionPool[K, V](
           }
         }
       }
-      .map(_.async)
+      .map(_.async())
   }
 
   private def acquirePubSubConnection(
@@ -54,3 +56,4 @@ class RedisSubscriptionPool[K, V](
         cb(ZIO.fail(e))
       }
     }
+}

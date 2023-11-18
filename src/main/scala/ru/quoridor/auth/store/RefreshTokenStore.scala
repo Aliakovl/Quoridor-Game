@@ -2,6 +2,9 @@ package ru.quoridor.auth.store
 
 import ru.quoridor.auth.model.AuthException.InvalidRefreshToken
 import ru.quoridor.auth.model.*
+import ru.quoridor.auth.store.redis.RedisStore
+import ru.quoridor.codecs.redis.given
+import ru.quoridor.config.TokenStore
 import ru.quoridor.model.User
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
@@ -33,6 +36,9 @@ class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
 }
 
 object RefreshTokenStore {
-  val live: RLayer[KVStore[RefreshToken, ID[User]], RefreshTokenStore] =
-    ZLayer.fromFunction(new RefreshTokenStoreImpl(_))
+  val live: RLayer[TokenStore, RefreshTokenStore] =
+    ZLayer.makeSome[TokenStore, RefreshTokenStore](
+      RedisStore.live[RefreshToken, ID[User]],
+      ZLayer.fromFunction(new RefreshTokenStoreImpl(_))
+    )
 }

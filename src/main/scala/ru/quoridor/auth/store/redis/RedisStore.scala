@@ -6,7 +6,7 @@ import io.lettuce.core.support.*
 import io.lettuce.core.{RedisClient, RedisURI, SetArgs}
 import ru.quoridor.auth.store.KVStore
 import ru.quoridor.config.TokenStore
-import ru.utils.redis.RedisPool
+import ru.utils.pool.redis.RedisPool
 import zio.*
 
 import java.util.concurrent.CompletionStage
