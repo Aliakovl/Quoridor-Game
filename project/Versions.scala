@@ -8,7 +8,6 @@ object Versions {
   val zioVersion = "2.0.17"
   val zioLoggingVersion = "2.1.14"
   val apispecVersion = "0.6.0"
-  val enumeratumVersion = "1.7.2"
   val zioConfigVersion = "4.0.0-RC16"
   val lettuceVersion = "6.2.6.RELEASE"
   val password4jVersion = "1.7.3"
