@@ -11,9 +11,9 @@ import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.model.game.Game
 import ru.quoridor.services.GameService
 import ru.quoridor.services.GameService.subscribeOnGame
-import ru.utils.TapirExtensions
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.given
+import ru.utils.tapir.TapirExtensions
 import sttp.model.HeaderNames
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.json.circe.jsonBody
@@ -41,5 +41,7 @@ object StreamAPI extends TapirExtensions:
     baseEndpoint.get
       .in("game" / path[ID[Game]]("gameId"))
       .out(header(HeaderNames.CacheControl, "no-store"))
-      .out(zioStreamBody[Game])
-      .serverLogic { claimData => subscribeOnGame }
+      .out(messageStreamBody[Nothing, Game])
+      .serverLogic { claimData => gameId =>
+        subscribeOnGame(gameId).map(_.orDie)
+      }

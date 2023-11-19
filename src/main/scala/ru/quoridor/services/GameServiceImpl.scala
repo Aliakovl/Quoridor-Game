@@ -134,10 +134,8 @@ class GameServiceImpl(
   override def subscribeOnGame(
       gameId: ID[Game]
   ): Task[ZStream[Any, Throwable, Game]] = ZIO.succeed(
-    ZStream
+    ZStream.fromZIO(findGame(gameId)) ++ ZStream
       .unwrapScoped(gamePubSub.subscribe(gameId))
-      .mergeHaltRight(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
-      .takeWhile(_.winner.isEmpty) ++
-      ZStream.fromZIO(findGame(gameId))
+      .takeWhile(_.winner.isEmpty) ++ ZStream.fromZIO(findGame(gameId))
   )
 }
