@@ -103,9 +103,14 @@ export class GameAPI {
     async subGame(gameId: string, token: string, onMessage: (game: Game) => void) {
         const response = await this.call(`/stream/api/v1/game/${gameId}`, 'GET');
         const writable = new WritableStream({
-            write(chunk) {
-                const game: Game = JSON.parse(chunk);
-                onMessage(game);
+            write(chunk: string) {
+                const messages = chunk.trim().split("\n\n");
+                for (let streamMessage of messages) {
+                    const game: Game | undefined = JSON.parse(streamMessage)?.message;
+                    if (game != undefined) {
+                        onMessage(game);
+                    }
+                }
             }
         });
         await response.body

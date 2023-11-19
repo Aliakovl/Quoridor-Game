@@ -92,6 +92,7 @@ deploy-init:
 	docker-compose -f init/docker-compose.yml --env-file .env up -d
 
 build-game-api:
+	rm -r ./.build | true
 	docker build --no-cache -t quoridor/build .
 	docker run --name quoridor-build quoridor/build
 	docker cp quoridor-build:/build ./.build
