@@ -5,7 +5,7 @@ import ru.quoridor.pubsub.GamePubSub
 import ru.utils.pubsub.{Publisher, Subscriber}
 import ru.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{RIO, Scope, Task, ZIO}
+import zio.{RIO, Scope, Task}
 
 class RedisGamePubSub(
     publisher: Publisher[ID[Game], Game],
@@ -17,4 +17,4 @@ class RedisGamePubSub(
   override def subscribe(
       gameId: ID[Game]
   ): RIO[Scope, ZStream[Any, Throwable, Game]] =
-    ZIO.succeed(subscriber.subscribe(gameId))
+    subscriber.subscribe(gameId)

@@ -12,13 +12,13 @@ import ru.quoridor.config.*
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
+import ru.quoridor.pubsub.*
 import ru.utils.SSLProvider
 import ru.utils.ZIOExtensions.*
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import zio.interop.catz.*
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
-import ru.quoridor.pubsub.*
 
 import javax.net.ssl.SSLContext
 

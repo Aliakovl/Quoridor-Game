@@ -15,7 +15,7 @@ import ru.utils.pool.SubscriptionPool
 import ru.utils.pool.redis.RedisSubscriptionPool
 import ru.utils.pubsub.Subscriber
 import zio.stream.{SubscriptionRef, ZStream}
-import zio.{Task, ZIO, ZLayer}
+import zio.*
 
 class RedisSubscriber[K, V](
     subscriptionPool: SubscriptionPool[
@@ -23,25 +23,23 @@ class RedisSubscriber[K, V](
       SubscriptionRef[Option[V]]
     ]
 ) extends Subscriber[K, V]:
-  override def subscribe(channel: K): ZStream[Any, Throwable, V] =
-    ZStream.unwrapScoped(
-      for {
-        ref <- SubscriptionRef.make[Option[V]](None)
-        connection <- subscriptionPool.withConnection(ref)
-        stream <- ZIO.async[Any, Throwable, ZStream[Any, Throwable, V]] { cb =>
-          connection
-            .subscribe(channel)
-            .handleAsync { (_, error: Throwable) =>
-              cb(
-                ZIO.succeed(
-                  ref.changes.collectSome
-                )
+  override def subscribe(channel: K): RIO[Scope, ZStream[Any, Throwable, V]] =
+    for {
+      ref <- SubscriptionRef.make[Option[V]](None)
+      connection <- subscriptionPool.withConnection(ref)
+      stream <- ZIO.async[Any, Throwable, ZStream[Any, Throwable, V]] { cb =>
+        connection
+          .subscribe(channel)
+          .handleAsync { (_, error: Throwable) =>
+            cb(
+              ZIO.succeed(
+                ref.changes.collectSome
               )
-              cb(ZIO.fail(error))
-            }
-        }
-      } yield stream
-    )
+            )
+            cb(ZIO.fail(error))
+          }
+      }
+    } yield stream
 
 object RedisSubscriber:
   def apply[K, V](

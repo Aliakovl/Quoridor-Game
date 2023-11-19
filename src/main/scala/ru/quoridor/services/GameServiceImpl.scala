@@ -13,7 +13,7 @@ import ru.quoridor.pubsub.GamePubSub
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{Task, ZIO, durationInt}
+import zio.*
 
 class GameServiceImpl(
     gameDao: GameDao,
@@ -133,13 +133,11 @@ class GameServiceImpl(
 
   override def subscribeOnGame(
       gameId: ID[Game]
-  ): ZStream[Any, Throwable, Game] =
+  ): Task[ZStream[Any, Throwable, Game]] = ZIO.succeed(
     ZStream
       .unwrapScoped(gamePubSub.subscribe(gameId))
-      .mapZIO { _ =>
-        findGame(gameId)
-      }
       .mergeHaltRight(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
       .takeWhile(_.winner.isEmpty) ++
       ZStream.fromZIO(findGame(gameId))
+  )
 }
