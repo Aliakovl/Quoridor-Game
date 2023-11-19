@@ -1,8 +1,11 @@
-package ru.quoridor.auth.store
+package ru.quoridor.codecs
 
 import io.lettuce.core.codec.{RedisCodec, StringCodec}
+import io.circe.*
+import io.circe.syntax.given
 import ru.quoridor.auth.model.RefreshToken
 import ru.quoridor.model.User
+import ru.quoridor.model.game.Game
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.*
 
@@ -22,5 +25,22 @@ package object redis:
 
     override def encodeKey(value: RefreshToken): ByteBuffer =
       stringCodec.encodeKey(value.value)
+
+    private val stringCodec: StringCodec = StringCodec.UTF8
+
+  given RedisCodec[ID[Game], Game] with
+    override def decodeValue(bytes: ByteBuffer): Game =
+      parser.decode[Game](stringCodec.decodeKey(bytes)) match
+        case Right(value) => value
+        case Left(error)  => throw error.fillInStackTrace()
+
+    override def decodeKey(bytes: ByteBuffer): ID[Game] =
+      UUID.fromString(stringCodec.decodeKey(bytes)).tag[Game]
+
+    override def encodeValue(key: Game): ByteBuffer =
+      Printer.noSpaces.printToByteBuffer(key.asJson)
+
+    override def encodeKey(key: ID[Game]): ByteBuffer =
+      stringCodec.encodeKey(key.toString)
 
     private val stringCodec: StringCodec = StringCodec.UTF8

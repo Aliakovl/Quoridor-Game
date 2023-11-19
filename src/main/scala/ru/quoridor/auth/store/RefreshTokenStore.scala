@@ -2,12 +2,15 @@ package ru.quoridor.auth.store
 
 import ru.quoridor.auth.model.AuthException.InvalidRefreshToken
 import ru.quoridor.auth.model.*
+import ru.quoridor.auth.store.redis.RedisStore
+import ru.quoridor.codecs.redis.given
+import ru.quoridor.config.TokenStore
 import ru.quoridor.model.User
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.*
 
-trait RefreshTokenStore {
+trait RefreshTokenStore:
   def add(
       refreshToken: RefreshToken,
       userId: ID[User]
@@ -16,10 +19,9 @@ trait RefreshTokenStore {
   def remove(
       refreshToken: RefreshToken
   ): IO[InvalidRefreshToken, ID[User]]
-}
 
 class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
-    extends RefreshTokenStore {
+    extends RefreshTokenStore:
   def add(
       refreshToken: RefreshToken,
       userId: ID[User]
@@ -30,9 +32,10 @@ class RefreshTokenStoreImpl(store: KVStore[RefreshToken, ID[User]])
       refreshToken: RefreshToken
   ): IO[InvalidRefreshToken, ID[User]] =
     store.getDel(refreshToken).!.someOrFail(InvalidRefreshToken)
-}
 
-object RefreshTokenStore {
-  val live: RLayer[KVStore[RefreshToken, ID[User]], RefreshTokenStore] =
-    ZLayer.fromFunction(new RefreshTokenStoreImpl(_))
-}
+object RefreshTokenStore:
+  val live: RLayer[TokenStore, RefreshTokenStore] =
+    ZLayer.makeSome[TokenStore, RefreshTokenStore](
+      RedisStore.live[RefreshToken, ID[User]],
+      ZLayer.fromFunction(new RefreshTokenStoreImpl(_))
+    )

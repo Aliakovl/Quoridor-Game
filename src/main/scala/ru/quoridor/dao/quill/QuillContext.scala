@@ -13,7 +13,6 @@ class QuillContext(dataSource: DataSource)
     )
     with PostgresExtensions
 
-object QuillContext {
+object QuillContext:
   val live: RLayer[DataSource, QuillContext] =
     ZLayer.fromFunction(new QuillContext(_))
-}

@@ -7,7 +7,7 @@ import java.util.Base64
 
 case class RefreshToken(value: String) extends AnyVal
 
-object RefreshToken {
+object RefreshToken:
   private val random = new SecureRandom
   private val encoder = Base64.getEncoder
   private val length = 64
@@ -19,4 +19,3 @@ object RefreshToken {
       encoder.encodeToString(bytes)
     }
     .map(RefreshToken(_))
-}

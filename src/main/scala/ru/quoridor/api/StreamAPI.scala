@@ -18,7 +18,7 @@ import sttp.model.HeaderNames
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.json.circe.jsonBody
 
-object StreamAPI extends TapirExtensions {
+object StreamAPI extends TapirExtensions:
   def apply[
       Env <: GameService with AuthorizationService
   ]: List[ZServerEndpoint[Env, ZioStreams]] = List(
@@ -43,4 +43,3 @@ object StreamAPI extends TapirExtensions {
       .out(header(HeaderNames.CacheControl, "no-store"))
       .out(zioStreamBody[Game])
       .serverLogic { claimData => subscribeOnGame }
-}

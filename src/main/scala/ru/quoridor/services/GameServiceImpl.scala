@@ -9,16 +9,15 @@ import ru.quoridor.model.{GamePreView, User}
 import ru.quoridor.model.game.{Game, Move, Player}
 import ru.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
-import ru.quoridor.mq.{GameUpdatePublisher, GameUpdateSubscriber}
+import ru.quoridor.pubsub.GamePubSub
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{Task, ZIO, durationInt}
+import zio.*
 
 class GameServiceImpl(
     gameDao: GameDao,
-    gameUpdatePublisher: GameUpdatePublisher,
-    gameUpdateSubscriber: GameUpdateSubscriber
+    gamePubSub: GamePubSub
 ) extends GameService {
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
@@ -60,13 +59,14 @@ class GameServiceImpl(
         }
       }.flatten
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
-      _ <- gameUpdatePublisher.publish(gameId)
-    } yield Game(
-      gameId,
-      step = game.step + 1,
-      state = newState,
-      winner = winner
-    )
+      newGame = Game(
+        gameId,
+        step = game.step + 1,
+        state = newState,
+        winner = winner
+      )
+      _ <- gamePubSub.publish(newGame)
+    } yield newGame
   }
 
   override def usersHistory(userId: ID[User]): Task[List[GamePreView]] = {
@@ -118,25 +118,26 @@ class GameServiceImpl(
       _ <- ZIO
         .succeed(game.winner.isEmpty)
         .orFail(GameHasFinishedException(gameId))
-    } yield Board.availableWalls(
-      game.state.walls,
-      game.state.players.toList.map {
-        case Player(_, _, pawnPosition, _, target) =>
-          (pawnPosition, target)
-      }
-    )
+    } yield {
+      if game.state.players.activePlayer.wallsAmount > 0 then
+        Board.availableWalls(
+          game.state.walls,
+          game.state.players.toList.map {
+            case Player(_, _, pawnPosition, _, target) =>
+              (pawnPosition, target)
+          }
+        )
+      else Set.empty[WallPosition]
+    }
   }
 
   override def subscribeOnGame(
       gameId: ID[Game]
-  ): ZStream[Any, Throwable, Game] =
+  ): Task[ZStream[Any, Throwable, Game]] = ZIO.succeed(
     ZStream
-      .unwrapScoped(gameUpdateSubscriber.subscribe)
-      .filter(_ == gameId)
-      .mapZIO { _ =>
-        findGame(gameId)
-      }
-      .mergeHaltLeft(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
+      .unwrapScoped(gamePubSub.subscribe(gameId))
+      .mergeHaltRight(ZStream.tick(30.seconds).mapZIO(_ => findGame(gameId)))
       .takeWhile(_.winner.isEmpty) ++
       ZStream.fromZIO(findGame(gameId))
+  )
 }

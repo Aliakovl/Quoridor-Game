@@ -11,11 +11,10 @@ import zio.*
 import java.security.interfaces.RSAPrivateKey
 import java.time.Clock
 
-trait AccessService {
+trait AccessService:
   def generateToken(claimData: ClaimData): UIO[AccessToken]
-}
 
-object AccessService {
+object AccessService:
   val live: RLayer[TokenKeys & Auth, AccessService] = ZLayer {
     for {
       tokenKeys <- ZIO.service[TokenKeys]
@@ -25,10 +24,9 @@ object AccessService {
       )
     } yield new AccessServiceImpl(privateKey, ttl.ttl)
   }
-}
 
 class AccessServiceImpl(private val privateKey: RSAPrivateKey, ttl: Duration)
-    extends AccessService {
+    extends AccessService:
   override def generateToken(claimData: ClaimData): UIO[AccessToken] =
     javaClock.map { implicit clock =>
       val payload = generatePayload(claimData)
@@ -46,4 +44,3 @@ class AccessServiceImpl(private val privateKey: RSAPrivateKey, ttl: Duration)
       "userId" -> claimData.userId,
       "username" -> claimData.username.value
     )
-}

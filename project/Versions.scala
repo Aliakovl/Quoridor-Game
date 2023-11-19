@@ -16,4 +16,5 @@ object Versions {
   val quillVersion = "4.6.0.1"
   val zioInteropCatsVersion = "23.0.0.8"
   val zioNioVersion = "2.0.2"
+  val zioInteropReactiveStreams = "2.0.2"
 }

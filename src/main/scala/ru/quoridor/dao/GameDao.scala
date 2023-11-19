@@ -6,7 +6,7 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}
 
-trait GameDao {
+trait GameDao:
   def find(gameId: ID[Game]): Task[Game]
 
   def find(gameId: ID[Game], step: Int): Task[Game]
@@ -28,9 +28,7 @@ trait GameDao {
   def history(userId: ID[User]): Task[List[ID[Game]]]
 
   def findParticipants(gameId: ID[Game]): Task[GamePreView]
-}
 
-object GameDao {
+object GameDao:
   val live: RLayer[QuillContext, GameDao] =
     ZLayer.fromFunction(new GameDaoImpl(_))
-}

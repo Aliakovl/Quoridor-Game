@@ -11,6 +11,9 @@ services:
     image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
     pull_policy: always
     restart: on-failure:3
+    deploy:
+      replicas: 2
+      endpoint_mode: vip
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}

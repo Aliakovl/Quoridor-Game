@@ -5,13 +5,12 @@ import zio.*
 final case class TokenStore(
     host: String,
     port: Int,
-    databaseNumber: Int,
+    database: Int,
     password: String,
     ttl: Duration
 )
 
-object TokenStore {
+object TokenStore:
   val live: RLayer[Configuration, TokenStore] = ZLayer(
     ZIO.serviceWith[Configuration](_.tokenStore)
   )
-}
