@@ -3,8 +3,7 @@ import sbt.*
 
 object Dependencies {
   lazy val dependencies: Seq[ModuleID] =
-    cats ++ tapir ++ server ++ zio ++ circe ++ config ++
-      security ++ database ++ redis ++ enumeratum ++ logging
+    cats ++ tapir ++ server ++ zio ++ circe ++ config ++ security ++ database ++ redis ++ logging
 
   private val cats = Seq(
     "org.typelevel" %% "cats-core" % catsVersion
@@ -15,8 +14,6 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs" % tapirVersion,
-    "com.softwaremill.sttp.apispec" %% "asyncapi-circe-yaml" % apispecVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion
   )
 
@@ -32,8 +29,7 @@ object Dependencies {
     "dev.zio" %% "zio" % zioVersion,
     "dev.zio" %% "zio-streams" % zioVersion,
     "dev.zio" %% "zio-nio" % zioNioVersion,
-    "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion,
-    "dev.zio" %% "zio-interop-reactivestreams" % zioInteropReactiveStreams
+    "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
   )
 
   private val circe = Seq(
@@ -60,11 +56,6 @@ object Dependencies {
 
   private val redis = Seq(
     "io.lettuce" % "lettuce-core" % lettuceVersion
-  )
-
-  private val enumeratum = Seq(
-    "com.beachape" %% "enumeratum" % enumeratumVersion,
-    "com.beachape" %% "enumeratum-circe" % enumeratumVersion
   )
 
   private val logging = Seq(
