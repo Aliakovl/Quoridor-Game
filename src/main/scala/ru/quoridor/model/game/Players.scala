@@ -1,11 +1,7 @@
 package ru.quoridor.model.game
 
 import cats.data.NonEmptyList
-import io.circe.*
-import io.circe.generic.semiauto.*
 import ru.utils.Shifting
-import sttp.tapir.generic.auto.*
-import sttp.tapir.Schema
 
 case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
   lazy val toList: List[Player] = activePlayer +: enemies.toList
@@ -16,8 +12,3 @@ case class Players(activePlayer: Player, enemies: NonEmptyList[Player]) {
     }
   }
 }
-
-object Players:
-  given Encoder[Players] = deriveEncoder
-  given Decoder[Players] = deriveDecoder
-  given Schema[Players] = Schema.derivedSchema[Players]

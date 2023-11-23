@@ -1,13 +1,15 @@
 package ru.quoridor.api
 
 import io.circe.{Decoder, Encoder}
+import io.circe.generic.auto.*
 import sttp.tapir.ztapir.*
 import sttp.tapir.json.circe.*
 import sttp.tapir.generic.auto.*
-import io.circe.generic.auto.*
 import ru.quoridor.auth.AuthorizationService
 import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
+import ru.quoridor.codec.circe.Orientation.given
+import ru.quoridor.codec.circe.Side.given
 import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.model.{GamePreView, ProtoGame, User}
 import ru.quoridor.model.game.{Game, Move}

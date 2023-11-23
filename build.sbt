@@ -20,7 +20,8 @@ lazy val `quoridor-game` = (project in file("."))
       "-feature",
       "-unchecked",
       "-Werror",
-      "-Wunused:all"
+      "-Wunused:all",
+      "-Xmax-inlines", "64"
     ),
     libraryDependencies ++= dependencies,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),

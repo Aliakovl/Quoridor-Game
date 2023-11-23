@@ -1,7 +1,8 @@
-package ru.quoridor.codecs
+package ru.quoridor.codec
 
 import io.lettuce.core.codec.{RedisCodec, StringCodec}
 import io.circe.*
+import io.circe.generic.auto.*
 import io.circe.syntax.given
 import ru.quoridor.auth.model.RefreshToken
 import ru.quoridor.model.User

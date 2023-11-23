@@ -2,6 +2,7 @@ package ru.quoridor.dao.quill
 
 import io.getquill.*
 import io.getquill.jdbczio.Quill
+import ru.quoridor.codec.postgres.PostgresExtensions
 import zio.{RLayer, ZLayer}
 
 import javax.sql.DataSource
