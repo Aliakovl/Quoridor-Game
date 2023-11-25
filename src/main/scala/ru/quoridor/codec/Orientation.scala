@@ -1,7 +1,7 @@
 package ru.quoridor.codec
 
-import ru.quoridor.model.game.geometry.Orientation
-import ru.quoridor.model.game.geometry.Orientation.*
+import ru.quoridor.engine.model.game.geometry.Orientation
+import ru.quoridor.engine.model.game.geometry.Orientation.*
 
 object Orientation:
   def withName(name: String): Orientation = name match

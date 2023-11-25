@@ -1,7 +1,7 @@
-package ru.quoridor.model.game
+package ru.quoridor.engine.model.game
 
-import ru.quoridor.model.game.geometry.Direction.*
-import ru.quoridor.model.game.geometry.*
+import ru.quoridor.engine.model.game.geometry.Direction.*
+import ru.quoridor.engine.model.game.geometry.*
 
 case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {

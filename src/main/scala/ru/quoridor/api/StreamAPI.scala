@@ -10,7 +10,7 @@ import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.AccessToken
 import ru.quoridor.codec.circe.Orientation.given
 import ru.quoridor.codec.circe.Side.given
-import ru.quoridor.model.game.Game
+import ru.quoridor.engine.model.game.Game
 import ru.quoridor.services.GameService
 import ru.quoridor.services.GameService.subscribeOnGame
 import ru.utils.tagging.ID

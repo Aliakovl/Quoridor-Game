@@ -1,6 +1,6 @@
 package ru.quoridor.dao.dto
 
-import ru.quoridor.model.game.geometry.Orientation
+import ru.quoridor.engine.model.game.geometry.Orientation
 
 case class WallPosition(
     gameId: GameId,

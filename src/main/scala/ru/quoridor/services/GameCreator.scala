@@ -1,7 +1,7 @@
 package ru.quoridor.services
 
-import ru.quoridor.model.game.Game
-import ru.quoridor.model.{ProtoGame, User}
+import ru.quoridor.engine.model.game.Game
+import ru.quoridor.engine.model.{ProtoGame, User}
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.utils.tagging.ID
 import zio.{RIO, Task, URLayer, ZIO, ZLayer}

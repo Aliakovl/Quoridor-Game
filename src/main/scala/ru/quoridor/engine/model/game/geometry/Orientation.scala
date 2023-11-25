@@ -1,4 +1,4 @@
-package ru.quoridor.model.game.geometry
+package ru.quoridor.engine.model.game.geometry
 
 enum Orientation extends Opposite[Orientation] { self =>
   case Horizontal extends Orientation

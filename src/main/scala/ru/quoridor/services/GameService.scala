@@ -1,9 +1,9 @@
 package ru.quoridor.services
 
-import ru.quoridor.model.{GamePreView, User}
-import ru.quoridor.model.game.{Game, Move}
+import ru.quoridor.engine.model.{GamePreView, User}
+import ru.quoridor.engine.model.game.{Game, Move}
 import ru.quoridor.dao.GameDao
-import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
+import ru.quoridor.engine.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.pubsub.GamePubSub
 import ru.utils.tagging.ID
 import zio.stream.ZStream

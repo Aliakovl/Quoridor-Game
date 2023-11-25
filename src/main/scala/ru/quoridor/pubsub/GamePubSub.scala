@@ -2,7 +2,7 @@ package ru.quoridor.pubsub
 
 import ru.quoridor.codec.redis.given
 import ru.quoridor.config.PubSubRedis
-import ru.quoridor.model.game.Game
+import ru.quoridor.engine.model.game.Game
 import ru.utils.pubsub.redis.{RedisPublisher, RedisSubscriber}
 import ru.utils.pubsub.{Publisher, Subscriber}
 import ru.utils.tagging.ID

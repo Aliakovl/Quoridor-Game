@@ -10,9 +10,9 @@ import ru.quoridor.auth.AuthorizationService.validate
 import ru.quoridor.auth.model.{AccessToken, Username}
 import ru.quoridor.codec.circe.Orientation.given
 import ru.quoridor.codec.circe.Side.given
-import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
-import ru.quoridor.model.{GamePreView, ProtoGame, User}
-import ru.quoridor.model.game.{Game, Move}
+import ru.quoridor.engine.model.game.geometry.{PawnPosition, WallPosition}
+import ru.quoridor.engine.model.{GamePreView, ProtoGame, User}
+import ru.quoridor.engine.model.game.{Game, Move}
 import ru.quoridor.services.GameCreator.*
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import ru.quoridor.services.GameService.*
