@@ -1,12 +1,12 @@
-package ru.quoridor.engine.model
+package ru.quoridor.model
 
 import cats.data.NonEmptyList
-import ru.quoridor.engine.model.GameException.{
+import ru.quoridor.model.GameException.{
   NotEnoughPlayersException,
   PlayersNumberLimitException
 }
-import ru.quoridor.engine.model.game.{Player, Players}
-import ru.quoridor.engine.model.game.geometry.Board
+import ru.quoridor.engine.{Player, Players}
+import ru.quoridor.engine.geometry.Board
 
 case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
   lazy val toList: List[ProtoPlayer] = creator :: guests

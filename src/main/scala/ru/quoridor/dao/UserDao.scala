@@ -1,7 +1,7 @@
 package ru.quoridor.dao
 
 import ru.quoridor.auth.model.Username
-import ru.quoridor.engine.model.{User, UserWithSecret}
+import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}

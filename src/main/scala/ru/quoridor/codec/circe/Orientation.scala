@@ -2,7 +2,7 @@ package ru.quoridor.codec.circe
 
 import ru.quoridor.codec
 import ru.quoridor.codec.Orientation.*
-import ru.quoridor.engine.model.game.geometry.Orientation
+import ru.quoridor.engine.geometry.Orientation
 import io.circe.{Decoder, Encoder}
 
 import scala.util.Try

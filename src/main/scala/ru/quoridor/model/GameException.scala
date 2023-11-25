@@ -1,7 +1,7 @@
-package ru.quoridor.engine.model
+package ru.quoridor.model
 
 import ru.quoridor.auth.model.Username
-import ru.quoridor.engine.model.game.Game
+import ru.quoridor.engine.Game
 import ru.utils.tagging.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)

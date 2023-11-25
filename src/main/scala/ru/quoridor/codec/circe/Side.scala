@@ -2,7 +2,7 @@ package ru.quoridor.codec.circe
 
 import io.circe.*
 import ru.quoridor.codec.Side.*
-import ru.quoridor.engine.model.game.geometry.Side
+import ru.quoridor.engine.geometry.Side
 
 import scala.util.Try
 

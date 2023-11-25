@@ -4,10 +4,10 @@ import cats.data.NonEmptyList
 import io.getquill.*
 import org.postgresql.util.PSQLState
 import ru.quoridor.dao.quill.QuillContext
-import ru.quoridor.engine.model.GameException.GameNotFoundException
-import ru.quoridor.engine.model.game.*
-import ru.quoridor.engine.model.game.geometry.{PawnPosition, WallPosition}
-import ru.quoridor.engine.model.{GamePreView, User}
+import ru.quoridor.model.GameException.GameNotFoundException
+import ru.quoridor.engine.*
+import ru.quoridor.engine.geometry.{PawnPosition, WallPosition}
+import ru.quoridor.model.{GamePreView, User}
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.{IO, Task, ZIO}

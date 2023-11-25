@@ -1,13 +1,13 @@
 package ru.quoridor.services
 
-import ru.quoridor.engine.model.GameException.{
+import ru.quoridor.model.GameException.{
   GameHasFinishedException,
   GameInterloperException,
   WrongPlayersTurnException
 }
-import ru.quoridor.engine.model.{GamePreView, User}
-import ru.quoridor.engine.model.game.{Game, Move, Player}
-import ru.quoridor.engine.model.game.geometry.{Board, PawnPosition, WallPosition}
+import ru.quoridor.model.{GamePreView, User}
+import ru.quoridor.engine.{Game, Move, Player}
+import ru.quoridor.engine.geometry.{Board, PawnPosition, WallPosition}
 import ru.quoridor.dao.GameDao
 import ru.quoridor.pubsub.GamePubSub
 import ru.utils.ZIOExtensions.*

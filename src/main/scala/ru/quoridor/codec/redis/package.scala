@@ -5,8 +5,8 @@ import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.syntax.given
 import ru.quoridor.auth.model.RefreshToken
-import ru.quoridor.engine.model.User
-import ru.quoridor.engine.model.game.Game
+import ru.quoridor.model.User
+import ru.quoridor.engine.Game
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.*
 

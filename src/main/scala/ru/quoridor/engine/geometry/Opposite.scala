@@ -1,4 +1,4 @@
-package ru.quoridor.engine.model.game.geometry
+package ru.quoridor.engine.geometry
 
 transparent trait Opposite[+T] {
   def opposite: T

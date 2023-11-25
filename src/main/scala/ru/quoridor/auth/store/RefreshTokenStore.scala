@@ -5,7 +5,7 @@ import ru.quoridor.auth.model.*
 import ru.quoridor.auth.store.redis.RedisStore
 import ru.quoridor.codec.redis.given
 import ru.quoridor.config.TokenStore
-import ru.quoridor.engine.model.User
+import ru.quoridor.model.User
 import ru.utils.ZIOExtensions.*
 import ru.utils.tagging.ID
 import zio.*

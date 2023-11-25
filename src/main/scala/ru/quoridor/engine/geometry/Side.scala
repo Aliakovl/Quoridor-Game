@@ -1,6 +1,6 @@
-package ru.quoridor.engine.model.game.geometry
+package ru.quoridor.engine.geometry
 
-import ru.quoridor.engine.model.game.geometry.Side.order
+import ru.quoridor.engine.geometry.Side.order
 
 enum Side extends Opposite[Side] with Ordered[Side] { self =>
   case North extends Side

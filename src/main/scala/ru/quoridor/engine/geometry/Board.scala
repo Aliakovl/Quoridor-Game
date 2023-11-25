@@ -1,8 +1,8 @@
-package ru.quoridor.engine.model.game.geometry
+package ru.quoridor.engine.geometry
 
-import ru.quoridor.engine.model.game.geometry.Direction.*
-import ru.quoridor.engine.model.game.geometry.Side.*
-import ru.quoridor.engine.model.game.geometry.Orientation.{Horizontal, Vertical}
+import ru.quoridor.engine.geometry.Direction.*
+import ru.quoridor.engine.geometry.Side.*
+import ru.quoridor.engine.geometry.Orientation.{Horizontal, Vertical}
 
 object Board {
   private val width: Int = 9

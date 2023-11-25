@@ -1,3 +1,3 @@
-package ru.quoridor.engine.model.game.geometry
+package ru.quoridor.engine.geometry
 
 case class PawnPosition(row: Int, column: Int)

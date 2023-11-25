@@ -1,4 +1,4 @@
-package ru.quoridor.engine.model.game
+package ru.quoridor.engine
 
 import cats.data.NonEmptyList
 import ru.utils.Shifting

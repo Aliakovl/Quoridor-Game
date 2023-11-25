@@ -2,7 +2,7 @@ package ru.quoridor.services
 
 import ru.quoridor.auth.HashingService
 import ru.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
-import ru.quoridor.engine.model.{User, UserWithSecret}
+import ru.quoridor.model.{User, UserWithSecret}
 import ru.quoridor.dao.UserDao
 import ru.utils.tagging.ID
 import ru.utils.tagging.Tagged.*

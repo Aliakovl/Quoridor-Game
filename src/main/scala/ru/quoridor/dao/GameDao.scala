@@ -1,7 +1,7 @@
 package ru.quoridor.dao
 
-import ru.quoridor.engine.model.{GamePreView, User}
-import ru.quoridor.engine.model.game.{Game, Move, State}
+import ru.quoridor.model.{GamePreView, User}
+import ru.quoridor.engine.{Game, Move, State}
 import ru.quoridor.dao.quill.QuillContext
 import ru.utils.tagging.ID
 import zio.{RLayer, Task, ZLayer}

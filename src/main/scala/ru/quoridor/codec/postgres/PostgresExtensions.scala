@@ -4,7 +4,7 @@ import io.getquill.MappedEncoding
 import io.getquill.context.jdbc.JdbcContextTypes
 import org.postgresql.util.PGobject
 import ru.quoridor.codec
-import ru.quoridor.engine.model.game.geometry.{Orientation, Side}
+import ru.quoridor.engine.geometry.{Orientation, Side}
 import ru.utils.tagging.Tagged
 import ru.utils.tagging.Tagged.*
 

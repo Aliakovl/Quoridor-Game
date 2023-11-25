@@ -1,8 +1,8 @@
 package ru.quoridor.api
 
 import ru.quoridor.auth.model.AuthException
-import ru.quoridor.engine.model.GameException.*
-import ru.quoridor.engine.model.{GameException, GameMoveException}
+import ru.quoridor.model.GameException.*
+import ru.quoridor.model.{GameException, GameMoveException}
 import sttp.model.StatusCode
 
 final case class ExceptionResponse(errorMessage: String)

@@ -1,6 +1,6 @@
 package ru.quoridor.pubsub
 
-import ru.quoridor.engine.model.game.Game
+import ru.quoridor.engine.Game
 import ru.utils.pubsub.{Publisher, Subscriber}
 import ru.utils.tagging.ID
 import zio.stream.ZStream

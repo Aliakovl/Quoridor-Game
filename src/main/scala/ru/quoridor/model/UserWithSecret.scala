@@ -1,4 +1,4 @@
-package ru.quoridor.engine.model
+package ru.quoridor.model
 
 import ru.quoridor.auth.model.{UserSecret, Username}
 import ru.utils.tagging.ID

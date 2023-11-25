@@ -1,3 +1,3 @@
-package ru.quoridor.engine.model.game.geometry
+package ru.quoridor.engine.geometry
 
 case class WallPosition(orientation: Orientation, row: Int, column: Int)
