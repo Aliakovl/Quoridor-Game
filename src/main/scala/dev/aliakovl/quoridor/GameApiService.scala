@@ -7,6 +7,7 @@ import dev.aliakovl.quoridor.engine.Game
 import dev.aliakovl.quoridor.model.User
 import dev.aliakovl.quoridor.services.{GameCreator, GameService, UserService}
 import dev.aliakovl.utils.tagging.ID
+import zio.stream.ZStream
 import zio.{RIO, Task, ZIO, ZLayer}
 
 trait GameApiService:
@@ -49,6 +50,10 @@ trait GameApiService:
   def availableWallMoves(
       claimData: ClaimData
   )(gameId: ID[Game]): Task[Set[WallPositionResponse]]
+
+  def subscribeOnGame(
+      claimData: ClaimData
+  )(gameId: ID[Game]): Task[ZStream[Any, Throwable, GameResponse]]
 
 object GameApiService:
   val live: ZLayer[
@@ -113,6 +118,11 @@ object GameApiService:
   )(gameId: ID[Game]): RIO[GameApiService, Set[WallPositionResponse]] =
     ZIO.serviceWithZIO(_.availableWallMoves(claimData)(gameId))
 
+  def subscribeOnGame(claimData: ClaimData)(
+      gameId: ID[Game]
+  ): RIO[GameApiService, ZStream[Any, Throwable, GameResponse]] =
+    ZIO.serviceWithZIO(_.subscribeOnGame(claimData)(gameId))
+
 class GameApiServiceImpl(
     gameCreator: GameCreator,
     gameService: GameService,
@@ -171,3 +181,8 @@ class GameApiServiceImpl(
       gameId: ID[Game]
   ): Task[Set[WallPositionResponse]] =
     gameService.availableWallMoves(gameId).map(_.map(_.convert))
+
+  override def subscribeOnGame(claimData: ClaimData)(
+      gameId: ID[Game]
+  ): Task[ZStream[Any, Throwable, GameResponse]] =
+    gameService.subscribeOnGame(gameId).map(_.map(_.convert))

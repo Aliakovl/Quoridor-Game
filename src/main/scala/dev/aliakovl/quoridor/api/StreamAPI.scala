@@ -1,6 +1,8 @@
 package dev.aliakovl.quoridor.api
 
+import dev.aliakovl.quoridor.GameApiService
 import dev.aliakovl.quoridor.api.data.ExceptionResponse
+import dev.aliakovl.quoridor.api.data.Responses.GameResponse
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto.*
 import sttp.tapir.ztapir.*
@@ -12,8 +14,6 @@ import dev.aliakovl.quoridor.auth.model.AccessToken
 import dev.aliakovl.quoridor.codec.circe.Orientation.given
 import dev.aliakovl.quoridor.codec.circe.Side.given
 import dev.aliakovl.quoridor.engine.Game
-import dev.aliakovl.quoridor.services.GameService
-import dev.aliakovl.quoridor.services.GameService.subscribeOnGame
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.given
 import dev.aliakovl.utils.tapir.TapirExtensions
@@ -23,7 +23,7 @@ import sttp.tapir.json.circe.jsonBody
 
 object StreamAPI extends TapirExtensions:
   def apply[
-      Env <: GameService with AuthorizationService
+      Env <: GameApiService with AuthorizationService
   ]: List[ZServerEndpoint[Env, ZioStreams]] = List(
     sse.widen[Env]
   )
@@ -44,7 +44,7 @@ object StreamAPI extends TapirExtensions:
     baseEndpoint.get
       .in("game" / path[ID[Game]]("gameId"))
       .out(header(HeaderNames.CacheControl, "no-store"))
-      .out(messageStreamBody[Nothing, Game])
+      .out(messageStreamBody[Nothing, GameResponse])
       .serverLogic { claimData => gameId =>
-        subscribeOnGame(gameId).map(_.orDie)
+        GameApiService.subscribeOnGame(claimData)(gameId).map(_.orDie)
       }
