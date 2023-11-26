@@ -1,4 +1,4 @@
-package dev.aliakovl.quoridor
+package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.api.data.Requests.*
 import dev.aliakovl.quoridor.api.data.Responses.*
@@ -128,8 +128,9 @@ class GameApiServiceImpl(
     gameService: GameService,
     userService: UserService
 ) extends GameApiService:
-  import scala.language.implicitConversions
   import dev.aliakovl.quoridor.api.data.Conversions.given
+
+  import scala.language.implicitConversions
 
   override def createGame(claimData: ClaimData): Task[ProtoGameResponse] =
     gameCreator.createGame(claimData.userId).map(_.convert)

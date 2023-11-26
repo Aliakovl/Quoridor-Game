@@ -1,12 +1,11 @@
 package dev.aliakovl.quoridor.app
 
 import cats.implicits.*
-import dev.aliakovl.quoridor.GameApiService
 import io.getquill.jdbczio.Quill
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits.*
 import org.http4s.HttpRoutes
-import dev.aliakovl.quoridor.api.{AuthorizationAPI, GameAPI, StreamAPI}
+import dev.aliakovl.quoridor.api.{AuthorizationAPI, GameAPI, GameApiService, StreamAPI}
 import dev.aliakovl.quoridor.auth.store.RefreshTokenStore
 import dev.aliakovl.quoridor.auth.*
 import dev.aliakovl.quoridor.config.*

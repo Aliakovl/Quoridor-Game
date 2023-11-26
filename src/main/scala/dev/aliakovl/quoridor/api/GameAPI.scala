@@ -1,6 +1,5 @@
 package dev.aliakovl.quoridor.api
 
-import dev.aliakovl.quoridor.GameApiService
 import dev.aliakovl.quoridor.api.data.ExceptionResponse
 import dev.aliakovl.quoridor.api.data.Requests.{
   PawnMoveRequest,
