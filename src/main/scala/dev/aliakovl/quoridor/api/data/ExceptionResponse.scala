@@ -1,8 +1,9 @@
 package dev.aliakovl.quoridor.api.data
 
 import dev.aliakovl.quoridor.auth.model.AuthException
+import dev.aliakovl.quoridor.engine.GameMoveException
 import dev.aliakovl.quoridor.model.GameException.*
-import dev.aliakovl.quoridor.model.{GameException, GameMoveException}
+import dev.aliakovl.quoridor.model.GameException
 import sttp.model.StatusCode
 
 final case class ExceptionResponse(errorMessage: String)
