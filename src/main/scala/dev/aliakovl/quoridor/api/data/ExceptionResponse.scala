@@ -1,4 +1,4 @@
-package dev.aliakovl.quoridor.api
+package dev.aliakovl.quoridor.api.data
 
 import dev.aliakovl.quoridor.auth.model.AuthException
 import dev.aliakovl.quoridor.model.GameException.*

@@ -1,6 +1,7 @@
 package dev.aliakovl.quoridor.app
 
 import cats.implicits.*
+import dev.aliakovl.quoridor.GameApiService
 import io.getquill.jdbczio.Quill
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits.*
@@ -64,6 +65,7 @@ object QuoridorApp extends ZIOAppDefault:
       GameCreator.live,
       GameService.live,
       UserService.live,
+      GameApiService.live,
       HashingService.live,
       RefreshTokenStore.live,
       AccessService.live,

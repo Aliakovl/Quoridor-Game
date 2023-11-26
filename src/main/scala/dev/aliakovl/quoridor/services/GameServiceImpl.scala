@@ -22,7 +22,7 @@ class GameServiceImpl(
 
   override def findGame(gameId: ID[Game]): Task[Game] = {
     gameDao.find(gameId)
-  } // TODO: вернуть проверку на принадлежность игрока игре
+  }
 
   override def makeMove(
       gameId: ID[Game],

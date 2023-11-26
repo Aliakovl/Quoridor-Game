@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.api
 
+import dev.aliakovl.quoridor.api.data.ExceptionResponse
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir.*
 import sttp.tapir.generic.auto.*

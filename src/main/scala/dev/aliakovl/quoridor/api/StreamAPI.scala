@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.api
 
+import dev.aliakovl.quoridor.api.data.ExceptionResponse
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto.*
 import sttp.tapir.ztapir.*

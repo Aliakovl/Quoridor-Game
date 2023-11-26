@@ -8,6 +8,7 @@ package object app:
   type Env = GameService
     with GameCreator
     with UserService
+    with GameApiService
     with AuthenticationService
     with AuthorizationService
 
