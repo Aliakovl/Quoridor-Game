@@ -3,7 +3,6 @@ package ru.quoridor.pubsub
 import ru.quoridor.codecs.redis.given
 import ru.quoridor.config.PubSubRedis
 import ru.quoridor.model.game.Game
-import ru.quoridor.pubsub.redis.RedisGamePubSub
 import ru.utils.pubsub.redis.{RedisPublisher, RedisSubscriber}
 import ru.utils.pubsub.{Publisher, Subscriber}
 import ru.utils.tagging.ID
@@ -22,5 +21,5 @@ object GamePubSub:
     ZLayer.makeSome[PubSubRedis, GamePubSub](
       RedisPublisher.live[ID[Game], Game],
       RedisSubscriber.live[ID[Game], Game],
-      ZLayer.fromFunction(new RedisGamePubSub(_, _))
+      ZLayer.fromFunction(new GamePubSubImpl(_, _))
     )

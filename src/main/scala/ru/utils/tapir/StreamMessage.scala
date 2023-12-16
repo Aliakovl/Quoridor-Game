@@ -7,8 +7,8 @@ import io.circe.Decoder.Result
 import io.circe.{Decoder, Encoder, HCursor, Json}
 
 enum StreamMessage[+E, +A]:
-  case Message(message: A) extends StreamMessage[E, A]
-  case Error(error: E) extends StreamMessage[E, A]
+  case Message(message: A) extends StreamMessage[Nothing, A]
+  case Error(error: E) extends StreamMessage[E, Nothing]
   case Ping extends StreamMessage[Nothing, Nothing]
 
 object StreamMessage:
