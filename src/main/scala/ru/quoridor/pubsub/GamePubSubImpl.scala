@@ -1,13 +1,12 @@
-package ru.quoridor.pubsub.redis
+package ru.quoridor.pubsub
 
 import ru.quoridor.model.game.Game
-import ru.quoridor.pubsub.GamePubSub
 import ru.utils.pubsub.{Publisher, Subscriber}
 import ru.utils.tagging.ID
 import zio.stream.ZStream
 import zio.{RIO, Scope, Task}
 
-class RedisGamePubSub(
+class GamePubSubImpl(
     publisher: Publisher[ID[Game], Game],
     subscriber: Subscriber[ID[Game], Game]
 ) extends GamePubSub:
