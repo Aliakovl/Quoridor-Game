@@ -20,7 +20,7 @@ import zio.*
 
 import javax.net.ssl.SSLContext
 
-object QuoridorApp extends ZIOApp:
+object QuoridorApp extends ZIOAppDefault:
   private val apiRoutes: HttpRoutes[EnvTask] =
     ZHttp4sServerInterpreter[Env]()
       .from(GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env])
@@ -49,10 +49,9 @@ object QuoridorApp extends ZIOApp:
       GamePubSub.live
     )
 
-  override def run: ZIO[Server with ZIOAppArgs with Scope, Any, Any] = ZIO.never
-
-  override val bootstrap: ZLayer[ZIOAppArgs, Throwable, Server] =
-    ZLayer.make[Server](
+  private val server = ZIO
+    .serviceWithZIO[BlazeServer](_.start)
+    .provide(
       Runtime.removeDefaultLoggers,
       Slf4jBridge.initialize,
       Configuration.live,
@@ -64,6 +63,5 @@ object QuoridorApp extends ZIOApp:
       Scope.default
     )
 
-  override type Environment = Server
-
-  override val environmentTag: EnvironmentTag[Server] = EnvironmentTag[Server]
+  override def run: ZIO[ZIOAppArgs, Throwable, Nothing] =
+    server *> ZIO.never
