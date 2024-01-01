@@ -26,9 +26,7 @@ object QuoridorApp extends ZIOApp:
       .from(GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env])
       .toRoutes
 
-  override def run: ZIO[Server with ZIOAppArgs with Scope, Any, Any] = ZIO.never
-
-  private lazy val layers = ZLayer
+  private val layers = ZLayer
     .make[Env](
       Auth.live,
       TokenKeys.live,
@@ -50,6 +48,8 @@ object QuoridorApp extends ZIOApp:
       AuthenticationService.live,
       GamePubSub.live
     )
+
+  override def run: ZIO[Server with ZIOAppArgs with Scope, Any, Any] = ZIO.never
 
   override val bootstrap: ZLayer[ZIOAppArgs, Throwable, Server] = ZLayer.make[Server](
     Runtime.removeDefaultLoggers,
