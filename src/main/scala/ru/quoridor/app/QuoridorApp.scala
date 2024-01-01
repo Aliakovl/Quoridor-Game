@@ -1,16 +1,7 @@
 package ru.quoridor.app
 
 import io.getquill.jdbczio.Quill
-import ru.quoridor.api.{
-  AuthorizationEndpoints,
-  AuthorizationServerEndpoints,
-  BaseEndpoints,
-  Endpoints,
-  GameEndpoints,
-  GameServerEndpoints,
-  StreamEndpoints,
-  StreamServerEndpoints
-}
+import ru.quoridor.api.*
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth.*
 import ru.quoridor.config.*
