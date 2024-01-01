@@ -14,7 +14,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion
+    "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-vertx-server-zio" % tapirVersion
   )
 
   private val server = Seq(
@@ -22,7 +23,8 @@ object Dependencies {
     "org.http4s" %% "http4s-blaze-server" % http4sBlazeVersion,
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion
+    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion,
+    "io.vertx" % "vertx-core" % "4.5.1"
   )
 
   private val zio = Seq(

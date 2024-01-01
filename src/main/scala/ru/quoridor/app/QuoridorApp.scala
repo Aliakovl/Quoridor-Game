@@ -1,8 +1,6 @@
 package ru.quoridor.app
 
-import cats.implicits.*
 import io.getquill.jdbczio.Quill
-import org.http4s.HttpRoutes
 import org.http4s.server.Server
 import ru.quoridor.api.{AuthorizationAPI, GameAPI, StreamAPI}
 import ru.quoridor.auth.store.RefreshTokenStore
@@ -13,19 +11,12 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.pubsub.*
 import ru.utils.SSLProvider
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
-import zio.interop.catz.*
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
 
 import javax.net.ssl.SSLContext
 
 object QuoridorApp extends ZIOAppDefault:
-  private val apiRoutes: HttpRoutes[EnvTask] =
-    ZHttp4sServerInterpreter[Env]()
-      .from(GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env])
-      .toRoutes
-
   private val layers =
     ZLayer.make[Env](
       Auth.live,
@@ -59,7 +50,10 @@ object QuoridorApp extends ZIOAppDefault:
       SSLKeyStore.live,
       SSLProvider.live,
       layers,
-      HttpServer.live((apiRoutes <+> Swagger.docs).orNotFound),
+      HttpServer.live(
+        GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env],
+        Swagger.openApi
+      ),
       Scope.default
     )
 

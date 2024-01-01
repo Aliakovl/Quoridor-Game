@@ -2,7 +2,7 @@ object Versions {
   val catsVersion = "2.10.0"
   val circeVersion = "0.14.6"
   val jwtCirceVersion = "9.4.4"
-  val tapirVersion = "1.7.4"
+  val tapirVersion = "1.9.6"
   val http4sVersion = "0.23.23"
   val http4sBlazeVersion = "0.23.15"
   val zioVersion = "2.0.17"
