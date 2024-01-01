@@ -1,11 +1,7 @@
 package ru.quoridor.app
 
-import cats.implicits.*
 import io.getquill.jdbczio.Quill
-import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.implicits.*
-import org.http4s.HttpRoutes
-import ru.quoridor.api.{AuthorizationAPI, GameAPI, StreamAPI}
+import ru.quoridor.api.*
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth.*
 import ru.quoridor.config.*
@@ -14,43 +10,14 @@ import ru.quoridor.dao.quill.QuillContext
 import ru.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import ru.quoridor.pubsub.*
 import ru.utils.SSLProvider
-import ru.utils.ZIOExtensions.*
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
-import zio.interop.catz.*
 import zio.logging.slf4j.bridge.Slf4jBridge
 import zio.*
 
 import javax.net.ssl.SSLContext
 
 object QuoridorApp extends ZIOAppDefault:
-  private val apiRoutes: HttpRoutes[EnvTask] =
-    ZHttp4sServerInterpreter[Env]()
-      .from(GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env])
-      .toRoutes
-
-  override def run: ZIO[Any, Any, ExitCode] = (for {
-    Address(host, port) <- ZIO.service[Address]
-    sslContext <- ZIO.service[SSLContext]
-    exitCode <- BlazeServerBuilder[EnvTask]
-      .bindHttp(port, host)
-      .withSslContext(sslContext)
-      .enableHttp2(true)
-      .withHttpApp((apiRoutes <+> Swagger.docs).orNotFound)
-      .serve
-      .compile
-      .drain
-      .exitCode
-  } yield exitCode).provide(
-    Slf4jBridge.initialize,
-    Configuration.live,
-    Address.live,
-    SSLKeyStore.live,
-    SSLProvider.live,
-    layers
-  )
-
-  private lazy val layers = ZLayer
-    .make[Env](
+  private val layers =
+    ZLayer.make[BlazeServer](
       Auth.live,
       TokenKeys.live,
       TokenStore.live,
@@ -69,5 +36,30 @@ object QuoridorApp extends ZIOAppDefault:
       AccessService.live,
       AuthorizationService.live,
       AuthenticationService.live,
-      GamePubSub.live
+      GamePubSub.live,
+      Address.live,
+      SSLKeyStore.live,
+      SSLProvider.live,
+      HttpServer.live,
+      BaseEndpoints.live,
+      AuthorizationEndpoints.live,
+      GameEndpoints.live,
+      StreamEndpoints.live,
+      AuthorizationServerEndpoints.live,
+      GameServerEndpoints.live,
+      StreamServerEndpoints.live,
+      Endpoints.live
     )
+
+  private val server: ZIO[Scope & BlazeServer, Throwable, Unit] =
+    ZIO.serviceWithZIO[BlazeServer](_.start).unit
+
+  override def run: ZIO[ZIOAppArgs, Nothing, ExitCode] = ZIO
+    .scoped {
+      server <* ZIO.never
+    }
+    .provideLayer(layers)
+    .exitCode
+
+  override val bootstrap: ZLayer[ZIOAppArgs, Any, Any] =
+    Runtime.removeDefaultLoggers ++ Slf4jBridge.initialize

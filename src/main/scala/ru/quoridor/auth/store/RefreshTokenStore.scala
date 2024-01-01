@@ -3,7 +3,7 @@ package ru.quoridor.auth.store
 import ru.quoridor.auth.model.AuthException.InvalidRefreshToken
 import ru.quoridor.auth.model.*
 import ru.quoridor.auth.store.redis.RedisStore
-import ru.quoridor.codecs.redis.given
+import ru.quoridor.codec.redis.given
 import ru.quoridor.config.TokenStore
 import ru.quoridor.model.User
 import ru.utils.ZIOExtensions.*

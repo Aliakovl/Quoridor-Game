@@ -16,7 +16,7 @@ trait GameCreator {
 
 object GameCreator {
   val live: URLayer[
-    UserDao with ProtoGameDao with GameDao,
+    UserDao & ProtoGameDao & GameDao,
     GameCreator
   ] =
     ZLayer.fromFunction(new GameCreatorImpl(_, _, _))
