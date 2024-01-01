@@ -1,7 +1,16 @@
 package ru.quoridor.app
 
 import io.getquill.jdbczio.Quill
-import ru.quoridor.api.{AuthorizationAPI, GameAPI, StreamAPI}
+import ru.quoridor.api.{
+  AuthorizationEndpoints,
+  AuthorizationServerEndpoints,
+  BaseEndpoints,
+  Endpoints,
+  GameEndpoints,
+  GameServerEndpoints,
+  StreamEndpoints,
+  StreamServerEndpoints
+}
 import ru.quoridor.auth.store.RefreshTokenStore
 import ru.quoridor.auth.*
 import ru.quoridor.config.*
@@ -17,7 +26,7 @@ import javax.net.ssl.SSLContext
 
 object QuoridorApp extends ZIOAppDefault:
   private val layers =
-    ZLayer.make[Env with BlazeServer](
+    ZLayer.make[BlazeServer](
       Auth.live,
       TokenKeys.live,
       TokenStore.live,
@@ -40,21 +49,26 @@ object QuoridorApp extends ZIOAppDefault:
       Address.live,
       SSLKeyStore.live,
       SSLProvider.live,
-      HttpServer.live(
-        GameAPI[Env] ++ AuthorizationAPI[Env] ++ StreamAPI[Env],
-        Swagger.openApi
-      )
+      HttpServer.live,
+      BaseEndpoints.live,
+      AuthorizationEndpoints.live,
+      GameEndpoints.live,
+      StreamEndpoints.live,
+      AuthorizationServerEndpoints.live,
+      GameServerEndpoints.live,
+      StreamServerEndpoints.live,
+      Endpoints.live
     )
 
-  private val server: ZIO[Env with Scope with BlazeServer, Throwable, Unit] =
+  private val server: ZIO[Scope with BlazeServer, Throwable, Unit] =
     ZIO.serviceWithZIO[BlazeServer](_.start).unit
 
-  override def run: ZIO[ZIOAppArgs, Throwable, Unit] = ZIO
+  override def run: ZIO[ZIOAppArgs, Nothing, ExitCode] = ZIO
     .scoped {
       server <* ZIO.never
     }
-    .provide(
-      Runtime.removeDefaultLoggers,
-      Slf4jBridge.initialize,
-      layers
-    )
+    .provideLayer(layers)
+    .exitCode
+
+  override val bootstrap: ZLayer[ZIOAppArgs, Any, Any] =
+    Runtime.removeDefaultLoggers ++ Slf4jBridge.initialize
