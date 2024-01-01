@@ -31,7 +31,7 @@ class BlazeServer(
     .from(SwaggerUI[EnvTask](openAPI.toYaml))
     .toRoutes
 
-  override def start: ZIO[Env with Scope, Throwable, Server] =
+  override val start: ZIO[Env with Scope, Throwable, Server] =
     BlazeServerBuilder[EnvTask]
       .bindHttp(address.port, address.host)
       .withSslContext(sslContext)
