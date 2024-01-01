@@ -1,4 +1,4 @@
-package ru.quoridor.codecs
+package ru.quoridor.codec
 
 import io.lettuce.core.codec.{RedisCodec, StringCodec}
 import io.circe.*

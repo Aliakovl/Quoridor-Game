@@ -1,6 +1,6 @@
 package ru.quoridor.pubsub
 
-import ru.quoridor.codecs.redis.given
+import ru.quoridor.codec.redis.given
 import ru.quoridor.config.PubSubRedis
 import ru.quoridor.model.game.Game
 import ru.utils.pubsub.redis.{RedisPublisher, RedisSubscriber}
