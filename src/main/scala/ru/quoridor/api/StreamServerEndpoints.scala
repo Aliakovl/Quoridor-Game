@@ -3,7 +3,7 @@ package ru.quoridor.api
 import ru.quoridor.services.GameService
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.ztapir.*
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class StreamServerEndpoints(
     gameService: GameService,
@@ -20,8 +20,5 @@ class StreamServerEndpoints(
   )
 
 object StreamServerEndpoints:
-  val live: ZLayer[
-    GameService with StreamEndpoints,
-    Nothing,
-    StreamServerEndpoints
-  ] = ZLayer.fromFunction(new StreamServerEndpoints(_, _))
+  val live: URLayer[GameService & StreamEndpoints, StreamServerEndpoints] =
+    ZLayer.fromFunction(new StreamServerEndpoints(_, _))

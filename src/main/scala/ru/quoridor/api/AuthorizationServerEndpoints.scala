@@ -7,7 +7,7 @@ import ru.quoridor.services.UserService
 import sttp.model.headers.Cookie.SameSite
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.ztapir.*
-import zio.{Task, ZIO, ZLayer}
+import zio.{Task, URLayer, ZIO, ZLayer}
 
 class AuthorizationServerEndpoints(
     userService: UserService,
@@ -24,6 +24,7 @@ class AuthorizationServerEndpoints(
             cookieValue(refreshToken).map((accessToken, _))
           }
       }
+
   val signInServerEndpoint: ZServerEndpoint[Any, Any] =
     authorizationAPI.signInEndpoint
       .zServerLogic { credentials =>
@@ -58,9 +59,8 @@ class AuthorizationServerEndpoints(
   )
 
 object AuthorizationServerEndpoints:
-  val live: ZLayer[
-    UserService with AuthenticationService with AuthorizationEndpoints,
-    Nothing,
+  val live: URLayer[
+    UserService & AuthenticationService & AuthorizationEndpoints,
     AuthorizationServerEndpoints
   ] = ZLayer.fromFunction(new AuthorizationServerEndpoints(_, _, _))
 

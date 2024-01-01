@@ -18,14 +18,9 @@ trait AuthenticationService {
 }
 
 object AuthenticationService {
-  val live: RLayer[
-    UserService
-      with AccessService
-      with HashingService[
-        Password,
-        UserSecret
-      ]
-      with RefreshTokenStore,
+  val live: URLayer[
+    UserService & AccessService & HashingService[Password, UserSecret] &
+      RefreshTokenStore,
     AuthenticationService
   ] =
     ZLayer.fromFunction(new AuthenticationServiceImpl(_, _, _, _))

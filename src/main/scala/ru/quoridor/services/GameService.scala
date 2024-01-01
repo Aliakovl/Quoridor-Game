@@ -7,7 +7,7 @@ import ru.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import ru.quoridor.pubsub.GamePubSub
 import ru.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{RIO, Task, ZIO, ZLayer}
+import zio.{RIO, Task, URLayer, ZIO, ZLayer}
 
 trait GameService {
   def findGame(gameId: ID[Game]): Task[Game]
@@ -33,11 +33,7 @@ trait GameService {
 }
 
 object GameService {
-  val live: ZLayer[
-    GameDao with GamePubSub,
-    Nothing,
-    GameService
-  ] =
+  val live: URLayer[GameDao & GamePubSub, GameService] =
     ZLayer.fromFunction(new GameServiceImpl(_, _))
 
   def findGame(gameId: ID[Game]): RIO[GameService, Game] =

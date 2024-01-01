@@ -31,9 +31,7 @@ class Endpoints(
 
 object Endpoints:
   val live: ZLayer[
-    AuthorizationServerEndpoints
-      with GameServerEndpoints
-      with StreamServerEndpoints,
+    AuthorizationServerEndpoints & GameServerEndpoints & StreamServerEndpoints,
     Nothing,
     Endpoints
   ] = ZLayer.fromFunction(new Endpoints(_, _, _))

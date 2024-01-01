@@ -2,7 +2,7 @@ package ru.quoridor.api
 
 import ru.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.ztapir.*
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class GameServerEndpoints(
     gameService: GameService,
@@ -91,8 +91,7 @@ class GameServerEndpoints(
   )
 
 object GameServerEndpoints:
-  val live: ZLayer[
-    GameService with GameCreator with UserService with GameEndpoints,
-    Nothing,
+  val live: URLayer[
+    GameService & GameCreator & UserService & GameEndpoints,
     GameServerEndpoints
   ] = ZLayer.fromFunction(new GameServerEndpoints(_, _, _, _))

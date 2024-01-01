@@ -60,7 +60,7 @@ object QuoridorApp extends ZIOAppDefault:
       Endpoints.live
     )
 
-  private val server: ZIO[Scope with BlazeServer, Throwable, Unit] =
+  private val server: ZIO[Scope & BlazeServer, Throwable, Unit] =
     ZIO.serviceWithZIO[BlazeServer](_.start).unit
 
   override def run: ZIO[ZIOAppArgs, Nothing, ExitCode] = ZIO
