@@ -16,8 +16,7 @@ class GameCreatorImpl(
     userDao: UserDao,
     protoGameDao: ProtoGameDao,
     gameDao: GameDao
-) extends GameCreator {
-
+) extends GameCreator:
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
     val target = North
@@ -73,4 +72,3 @@ class GameCreatorImpl(
       game <- gameDao.create(gameId, state)
     } yield game
   }
-}

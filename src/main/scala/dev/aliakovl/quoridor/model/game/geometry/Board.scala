@@ -1,6 +1,6 @@
 package dev.aliakovl.quoridor.model.game.geometry
 
-import dev.aliakovl.quoridor.model.game.geometry.Orientation.{Horizontal, Vertical}
+import dev.aliakovl.quoridor.model.game.geometry.Orientation.*
 import dev.aliakovl.quoridor.model.game.geometry.Direction.*
 import dev.aliakovl.quoridor.model.game.geometry.Side.*
 

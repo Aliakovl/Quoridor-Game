@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.auth.HashingService
-import dev.aliakovl.quoridor.auth.model.{Credentials, Password, UserSecret, Username}
+import dev.aliakovl.quoridor.auth.model.*
 import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.quoridor.dao.UserDao
 import dev.aliakovl.utils.tagging.ID
@@ -13,7 +13,7 @@ import java.util.UUID
 class UserServiceImpl(
     userDao: UserDao,
     hashingService: HashingService[Password, UserSecret]
-) extends UserService {
+) extends UserService:
   override def getUser(userId: ID[User]): Task[User] = {
     userDao.findById(userId)
   }
@@ -37,4 +37,3 @@ class UserServiceImpl(
   override def getUserSecret(username: Username): Task[UserWithSecret] = {
     userDao.findByUsername(username)
   }
-}
