@@ -10,7 +10,7 @@ import zio.Task
 
 import java.util.UUID
 
-class UserServiceImpl(
+class UserServiceLive(
     userDao: UserDao,
     hashingService: HashingService[Password, UserSecret]
 ) extends UserService:

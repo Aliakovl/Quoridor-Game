@@ -15,7 +15,7 @@ import zio.{Task, ZIO}
 
 import java.sql.SQLException
 
-class UserDaoImpl(quillContext: QuillContext) extends UserDao:
+class UserDaoLive(quillContext: QuillContext) extends UserDao:
 
   import quillContext.*
   import quillContext.given

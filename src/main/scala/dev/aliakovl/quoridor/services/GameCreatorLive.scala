@@ -12,7 +12,7 @@ import zio.{Task, ZIO}
 
 import java.util.UUID
 
-class GameCreatorImpl(
+class GameCreatorLive(
     userDao: UserDao,
     protoGameDao: ProtoGameDao,
     gameDao: GameDao
