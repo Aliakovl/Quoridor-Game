@@ -21,5 +21,5 @@ object GamePubSub:
     ZLayer.makeSome[PubSubRedis, GamePubSub](
       RedisPublisher.live[ID[Game], Game],
       RedisSubscriber.live[ID[Game], Game],
-      ZLayer.fromFunction(new GamePubSubImpl(_, _))
+      ZLayer.fromFunction(new GamePubSubLive(_, _))
     )

@@ -6,7 +6,7 @@ import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
 import zio.{RIO, Scope, Task}
 
-class GamePubSubImpl(
+class GamePubSubLive(
     publisher: Publisher[ID[Game], Game],
     subscriber: Subscriber[ID[Game], Game]
 ) extends GamePubSub:
