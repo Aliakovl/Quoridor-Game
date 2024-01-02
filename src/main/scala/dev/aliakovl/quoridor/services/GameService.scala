@@ -33,4 +33,4 @@ trait GameService:
 
 object GameService:
   val live: URLayer[GameDao & GamePubSub, GameService] =
-    ZLayer.fromFunction(new GameServiceImpl(_, _))
+    ZLayer.fromFunction(new GameServiceLive(_, _))

@@ -21,4 +21,4 @@ object UserService:
     UserDao & HashingService[Password, UserSecret],
     UserService
   ] =
-    ZLayer.fromFunction(new UserServiceImpl(_, _))
+    ZLayer.fromFunction(new UserServiceLive(_, _))

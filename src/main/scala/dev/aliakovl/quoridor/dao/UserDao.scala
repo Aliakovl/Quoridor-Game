@@ -15,4 +15,4 @@ trait UserDao:
 
 object UserDao:
   val live: RLayer[QuillContext, UserDao] =
-    ZLayer.fromFunction(new UserDaoImpl(_))
+    ZLayer.fromFunction(new UserDaoLive(_))

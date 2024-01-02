@@ -9,7 +9,7 @@ import dev.aliakovl.utils.tagging.ID
 import io.getquill.*
 import zio.{Task, ZIO}
 
-class ProtoGameDaoImpl(quillContext: QuillContext) extends ProtoGameDao:
+class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
   import quillContext.*
   import quillContext.given
 

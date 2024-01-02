@@ -16,4 +16,4 @@ trait ProtoGameDao:
 
 object ProtoGameDao:
   val live: RLayer[QuillContext, ProtoGameDao] =
-    ZLayer.fromFunction(new ProtoGameDaoImpl(_))
+    ZLayer.fromFunction(new ProtoGameDaoLive(_))

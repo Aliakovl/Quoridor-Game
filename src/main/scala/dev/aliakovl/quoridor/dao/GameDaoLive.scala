@@ -14,7 +14,7 @@ import zio.{IO, Task, ZIO}
 
 import java.sql.SQLException
 
-class GameDaoImpl(quillContext: QuillContext) extends GameDao {
+class GameDaoLive(quillContext: QuillContext) extends GameDao {
   import quillContext.*
   import quillContext.given
 

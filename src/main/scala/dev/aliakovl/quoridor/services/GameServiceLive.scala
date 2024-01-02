@@ -19,7 +19,7 @@ import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
 import zio.*
 
-class GameServiceImpl(
+class GameServiceLive(
     gameDao: GameDao,
     gamePubSub: GamePubSub
 ) extends GameService:

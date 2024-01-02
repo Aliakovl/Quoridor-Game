@@ -31,4 +31,4 @@ trait GameDao:
 
 object GameDao:
   val live: RLayer[QuillContext, GameDao] =
-    ZLayer.fromFunction(new GameDaoImpl(_))
+    ZLayer.fromFunction(new GameDaoLive(_))

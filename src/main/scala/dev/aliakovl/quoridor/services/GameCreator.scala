@@ -18,4 +18,4 @@ object GameCreator:
     UserDao & ProtoGameDao & GameDao,
     GameCreator
   ] =
-    ZLayer.fromFunction(new GameCreatorImpl(_, _, _))
+    ZLayer.fromFunction(new GameCreatorLive(_, _, _))
