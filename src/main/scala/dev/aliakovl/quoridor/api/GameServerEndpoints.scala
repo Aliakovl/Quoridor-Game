@@ -52,18 +52,6 @@ class GameServerEndpoints(
         userService.getUser(username)
       }
 
-  val pawnMovesServerEndpoint: ZServerEndpoint[Any, Any] =
-    gameEndpoint.pawnMovesEndpoint
-      .serverLogic { claimData => gameId =>
-        gameService.availablePawnMoves(gameId, claimData.userId)
-      }
-
-  val wallMovesServerEndpoint: ZServerEndpoint[Any, Any] =
-    gameEndpoint.wallMovesEndpoint
-      .serverLogic { _ => gameId =>
-        gameService.availableWallMoves(gameId)
-      }
-
   val pawnMoveServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.pawnMoveEndpoint
       .serverLogic { claimData => (gameId, move) =>
@@ -76,6 +64,18 @@ class GameServerEndpoints(
         gameService.makeMove(gameId, claimData.userId, move).unit
       }
 
+  val possiblePawnMovesServerEndpoint: ZServerEndpoint[Any, Any] =
+    gameEndpoint.possiblePawnMovesEndpoint
+      .serverLogic { claimData => gameId =>
+        gameService.possiblePawnMoves(gameId, claimData.userId)
+      }
+
+  val possibleWallMovesServerEndpoint: ZServerEndpoint[Any, Any] =
+    gameEndpoint.possibleWallMovesEndpoint
+      .serverLogic { _ => gameId =>
+        gameService.possibleWallMoves(gameId)
+      }
+
   val endpoints: List[ZServerEndpoint[Any, Any]] = List(
     createGameServerEndpoint,
     joinPlayerServerEndpoint,
@@ -84,10 +84,10 @@ class GameServerEndpoints(
     historyServerEndpoint,
     getGameServerEndpoint,
     getUserServerEndpoint,
-    pawnMovesServerEndpoint,
-    wallMovesServerEndpoint,
     pawnMoveServerEndpoint,
-    placeWallServerEndpoint
+    placeWallServerEndpoint,
+    possiblePawnMovesServerEndpoint,
+    possibleWallMovesServerEndpoint
   )
 
 object GameServerEndpoints:

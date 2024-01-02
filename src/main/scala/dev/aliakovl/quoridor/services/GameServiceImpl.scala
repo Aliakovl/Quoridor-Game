@@ -7,7 +7,11 @@ import dev.aliakovl.quoridor.model.GameException.{
 }
 import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.quoridor.model.game.{Game, Move, Player}
-import dev.aliakovl.quoridor.model.game.geometry.{Board, PawnPosition, WallPosition}
+import dev.aliakovl.quoridor.model.game.geometry.{
+  Board,
+  PawnPosition,
+  WallPosition
+}
 import dev.aliakovl.quoridor.dao.GameDao
 import dev.aliakovl.quoridor.pubsub.GamePubSub
 import dev.aliakovl.utils.ZIOExtensions.*
@@ -18,8 +22,7 @@ import zio.*
 class GameServiceImpl(
     gameDao: GameDao,
     gamePubSub: GamePubSub
-) extends GameService {
-
+) extends GameService:
   override def findGame(gameId: ID[Game]): Task[Game] = {
     gameDao.find(gameId)
   } // TODO: вернуть проверку на принадлежность игрока игре
@@ -95,7 +98,7 @@ class GameServiceImpl(
     } yield history
   }
 
-  override def availablePawnMoves(
+  override def possiblePawnMoves(
       gameId: ID[Game],
       userId: ID[User]
   ): Task[List[PawnPosition]] = {
@@ -110,7 +113,7 @@ class GameServiceImpl(
     } yield game.state.possibleSteps
   }
 
-  def availableWallMoves(
+  def possibleWallMoves(
       gameId: ID[Game]
   ): Task[Set[WallPosition]] = {
     for {
@@ -138,4 +141,3 @@ class GameServiceImpl(
       .unwrapScoped(gamePubSub.subscribe(gameId))
       .takeWhile(_.winner.isEmpty) ++ ZStream.fromZIO(findGame(gameId))
   )
-}

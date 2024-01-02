@@ -18,6 +18,9 @@ class AuthorizationEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.publicEndpoint.post
+      .tag("Authentication")
+      .name("sign-up")
+      .summary("Sign up user")
       .in("auth" / "sign-up")
       .in(jsonBody[Credentials])
       .out(plainBody[AccessToken])
@@ -32,6 +35,9 @@ class AuthorizationEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.publicEndpoint.post
+      .tag("Authentication")
+      .name("sign-in")
+      .summary("Sign in user")
       .in("auth" / "sign-in")
       .in(jsonBody[Credentials])
       .out(plainBody[AccessToken])
@@ -45,6 +51,9 @@ class AuthorizationEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.publicEndpoint.post
+      .tag("Authentication")
+      .name("refresh")
+      .summary("Refresh user`s access token")
       .in("auth" / "refresh")
       .in(cookie[RefreshToken]("refreshToken"))
       .out(plainBody[AccessToken])
@@ -53,6 +62,9 @@ class AuthorizationEndpoints(base: BaseEndpoints):
   val signOutEndpoint
       : Endpoint[Unit, RefreshToken, Throwable, CookieValueWithMeta, Any] =
     base.publicEndpoint.post
+      .tag("Authentication")
+      .name("sign-out")
+      .summary("Sign out user")
       .in("auth" / "sign-out")
       .in(cookie[RefreshToken]("refreshToken"))
       .out(setCookie("refreshToken"))

@@ -27,6 +27,9 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.post
+      .tag("Game creation")
+      .name("create-game")
+      .summary("Create a new game")
       .in("api" / "v1")
       .in("game" / "create")
       .out(jsonBody[ProtoGame] and statusCode(StatusCode.Created))
@@ -41,24 +44,44 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.post
+      .tag("Game creation")
+      .name("join-player")
+      .summary("Join the other user to the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId"))
       .in("join" / path[ID[User]]("userId"))
       .out(jsonBody[ProtoGame])
 
-  val startGameEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
-    Game
-  ], Throwable, Game, Any] =
+  val startGameEndpoint: ZPartialServerEndpoint[
+    Any,
+    AccessToken,
+    ClaimData,
+    ID[Game],
+    Throwable,
+    Game,
+    Any
+  ] =
     base.secureEndpoint.post
+      .tag("Game creation")
+      .name("start-game")
+      .summary("Start the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "start")
       .out(jsonBody[Game] and statusCode(StatusCode.Created))
 
-  val gameHistoryEndpoint
-      : ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
-        Game
-      ], Throwable, List[Game], Any] =
+  val gameHistoryEndpoint: ZPartialServerEndpoint[
+    Any,
+    AccessToken,
+    ClaimData,
+    ID[Game],
+    Throwable,
+    List[Game],
+    Any
+  ] =
     base.secureEndpoint.get
+      .tag("Game")
+      .name("game-history")
+      .summary("Step-by-step history of the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "history")
       .out(jsonBody[List[Game]])
@@ -73,14 +96,26 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.get
+      .tag("User info")
+      .name("user-history")
+      .summary("All games with user participation")
       .in("api" / "v1")
       .in("history")
       .out(jsonBody[List[GamePreView]])
 
-  val getGameEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
-    Game
-  ], Throwable, Game, Any] =
+  val getGameEndpoint: ZPartialServerEndpoint[
+    Any,
+    AccessToken,
+    ClaimData,
+    ID[Game],
+    Throwable,
+    Game,
+    Any
+  ] =
     base.secureEndpoint.get
+      .tag("Game")
+      .name("game")
+      .summary("Current game state")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId"))
       .out(jsonBody[Game])
@@ -95,6 +130,9 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.get
+      .tag("User info")
+      .name("user-info")
+      .summary("User profile info")
       .in("api" / "v1")
       .in("user" / path[Username]("username"))
       .out(jsonBody[User])
@@ -109,6 +147,9 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.post
+      .tag("Game")
+      .name("pawn-move")
+      .summary("The user makes a pawn move in the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "movePawn")
       .in(jsonBody[Move.PawnMove])
@@ -123,22 +164,43 @@ class GameEndpoints(base: BaseEndpoints):
     Any
   ] =
     base.secureEndpoint.post
+      .tag("Game")
+      .name("place-wall")
+      .summary("The user places a wall in the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "placeWall")
       .in(jsonBody[Move.PlaceWall])
 
-  val pawnMovesEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
-    Game
-  ], Throwable, List[PawnPosition], Any] =
+  val possiblePawnMovesEndpoint: ZPartialServerEndpoint[
+    Any,
+    AccessToken,
+    ClaimData,
+    ID[Game],
+    Throwable,
+    List[PawnPosition],
+    Any
+  ] =
     base.secureEndpoint.get
+      .tag("Game")
+      .name("possible-pawn-moves")
+      .summary("Possible moves of the user's pawn in this turn")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "pawnMoves")
       .out(jsonBody[List[PawnPosition]])
 
-  val wallMovesEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
-    Game
-  ], Throwable, Set[WallPosition], Any] =
+  val possibleWallMovesEndpoint: ZPartialServerEndpoint[
+    Any,
+    AccessToken,
+    ClaimData,
+    ID[Game],
+    Throwable,
+    Set[WallPosition],
+    Any
+  ] =
     base.secureEndpoint.get
+      .tag("Game")
+      .name("possible-wall-moves")
+      .summary("Possible places to place the user's wall this turn")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "wallMoves")
       .out(jsonBody[Set[WallPosition]])

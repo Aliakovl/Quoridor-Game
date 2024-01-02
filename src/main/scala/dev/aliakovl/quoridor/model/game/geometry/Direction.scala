@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.model.game.geometry
 
-import Orientation.*
-import Direction.*
+import dev.aliakovl.quoridor.model.game.geometry.Direction.*
+import dev.aliakovl.quoridor.model.game.geometry.Orientation.*
 
 sealed trait Direction extends Cross with StepForward with WallConverter
 
