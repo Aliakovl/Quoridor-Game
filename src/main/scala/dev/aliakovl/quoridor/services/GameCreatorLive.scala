@@ -1,6 +1,6 @@
 package dev.aliakovl.quoridor.services
 
-import dev.aliakovl.quoridor.model.GameException.*
+import dev.aliakovl.quoridor.GameException.*
 import dev.aliakovl.quoridor.model.game.geometry.Side.*
 import dev.aliakovl.quoridor.model.game.{Game, State}
 import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}

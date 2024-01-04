@@ -2,7 +2,7 @@ package dev.aliakovl.quoridor.dao
 
 import dev.aliakovl.quoridor.auth.model.Username
 import dev.aliakovl.quoridor.dao.quill.QuillContext
-import dev.aliakovl.quoridor.model.GameException.{
+import dev.aliakovl.quoridor.GameException.{
   UserNotFoundException,
   UsernameNotFoundException,
   UsernameOccupiedException

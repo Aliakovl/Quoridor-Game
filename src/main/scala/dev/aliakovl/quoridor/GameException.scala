@@ -1,19 +1,20 @@
-package dev.aliakovl.quoridor.model
+package dev.aliakovl.quoridor
 
 import dev.aliakovl.quoridor.auth.model.Username
 import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.quoridor.model.User
 import dev.aliakovl.utils.tagging.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)
 
-object GameException {
-  case class UserNotFoundException(userId: ID[User])
+object GameException:
+  case class UserNotFoundException(userId: ID[User]) // dao
       extends GameException(s"User with id=$userId not found")
 
-  case class UsernameNotFoundException(username: Username)
+  case class UsernameNotFoundException(username: Username) // dao
       extends GameException(s"User with username=$username not found")
 
-  case class GameNotFoundException(gameId: ID[Game])
+  case class GameNotFoundException(gameId: ID[Game]) // dao
       extends GameException(s"Game with id=$gameId not found")
 
   case class WrongPlayersTurnException(gameId: ID[Game])
@@ -32,10 +33,10 @@ object GameException {
   case object PlayersNumberLimitException
       extends GameException("The number of players has reached the limit")
 
-  case class UsernameOccupiedException(username: Username)
+  case class UsernameOccupiedException(username: Username) // dao
       extends GameException(s"User with username $username already exists")
 
-  case class SamePlayerException(userId: ID[User], gameId: ID[Game])
+  case class SamePlayerException(userId: ID[User], gameId: ID[Game]) // dao
       extends GameException(
         s"User with id=$userId already belong to the game with id=$gameId"
       )
@@ -50,35 +51,3 @@ object GameException {
 
   case class GameHasFinishedException(gameId: ID[Game])
       extends GameException(s"Game with id=$gameId has already finished")
-}
-
-sealed abstract class GameMoveException(message: String)
-    extends Exception(message)
-
-object GameMoveException {
-  case object PawnOutOfBoardException
-      extends GameMoveException("Illegal attempt to move a pawn over the board")
-
-  case object PawnIllegalMoveException
-      extends GameMoveException("Attempt to move a pawn to illegal position")
-
-  case object WallOutOfBoardException
-      extends GameMoveException(
-        "Illegal attempt to place a wall over the board"
-      )
-
-  case object WallImpositionException
-      extends GameMoveException(
-        "Illegal attempt to place a wall on another wall"
-      )
-
-  case object WallBlocksPawls
-      extends GameMoveException(
-        "Illegal attempt to completely block off way to target for some pawls"
-      )
-
-  case class NotEnoughWall(userId: ID[User])
-      extends GameMoveException(
-        s"Player with id=$userId does not have walls to place"
-      )
-}

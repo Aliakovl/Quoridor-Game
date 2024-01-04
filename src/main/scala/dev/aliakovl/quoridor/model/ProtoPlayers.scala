@@ -1,12 +1,13 @@
 package dev.aliakovl.quoridor.model
 
-import dev.aliakovl.quoridor.model.GameException.{
+import dev.aliakovl.quoridor.GameException.{
   NotEnoughPlayersException,
   PlayersNumberLimitException
 }
 import dev.aliakovl.quoridor.model.game.{Player, Players}
 import dev.aliakovl.quoridor.model.game.geometry.Board
 import cats.data.NonEmptyList
+import dev.aliakovl.quoridor.GameException
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema
 
@@ -19,16 +20,14 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
       case head :: tail =>
         val n = tail.size + 2
         val toPlayerFun = toPlayer(n) _
-        if (n > 4) {
-          Left(PlayersNumberLimitException)
-        } else {
+        if n > 4 then Left(PlayersNumberLimitException)
+        else
           Right(
             Players(
               toPlayerFun(creator),
               NonEmptyList(toPlayerFun(head), tail.map(toPlayerFun))
             )
           )
-        }
     }
   }
 

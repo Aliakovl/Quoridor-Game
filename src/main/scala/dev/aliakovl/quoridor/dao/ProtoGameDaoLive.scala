@@ -1,13 +1,19 @@
 package dev.aliakovl.quoridor.dao
 
 import dev.aliakovl.quoridor.dao.quill.QuillContext
-import dev.aliakovl.quoridor.model.GameException.GameNotFoundException
+import dev.aliakovl.quoridor.GameException.{
+  GameNotFoundException,
+  SamePlayerException
+}
 import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.quoridor.model.game.geometry.Side
 import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import dev.aliakovl.utils.tagging.ID
 import io.getquill.*
+import org.postgresql.util.PSQLState
 import zio.{Task, ZIO}
+
+import java.sql.SQLException
 
 class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
   import quillContext.*
@@ -42,7 +48,7 @@ class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
       userId: ID[User],
       target: Side
   ): Task[Unit] = {
-    inline def insertNewGame = quote {
+    inline def insertNewGame() = quote {
       query[dto.Game].insert(
         _.gameId -> lift(gameId),
         _.creator -> lift(userId)
@@ -50,7 +56,7 @@ class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
     }
 
     transaction {
-      run(insertNewGame) *>
+      run(insertNewGame()) *>
         addPlayer(gameId, userId, target)
     }
   }
@@ -60,7 +66,7 @@ class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
       userId: ID[User],
       target: Side
   ): Task[Unit] = {
-    inline def insertPlayer = quote {
+    inline def insertPlayer() = quote {
       query[dto.Player].insert(
         _.gameId -> lift(gameId),
         _.userId -> lift(userId),
@@ -68,5 +74,10 @@ class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
       )
     }
 
-    run(insertPlayer).unit
+    run(insertPlayer()).unit
+      .catchSome {
+        case x: SQLException
+            if x.getSQLState == PSQLState.UNIQUE_VIOLATION.getState =>
+          ZIO.fail(SamePlayerException(userId, gameId))
+      }
   }

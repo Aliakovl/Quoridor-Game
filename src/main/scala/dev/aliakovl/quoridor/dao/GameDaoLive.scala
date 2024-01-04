@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.dao
 
 import dev.aliakovl.quoridor.dao.quill.QuillContext
-import dev.aliakovl.quoridor.model.GameException.GameNotFoundException
+import dev.aliakovl.quoridor.GameException.GameNotFoundException
 import dev.aliakovl.quoridor.model.game.*
 import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model.{GamePreView, User}

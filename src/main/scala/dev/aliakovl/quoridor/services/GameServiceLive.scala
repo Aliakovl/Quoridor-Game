@@ -1,6 +1,6 @@
 package dev.aliakovl.quoridor.services
 
-import dev.aliakovl.quoridor.model.GameException.{
+import dev.aliakovl.quoridor.GameException.{
   GameHasFinishedException,
   GameInterloperException,
   WrongPlayersTurnException

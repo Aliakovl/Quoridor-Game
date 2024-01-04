@@ -11,13 +11,12 @@ case class Shifting[+T](el: T, ar: NonEmptyList[T]):
       buf.addOne(el)
       val newEl = t.foldLeft(h) { (head, elem) =>
         val s = buf.head
-        if (evenPermutation(head, elem, s)) {
+        if evenPermutation(head, elem, s) then
           buf.addOne(elem)
           head
-        } else {
+        else
           buf.addOne(head)
           elem
-        }
       }
       Shifting(newEl, NonEmptyList.fromListUnsafe(buf.toList))
   }
