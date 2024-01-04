@@ -9,8 +9,3 @@ final case class TokenStore(
     password: String,
     ttl: Duration
 )
-
-object TokenStore:
-  val live: RLayer[Configuration, TokenStore] = ZLayer(
-    ZIO.serviceWith[Configuration](_.tokenStore)
-  )

@@ -1,6 +1,6 @@
 package dev.aliakovl.utils
 
-import dev.aliakovl.quoridor.config.SSLKeyStore
+import dev.aliakovl.quoridor.config.{Configuration, SSLKeyStore}
 import zio.*
 import zio.nio.file.Path
 
@@ -31,3 +31,5 @@ object SSLProvider:
       SSLProvider(Path(path), password.toCharArray)
     }
   )
+
+  val configuredLive: TaskLayer[SSLContext] = Configuration.sslKeyStore >>> live

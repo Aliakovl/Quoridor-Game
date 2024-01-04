@@ -8,7 +8,7 @@ import zio.{IO, Task}
 class AuthenticationServiceLive(
     userService: UserService,
     accessService: AccessService,
-    hashingService: HashingService[Password, UserSecret],
+    hashingService: HashingService,
     tokenStore: RefreshTokenStore
 ) extends AuthenticationService:
   override def signIn(

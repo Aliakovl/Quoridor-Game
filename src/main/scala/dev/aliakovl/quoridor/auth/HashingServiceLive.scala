@@ -7,7 +7,7 @@ import zio.{IO, UIO, ZIO}
 
 class HashingServiceLive(
     pepper: String
-) extends HashingService[Password, UserSecret]:
+) extends HashingService:
   override def hashPassword(password: Password): UIO[UserSecret] = ZIO
     .succeed {
       com.password4j.Password

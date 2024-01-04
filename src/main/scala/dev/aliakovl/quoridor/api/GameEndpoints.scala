@@ -14,7 +14,7 @@ import sttp.tapir.generic.auto.*
 import io.circe.generic.auto.*
 import sttp.model.StatusCode
 import sttp.tapir.CodecFormat
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class GameEndpoints(base: BaseEndpoints):
   val createGameEndpoint: ZPartialServerEndpoint[
@@ -206,5 +206,5 @@ class GameEndpoints(base: BaseEndpoints):
       .out(jsonBody[Set[WallPosition]])
 
 object GameEndpoints:
-  val live: ZLayer[BaseEndpoints, Nothing, GameEndpoints] =
+  val live: URLayer[BaseEndpoints, GameEndpoints] =
     ZLayer.fromFunction(new GameEndpoints(_))

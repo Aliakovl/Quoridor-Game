@@ -4,7 +4,7 @@ import sttp.apispec.openapi.Info
 import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import sttp.tapir.ztapir.*
-import zio.{Task, ZLayer}
+import zio.{Task, URLayer, ZLayer}
 
 class Endpoints(
     authorizationServerEndpoints: AuthorizationServerEndpoints,
@@ -30,8 +30,7 @@ class Endpoints(
     )
 
 object Endpoints:
-  val live: ZLayer[
+  val live: URLayer[
     AuthorizationServerEndpoints & GameServerEndpoints & StreamServerEndpoints,
-    Nothing,
     Endpoints
   ] = ZLayer.fromFunction(new Endpoints(_, _, _))

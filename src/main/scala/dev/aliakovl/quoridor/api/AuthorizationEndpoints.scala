@@ -7,7 +7,7 @@ import io.circe.generic.auto.*
 import sttp.model.StatusCode
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.Endpoint
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class AuthorizationEndpoints(base: BaseEndpoints):
   val singUpEndpoint: Endpoint[
@@ -70,5 +70,5 @@ class AuthorizationEndpoints(base: BaseEndpoints):
       .out(setCookie("refreshToken"))
 
 object AuthorizationEndpoints:
-  val live: ZLayer[BaseEndpoints, Nothing, AuthorizationEndpoints] =
+  val live: URLayer[BaseEndpoints, AuthorizationEndpoints] =
     ZLayer.fromFunction(new AuthorizationEndpoints(_))

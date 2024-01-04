@@ -12,7 +12,7 @@ import java.util.UUID
 
 class UserServiceLive(
     userDao: UserDao,
-    hashingService: HashingService[Password, UserSecret]
+    hashingService: HashingService
 ) extends UserService:
   override def getUser(userId: ID[User]): Task[User] = {
     userDao.findById(userId)

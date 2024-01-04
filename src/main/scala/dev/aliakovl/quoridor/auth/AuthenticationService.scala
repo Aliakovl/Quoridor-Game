@@ -18,8 +18,7 @@ trait AuthenticationService:
 
 object AuthenticationService:
   val live: URLayer[
-    UserService & AccessService & HashingService[Password, UserSecret] &
-      RefreshTokenStore,
+    UserService & AccessService & HashingService & RefreshTokenStore,
     AuthenticationService
   ] =
     ZLayer.fromFunction(new AuthenticationServiceLive(_, _, _, _))

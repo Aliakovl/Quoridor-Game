@@ -2,7 +2,7 @@ package dev.aliakovl.quoridor.dao.quill
 
 import io.getquill.*
 import io.getquill.jdbczio.Quill
-import zio.{RLayer, ZLayer}
+import zio.{RLayer, TaskLayer, ZLayer}
 
 import javax.sql.DataSource
 
@@ -16,3 +16,6 @@ class QuillContext(dataSource: DataSource)
 object QuillContext:
   val live: RLayer[DataSource, QuillContext] =
     ZLayer.fromFunction(new QuillContext(_))
+
+  val configuredLive: TaskLayer[QuillContext] =
+    Quill.DataSource.fromPrefix("hikari") >>> live

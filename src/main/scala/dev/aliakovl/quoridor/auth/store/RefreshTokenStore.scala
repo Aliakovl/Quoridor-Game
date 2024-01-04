@@ -3,7 +3,7 @@ package dev.aliakovl.quoridor.auth.store
 import dev.aliakovl.quoridor.auth.model.*
 import dev.aliakovl.quoridor.auth.store.redis.RedisStore
 import dev.aliakovl.quoridor.codec.redis.given
-import dev.aliakovl.quoridor.config.TokenStore
+import dev.aliakovl.quoridor.config.{Configuration, TokenStore}
 import dev.aliakovl.quoridor.model.User
 import dev.aliakovl.utils.tagging.ID
 import zio.*
@@ -24,3 +24,6 @@ object RefreshTokenStore:
       RedisStore.live[RefreshToken, ID[User]],
       ZLayer.fromFunction(new RefreshTokenStoreLive(_))
     )
+
+  val configuredLive: TaskLayer[RefreshTokenStore] =
+    Configuration.tokenStore >>> live

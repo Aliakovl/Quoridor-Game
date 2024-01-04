@@ -8,7 +8,7 @@ import sttp.tapir.PublicEndpoint
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
 import sttp.tapir.ztapir.*
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class BaseEndpoints(authorizationService: AuthorizationService):
   val secureEndpoint: ZPartialServerEndpoint[
@@ -34,5 +34,5 @@ class BaseEndpoints(authorizationService: AuthorizationService):
     )
 
 object BaseEndpoints:
-  val live: ZLayer[AuthorizationService, Nothing, BaseEndpoints] =
+  val live: URLayer[AuthorizationService, BaseEndpoints] =
     ZLayer.fromFunction(new BaseEndpoints(_))

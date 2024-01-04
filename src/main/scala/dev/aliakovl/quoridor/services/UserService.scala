@@ -18,7 +18,7 @@ trait UserService:
 
 object UserService:
   val live: URLayer[
-    UserDao & HashingService[Password, UserSecret],
+    UserDao & HashingService,
     UserService
   ] =
     ZLayer.fromFunction(new UserServiceLive(_, _))

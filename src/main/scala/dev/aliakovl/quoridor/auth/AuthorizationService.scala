@@ -1,9 +1,8 @@
 package dev.aliakovl.quoridor.auth
 
 import dev.aliakovl.quoridor.auth.model.*
-import dev.aliakovl.quoridor.config.TokenKeys
+import dev.aliakovl.quoridor.config.{Configuration, TokenKeys}
 import dev.aliakovl.utils.RSAKeyReader
-
 import zio.nio.file.Path
 import zio.*
 
@@ -28,3 +27,6 @@ object AuthorizationService:
       )
     } yield new AuthorizationServiceLive(publicKey)
   }
+
+  val configuredLive: TaskLayer[AuthorizationService] =
+    Configuration.tokenKeys >>> live

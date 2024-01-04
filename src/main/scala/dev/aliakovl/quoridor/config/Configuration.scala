@@ -20,3 +20,10 @@ object Configuration:
       .load(deriveConfig[Configuration])
       .orDie
   }
+
+  val auth: ULayer[Auth] = live.project(_.auth)
+  val address: ULayer[Address] = live.project(_.address)
+  val tokenKeys: ULayer[TokenKeys] = live.project(_.tokenKeys)
+  val tokenStore: ULayer[TokenStore] = live.project(_.tokenStore)
+  val sslKeyStore: ULayer[SSLKeyStore] = live.project(_.sslKeyStore)
+  val pubSubRedis: ULayer[PubSubRedis] = live.project(_.pubSubRedis)
