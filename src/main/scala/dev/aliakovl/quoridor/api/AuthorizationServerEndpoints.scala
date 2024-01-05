@@ -1,6 +1,7 @@
 package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.api.AuthorizationServerEndpoints.*
+import dev.aliakovl.quoridor.api.ErrorMapping.defaultErrorsMapping
 import dev.aliakovl.quoridor.auth.AuthenticationService
 import dev.aliakovl.quoridor.auth.model.RefreshToken
 import dev.aliakovl.quoridor.services.UserService
@@ -9,12 +10,14 @@ import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.ztapir.*
 import zio.{Task, URLayer, ZIO, ZLayer}
 
+import scala.util.chaining.*
+
 class AuthorizationServerEndpoints(
     userService: UserService,
     authenticationService: AuthenticationService,
     authorizationAPI: AuthorizationEndpoints
 ):
-  val singUpServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val singUpServerEndpoint: ZServerEndpoint[Any, Any] =
     authorizationAPI.singUpEndpoint
       .zServerLogic { credentials =>
         userService
@@ -23,9 +26,10 @@ class AuthorizationServerEndpoints(
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
+          .pipe(defaultErrorsMapping)
       }
 
-  val signInServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val signInServerEndpoint: ZServerEndpoint[Any, Any] =
     authorizationAPI.signInEndpoint
       .zServerLogic { credentials =>
         authenticationService
@@ -33,9 +37,10 @@ class AuthorizationServerEndpoints(
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
+          .pipe(defaultErrorsMapping)
       }
 
-  val refreshServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val refreshServerEndpoint: ZServerEndpoint[Any, Any] =
     authorizationAPI.refreshEndpoint
       .zServerLogic { refreshToken =>
         authenticationService
@@ -43,12 +48,16 @@ class AuthorizationServerEndpoints(
           .flatMap { case (accessToken, refreshToken) =>
             cookieValue(refreshToken).map((accessToken, _))
           }
+          .pipe(defaultErrorsMapping)
       }
 
-  val signOutServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val signOutServerEndpoint: ZServerEndpoint[Any, Any] =
     authorizationAPI.signOutEndpoint
       .zServerLogic { refreshToken =>
-        authenticationService.signOut(refreshToken).as(deletedCookie)
+        authenticationService
+          .signOut(refreshToken)
+          .as(deletedCookie)
+          .pipe(defaultErrorsMapping)
       }
 
   val endpoints: List[ZServerEndpoint[Any, Any]] = List(

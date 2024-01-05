@@ -14,7 +14,7 @@ import zio.stream.Stream
 class StreamEndpoints(base: BaseEndpoints) extends TapirExtensions:
   val sseEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
     Game
-  ], Throwable, Stream[Nothing, Game], ZioStreams] =
+  ], ErrorResponse, Stream[Nothing, Game], ZioStreams] =
     base.secureEndpoint.get
       .tag("Game")
       .name("game-events")

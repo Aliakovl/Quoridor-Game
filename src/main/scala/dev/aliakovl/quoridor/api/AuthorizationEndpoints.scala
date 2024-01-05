@@ -13,7 +13,7 @@ class AuthorizationEndpoints(base: BaseEndpoints):
   val singUpEndpoint: Endpoint[
     Unit,
     Credentials,
-    Throwable,
+    ErrorResponse,
     (AccessToken, CookieValueWithMeta),
     Any
   ] =
@@ -30,7 +30,7 @@ class AuthorizationEndpoints(base: BaseEndpoints):
   val signInEndpoint: Endpoint[
     Unit,
     Credentials,
-    Throwable,
+    ErrorResponse,
     (AccessToken, CookieValueWithMeta),
     Any
   ] =
@@ -46,7 +46,7 @@ class AuthorizationEndpoints(base: BaseEndpoints):
   val refreshEndpoint: Endpoint[
     Unit,
     RefreshToken,
-    Throwable,
+    ErrorResponse,
     (AccessToken, CookieValueWithMeta),
     Any
   ] =
@@ -60,7 +60,7 @@ class AuthorizationEndpoints(base: BaseEndpoints):
       .out(setCookie("refreshToken"))
 
   val signOutEndpoint
-      : Endpoint[Unit, RefreshToken, Throwable, CookieValueWithMeta, Any] =
+      : Endpoint[Unit, RefreshToken, ErrorResponse, CookieValueWithMeta, Any] =
     base.publicEndpoint.post
       .tag("Authentication")
       .name("sign-out")
