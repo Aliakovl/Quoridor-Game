@@ -3,7 +3,7 @@ package dev.aliakovl.quoridor.auth
 import dev.aliakovl.quoridor.auth.model.*
 import dev.aliakovl.quoridor.auth.store.RefreshTokenStore
 import dev.aliakovl.quoridor.services.UserService
-import zio.{IO, Task}
+import zio.{IO, Task, URLayer, ZLayer}
 
 class AuthenticationServiceLive(
     userService: UserService,
@@ -40,3 +40,10 @@ class AuthenticationServiceLive(
   ): IO[AuthException, Unit] = for {
     _ <- tokenStore.remove(refreshToken)
   } yield ()
+
+object AuthenticationServiceLive:
+  val live: URLayer[
+    UserService & AccessService & HashingService & RefreshTokenStore,
+    AuthenticationService
+  ] =
+    ZLayer.fromFunction(new AuthenticationServiceLive(_, _, _, _))

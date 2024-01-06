@@ -11,7 +11,7 @@ import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import dev.aliakovl.utils.tagging.ID
 import io.getquill.*
 import org.postgresql.util.PSQLState
-import zio.{Task, ZIO}
+import zio.{RLayer, Task, ZIO, ZLayer}
 
 import java.sql.SQLException
 
@@ -81,3 +81,7 @@ class ProtoGameDaoLive(quillContext: QuillContext) extends ProtoGameDao:
           ZIO.fail(SamePlayerException(userId, gameId))
       }
   }
+
+object ProtoGameDaoLive:
+  val live: RLayer[QuillContext, ProtoGameDao] =
+    ZLayer.fromFunction(new ProtoGameDaoLive(_))

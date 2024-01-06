@@ -1,10 +1,13 @@
 package dev.aliakovl.quoridor.pubsub
 
+import dev.aliakovl.quoridor.codec.redis.given
+import dev.aliakovl.quoridor.config.{Configuration, PubSubRedis}
 import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.utils.pubsub.redis.{RedisPublisher, RedisSubscriber}
 import dev.aliakovl.utils.pubsub.{Publisher, Subscriber}
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{RIO, Scope, Task}
+import zio.{RIO, Scope, Task, TaskLayer, ZLayer}
 
 class GamePubSubLive(
     publisher: Publisher[ID[Game], Game],
@@ -17,3 +20,13 @@ class GamePubSubLive(
       gameId: ID[Game]
   ): RIO[Scope, ZStream[Any, Throwable, Game]] =
     subscriber.subscribe(gameId)
+
+object GamePubSubLive:
+  val live: ZLayer[PubSubRedis, Throwable, GamePubSub] =
+    ZLayer.makeSome[PubSubRedis, GamePubSub](
+      RedisPublisher.live[ID[Game], Game],
+      RedisSubscriber.live[ID[Game], Game],
+      ZLayer.fromFunction(new GamePubSubLive(_, _))
+    )
+
+  val configuredLive: TaskLayer[GamePubSub] = Configuration.pubSubRedis >>> live

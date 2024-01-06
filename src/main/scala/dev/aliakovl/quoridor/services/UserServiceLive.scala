@@ -6,7 +6,7 @@ import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.quoridor.dao.UserDao
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
-import zio.Task
+import zio.{Task, URLayer, ZLayer}
 
 import java.util.UUID
 
@@ -37,3 +37,10 @@ class UserServiceLive(
   override def getUserSecret(username: Username): Task[UserWithSecret] = {
     userDao.findByUsername(username)
   }
+
+object UserServiceLive:
+  val live: URLayer[
+    UserDao & HashingService,
+    UserService
+  ] =
+    ZLayer.fromFunction(new UserServiceLive(_, _))

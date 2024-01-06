@@ -69,7 +69,7 @@ final class RedisStore[K, V](
   }
 }
 
-object RedisStore {
+object RedisStore:
   def apply[K, V](
       redisURI: RedisURI,
       redisCodec: RedisCodec[K, V],
@@ -112,4 +112,3 @@ object RedisStore {
         RedisStore(uri, redisCodec, ttl)
     }
   }
-}

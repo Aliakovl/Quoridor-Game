@@ -10,11 +10,11 @@ import dev.aliakovl.utils.tagging.ID
 import cats.data.NonEmptyList
 import io.getquill.*
 import org.postgresql.util.PSQLState
-import zio.{IO, Task, ZIO}
+import zio.{IO, RLayer, Task, ZIO, ZLayer}
 
 import java.sql.SQLException
 
-class GameDaoLive(quillContext: QuillContext) extends GameDao {
+class GameDaoLive(quillContext: QuillContext) extends GameDao:
   import quillContext.*
   import quillContext.given
 
@@ -297,4 +297,7 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao {
       )
     }).unit
   }
-}
+
+object GameDaoLive:
+  val live: RLayer[QuillContext, GameDao] =
+    ZLayer.fromFunction(new GameDaoLive(_))

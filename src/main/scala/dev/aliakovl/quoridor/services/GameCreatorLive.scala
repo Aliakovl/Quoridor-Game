@@ -8,7 +8,7 @@ import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import dev.aliakovl.quoridor.model.game.geometry.Side
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
-import zio.{Task, ZIO}
+import zio.{Task, URLayer, ZIO, ZLayer}
 
 import java.util.UUID
 
@@ -72,3 +72,10 @@ class GameCreatorLive(
       game <- gameDao.create(gameId, state)
     } yield game
   }
+
+object GameCreatorLive:
+  val live: URLayer[
+    UserDao & ProtoGameDao & GameDao,
+    GameCreator
+  ] =
+    ZLayer.fromFunction(new GameCreatorLive(_, _, _))

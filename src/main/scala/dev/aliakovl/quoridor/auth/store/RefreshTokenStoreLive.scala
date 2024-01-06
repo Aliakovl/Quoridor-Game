@@ -2,10 +2,13 @@ package dev.aliakovl.quoridor.auth.store
 
 import dev.aliakovl.quoridor.auth.model.AuthException.InvalidRefreshToken
 import dev.aliakovl.quoridor.auth.model.{InvalidRefreshToken, RefreshToken}
+import dev.aliakovl.quoridor.auth.store.redis.RedisStore
+import dev.aliakovl.quoridor.codec.redis.given
+import dev.aliakovl.quoridor.config.{Configuration, TokenStore}
 import dev.aliakovl.quoridor.model.User
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
-import zio.IO
+import zio.{IO, RLayer, TaskLayer, ZLayer}
 
 class RefreshTokenStoreLive(
     store: KVStore[RefreshToken, ID[User]]
@@ -20,3 +23,13 @@ class RefreshTokenStoreLive(
       refreshToken: RefreshToken
   ): IO[InvalidRefreshToken, ID[User]] =
     store.getDel(refreshToken).!.someOrFail(InvalidRefreshToken)
+
+object RefreshTokenStoreLive:
+  val live: RLayer[TokenStore, RefreshTokenStore] =
+    ZLayer.makeSome[TokenStore, RefreshTokenStore](
+      RedisStore.live[RefreshToken, ID[User]],
+      ZLayer.fromFunction(new RefreshTokenStoreLive(_))
+    )
+
+  val configuredLive: TaskLayer[RefreshTokenStore] =
+    Configuration.tokenStore >>> live

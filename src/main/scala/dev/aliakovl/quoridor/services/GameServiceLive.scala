@@ -141,3 +141,7 @@ class GameServiceLive(
       .unwrapScoped(gamePubSub.subscribe(gameId))
       .takeWhile(_.winner.isEmpty) ++ ZStream.fromZIO(findGame(gameId))
   )
+
+object GameServiceLive:
+  val live: URLayer[GameDao & GamePubSub, GameService] =
+    ZLayer.fromFunction(new GameServiceLive(_, _))

@@ -2,9 +2,8 @@ package dev.aliakovl.quoridor.dao
 
 import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.quoridor.model.game.{Game, Move, State}
-import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.utils.tagging.ID
-import zio.{RLayer, Task, ZLayer}
+import zio.Task
 
 trait GameDao:
   def find(gameId: ID[Game]): Task[Game]
@@ -28,7 +27,3 @@ trait GameDao:
   def history(userId: ID[User]): Task[List[ID[Game]]]
 
   def findParticipants(gameId: ID[Game]): Task[GamePreView]
-
-object GameDao:
-  val live: RLayer[QuillContext, GameDao] =
-    ZLayer.fromFunction(new GameDaoLive(_))

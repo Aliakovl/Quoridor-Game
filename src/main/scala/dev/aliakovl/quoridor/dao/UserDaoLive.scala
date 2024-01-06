@@ -11,7 +11,7 @@ import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.utils.tagging.ID
 import org.postgresql.util.PSQLState
 import io.getquill.*
-import zio.{Task, ZIO}
+import zio.{RLayer, Task, ZIO, ZLayer}
 
 import java.sql.SQLException
 
@@ -63,3 +63,7 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
           ZIO.fail(UsernameOccupiedException(user.username))
       }
   }
+
+object UserDaoLive:
+  val live: RLayer[QuillContext, UserDao] =
+    ZLayer.fromFunction(new UserDaoLive(_))
