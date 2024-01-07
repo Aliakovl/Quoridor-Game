@@ -157,5 +157,10 @@ down-prod:
 	export VERSION=$(VERSION) && \
 	docker-compose -f docker-compose.prod.yml --env-file .env down
 
+renew-cert:
+	@export DOCKER_REGISTRY=$(DOCKER_REGISTRY) && \
+	export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+	docker-compose -f init/renew-cert.docker-compose.yml up
+
 version:
 	@echo $(VERSION)

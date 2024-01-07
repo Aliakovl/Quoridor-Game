@@ -68,6 +68,7 @@ services:
       - public-certs:/etc/nginx/certs
       - ssl-dhparam:/etc/nginx/ssl
       - game-api-tls:/etc/nginx/game-api-tls
+      - www-certbot:/var/www/certbot
     depends_on:
       - game-api
       - frontend
@@ -96,4 +97,7 @@ volumes:
     external: true
   game-api-tls:
     name: game-api-tls
+    external: true
+  www-certbot:
+    name: www-certbot
     external: true
