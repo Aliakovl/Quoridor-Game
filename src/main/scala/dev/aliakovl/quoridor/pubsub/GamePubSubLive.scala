@@ -1,10 +1,11 @@
 package dev.aliakovl.quoridor.pubsub
 
 import dev.aliakovl.quoridor.codec.redis.given
-import dev.aliakovl.quoridor.config.{Configuration, PubSubRedis}
+import dev.aliakovl.quoridor.config.Configuration
 import dev.aliakovl.quoridor.model.game.Game
-import dev.aliakovl.utils.pubsub.redis.{RedisPublisher, RedisSubscriber}
 import dev.aliakovl.utils.pubsub.{Publisher, Subscriber}
+import dev.aliakovl.utils.redis.{RedisPublisher, RedisSubscriber}
+import dev.aliakovl.utils.redis.config.PubSubRedis
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
 import zio.{RIO, Scope, Task, TaskLayer, ZLayer}

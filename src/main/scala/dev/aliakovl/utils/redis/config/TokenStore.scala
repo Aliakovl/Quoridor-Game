@@ -1,4 +1,4 @@
-package dev.aliakovl.quoridor.config
+package dev.aliakovl.utils.redis.config
 
 import zio.*
 

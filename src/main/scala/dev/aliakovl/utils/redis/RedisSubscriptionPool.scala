@@ -1,15 +1,11 @@
-package dev.aliakovl.utils.pool.redis
+package dev.aliakovl.utils.redis
 
 import dev.aliakovl.utils.pool.SubscriptionPool
-import io.lettuce.core.pubsub.{
-  RedisPubSubAdapter,
-  RedisPubSubListener,
-  StatefulRedisPubSubConnection
-}
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
+import io.lettuce.core.pubsub.{RedisPubSubAdapter, RedisPubSubListener, StatefulRedisPubSubConnection}
 import io.lettuce.core.support.AsyncPool
-import zio.{RIO, Scope, Task, ZIO}
 import zio.stream.SubscriptionRef
+import zio.{RIO, Scope, Task, ZIO}
 
 class RedisSubscriptionPool[K, V](
     pool: AsyncPool[StatefulRedisPubSubConnection[K, V]]
@@ -27,7 +23,7 @@ class RedisSubscriptionPool[K, V](
             .run {
               ref.set(Some(message))
             }
-            .getOrThrow()
+            .getOrThrowFiberFailure()
         }
     }
 

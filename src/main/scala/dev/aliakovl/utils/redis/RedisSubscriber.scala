@@ -1,21 +1,16 @@
-package dev.aliakovl.utils.pubsub.redis
+package dev.aliakovl.utils.redis
 
-import dev.aliakovl.quoridor.config.PubSubRedis
 import dev.aliakovl.utils.pool.SubscriptionPool
-import dev.aliakovl.utils.pool.redis.RedisSubscriptionPool
 import dev.aliakovl.utils.pubsub.Subscriber
+import dev.aliakovl.utils.redis.config.PubSubRedis
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
-import io.lettuce.core.support.{
-  AsyncConnectionPoolSupport,
-  AsyncPool,
-  BoundedPoolConfig
-}
+import io.lettuce.core.support.{AsyncConnectionPoolSupport, AsyncPool, BoundedPoolConfig}
 import io.lettuce.core.{RedisClient, RedisURI}
 import izumi.reflect.Tag
-import zio.stream.{SubscriptionRef, ZStream}
 import zio.*
+import zio.stream.{SubscriptionRef, ZStream}
 
 class RedisSubscriber[K, V](
     subscriptionPool: SubscriptionPool[

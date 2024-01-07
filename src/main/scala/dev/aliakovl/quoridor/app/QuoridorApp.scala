@@ -7,7 +7,6 @@ import dev.aliakovl.quoridor.services.*
 import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.quoridor.dao.*
 import dev.aliakovl.quoridor.pubsub.*
-import dev.aliakovl.utils.SSLProvider
 import zio.*
 import zio.logging.LogFormat
 import zio.logging.backend.SLF4J
@@ -38,7 +37,7 @@ object QuoridorApp extends ZIOAppDefault:
       GameServerEndpoints.live,
       StreamServerEndpoints.live,
       Endpoints.live,
-      SSLProvider.configuredLive,
+      SSLProviderLive.configuredLive,
       BlazeServer.configuredLive
     )
 

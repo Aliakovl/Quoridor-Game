@@ -1,8 +1,7 @@
-package dev.aliakovl.quoridor.auth.store.redis
+package dev.aliakovl.utils.redis
 
-import dev.aliakovl.quoridor.auth.store.KVStore
-import dev.aliakovl.quoridor.config.TokenStore
-import dev.aliakovl.utils.pool.redis.RedisPool
+import dev.aliakovl.utils.redis.config.TokenStore
+import dev.aliakovl.utils.store.KVStore
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.support.*

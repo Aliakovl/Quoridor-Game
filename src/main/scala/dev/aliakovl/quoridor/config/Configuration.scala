@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.config
 
+import dev.aliakovl.utils.redis.config.{PubSubRedis, TokenStore}
 import zio.*
 import zio.config.typesafe.*
 import zio.config.magnolia.*
