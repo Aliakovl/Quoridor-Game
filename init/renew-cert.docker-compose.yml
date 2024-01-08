@@ -1,0 +1,18 @@
+version: "2.4"
+
+services:
+  renew-cert:
+    image: certbot/certbot:latest
+    command: >-
+      renew --webroot-path=/var/www/certbot --agree-tos
+    volumes:
+      - public-certs:/etc/letsencrypt
+      - www-certbot:/var/www/certbot
+
+volumes:
+  public-certs:
+    name: public-certs
+    external: true
+  www-certbot:
+    name: www-certbot
+    external: true
