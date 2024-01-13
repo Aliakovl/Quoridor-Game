@@ -36,17 +36,17 @@ class GameCreatorLive(
   ): Task[ProtoGame] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
-      _ <- ZIO.cond(
-        !gameAlreadyStarted,
-        (),
-        GameAlreadyStartedException(gameId)
+      _ <- ZIO.when(gameAlreadyStarted)(
+        ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
       playersNumber = protoGame.players.guests.size + 1
-      _ <- ZIO.cond(playersNumber < 4, (), PlayersNumberLimitException)
+      _ <- ZIO.when(playersNumber >= 4)(
+        ZIO.fail(PlayersNumberLimitException)
+      )
       target = Side.values(playersNumber)
-      _ <- protoGameDao.addPlayer(gameId, userId, target)
       user <- userDao.findById(userId)
+      _ <- protoGameDao.addPlayer(gameId, userId, target)
       newPlayer = ProtoPlayer(user.id, user.username, target)
     } yield protoGame.copy(players =
       protoGame.players.copy(guests = protoGame.players.guests :+ newPlayer)
@@ -56,16 +56,12 @@ class GameCreatorLive(
   override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
-      _ <- ZIO.cond(
-        !gameAlreadyStarted,
-        (),
-        GameAlreadyStartedException(gameId)
+      _ <- ZIO.when(gameAlreadyStarted)(
+        ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
-      _ <- ZIO.cond(
-        protoGame.players.creator.id == userId,
-        (),
-        NotGameCreatorException(userId, gameId)
+      _ <- ZIO.when(userId != protoGame.players.creator.id)(
+        ZIO.fail(NotGameCreatorException(userId, gameId))
       )
       players <- ZIO.fromEither(protoGame.players.toPlayers)
       state = State(players, Set.empty)

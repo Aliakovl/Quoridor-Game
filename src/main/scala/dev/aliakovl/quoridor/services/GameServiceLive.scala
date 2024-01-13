@@ -85,12 +85,9 @@ class GameServiceLive(
   ): Task[List[Game]] = {
     for {
       game <- gameDao.find(gameId)
-      _ <- ZIO.cond(
-        game.state.players.toList.exists(_.id == userId),
-        (),
-        GameInterloperException(userId, gameId)
+      _ <- ZIO.unless(game.state.players.toList.exists(_.id == userId))(
+        ZIO.fail(GameInterloperException(userId, gameId))
       )
-
       lastStep <- gameDao.lastStep(gameId)
       history <- ZIO.foreachPar((0 to lastStep).toList)(
         gameDao.find(gameId, _)

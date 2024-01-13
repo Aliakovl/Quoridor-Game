@@ -49,6 +49,7 @@ object BaseEndpoints:
       oneOfVariant(statusCode(StatusCode.BadRequest).and(jsonBody[BadRequest])),
       oneOfVariant(statusCode(StatusCode.NotFound).and(jsonBody[NotFound])),
       oneOfVariant(statusCode(StatusCode.Forbidden).and(jsonBody[Forbidden])),
+      oneOfVariant(statusCode(StatusCode.Conflict).and(jsonBody[Conflict])),
       oneOfVariant(
         statusCode(StatusCode.InternalServerError).and(
           jsonBody[InternalServerError]
