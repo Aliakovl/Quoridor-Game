@@ -2,7 +2,7 @@ package dev.aliakovl.utils.redis
 
 import dev.aliakovl.utils.pool.SubscriptionPool
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
-import io.lettuce.core.pubsub.{RedisPubSubAdapter, RedisPubSubListener, StatefulRedisPubSubConnection}
+import io.lettuce.core.pubsub.*
 import io.lettuce.core.support.AsyncPool
 import zio.stream.SubscriptionRef
 import zio.{RIO, Scope, Task, ZIO}

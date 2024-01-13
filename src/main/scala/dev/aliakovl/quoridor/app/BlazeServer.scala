@@ -15,13 +15,12 @@ class BlazeServer(
     address: Address,
     sslContext: SSLContext,
     endpoints: Endpoints
-) extends HttpServer[Any, Throwable, Server]:
-
+):
   private val apiRoutes: HttpRoutes[Task] = ZHttp4sServerInterpreter[Any]()
     .from(endpoints.endpoints)
     .toRoutes
 
-  override val start: ZIO[Scope, Throwable, Server] =
+  val start: ZIO[Scope, Throwable, Server] =
     BlazeServerBuilder[Task]
       .bindHttp(address.port, address.host)
       .withSslContext(sslContext)
