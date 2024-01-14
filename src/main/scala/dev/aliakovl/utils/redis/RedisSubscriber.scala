@@ -2,7 +2,7 @@ package dev.aliakovl.utils.redis
 
 import dev.aliakovl.utils.pool.SubscriptionPool
 import dev.aliakovl.utils.pubsub.Subscriber
-import dev.aliakovl.utils.redis.config.PubSubRedis
+import dev.aliakovl.utils.redis.config.RedisConfig
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
@@ -48,12 +48,12 @@ object RedisSubscriber:
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
   ): ZLayer[
-    PubSubRedis,
+    RedisConfig,
     Throwable,
     Subscriber[K, V]
   ] = ZLayer(
-    ZIO.serviceWithZIO[PubSubRedis] {
-      case PubSubRedis(host, port, database, password) =>
+    ZIO.serviceWithZIO[RedisConfig] {
+      case RedisConfig(host, port, database, password, _) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)

@@ -1,6 +1,6 @@
 package dev.aliakovl.utils.redis
 
-import dev.aliakovl.utils.redis.config.TokenStore
+import dev.aliakovl.utils.redis.config.RedisConfig
 import dev.aliakovl.utils.store.KVStore
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.RedisCodec
@@ -99,9 +99,9 @@ object RedisStore:
 
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
-  ): RLayer[TokenStore, KVStore[K, V]] = ZLayer {
-    ZIO.serviceWithZIO[TokenStore] {
-      case TokenStore(host, port, database, password, ttl) =>
+  ): RLayer[RedisConfig, KVStore[K, V]] = ZLayer {
+    ZIO.serviceWithZIO[RedisConfig] {
+      case RedisConfig(host, port, database, password, Some(ttl)) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)
@@ -109,5 +109,6 @@ object RedisStore:
           .withAuthentication("default", password)
           .build()
         RedisStore(uri, redisCodec, ttl)
+      case _ => ZIO.fail(new Throwable("ttl was not provided"))
     }
   }

@@ -1,11 +1,11 @@
 package dev.aliakovl.utils.redis.config
 
-import zio.*
+import zio.Duration
 
-final case class TokenStore(
+final case class RedisConfig(
     host: String,
     port: Int,
     database: Int,
     password: String,
-    ttl: Duration
+    ttl: Option[Duration] = None
 )
