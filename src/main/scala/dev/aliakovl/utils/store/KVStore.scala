@@ -1,4 +1,4 @@
-package dev.aliakovl.quoridor.auth.store
+package dev.aliakovl.utils.store
 
 import zio.Task
 

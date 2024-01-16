@@ -8,13 +8,13 @@ import dev.aliakovl.utils.tapir.TapirExtensions
 import sttp.tapir.ztapir.*
 import sttp.model.HeaderNames
 import sttp.capabilities.zio.ZioStreams
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 import zio.stream.Stream
 
 class StreamEndpoints(base: BaseEndpoints) extends TapirExtensions:
   val sseEndpoint: ZPartialServerEndpoint[Any, AccessToken, ClaimData, ID[
     Game
-  ], Throwable, Stream[Nothing, Game], ZioStreams] =
+  ], ErrorResponse, Stream[Nothing, Game], ZioStreams] =
     base.secureEndpoint.get
       .tag("Game")
       .name("game-events")
@@ -25,5 +25,5 @@ class StreamEndpoints(base: BaseEndpoints) extends TapirExtensions:
       .out(messageStreamBody[Nothing, Game])
 
 object StreamEndpoints:
-  val live: ZLayer[BaseEndpoints, Nothing, StreamEndpoints] =
+  val live: URLayer[BaseEndpoints, StreamEndpoints] =
     ZLayer.fromFunction(new StreamEndpoints(_))

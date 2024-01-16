@@ -1,17 +1,12 @@
-package dev.aliakovl.utils.pubsub.redis
+package dev.aliakovl.utils.redis
 
-import dev.aliakovl.quoridor.config.PubSubRedis
 import dev.aliakovl.utils.pool.Pool
-import dev.aliakovl.utils.pool.redis.RedisPool
 import dev.aliakovl.utils.pubsub.Publisher
+import dev.aliakovl.utils.redis.config.RedisConfig
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.RedisCodec
-import io.lettuce.core.support.{
-  AsyncConnectionPoolSupport,
-  AsyncPool,
-  BoundedPoolConfig
-}
+import io.lettuce.core.support.*
 import io.lettuce.core.{RedisClient, RedisURI}
 import izumi.reflect.Tag
 import zio.*
@@ -44,12 +39,12 @@ object RedisPublisher:
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
   ): ZLayer[
-    PubSubRedis,
+    RedisConfig,
     Throwable,
     Publisher[K, V]
   ] = ZLayer(
-    ZIO.serviceWithZIO[PubSubRedis] {
-      case PubSubRedis(host, port, database, password) =>
+    ZIO.serviceWithZIO[RedisConfig] {
+      case RedisConfig(host, port, database, password, _) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)

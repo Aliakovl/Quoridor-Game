@@ -62,7 +62,7 @@ object Dependencies {
 
   private val logging = Seq(
     "dev.zio" %% "zio-logging" % zioLoggingVersion,
-    "dev.zio" %% "zio-logging-jpl" % zioLoggingVersion,
-    "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion
+    "dev.zio" %% "zio-logging-slf4j" % zioLoggingVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion
   )
 }

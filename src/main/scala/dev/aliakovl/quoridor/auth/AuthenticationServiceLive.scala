@@ -3,12 +3,12 @@ package dev.aliakovl.quoridor.auth
 import dev.aliakovl.quoridor.auth.model.*
 import dev.aliakovl.quoridor.auth.store.RefreshTokenStore
 import dev.aliakovl.quoridor.services.UserService
-import zio.{IO, Task}
+import zio.{IO, Task, URLayer, ZLayer}
 
 class AuthenticationServiceLive(
     userService: UserService,
     accessService: AccessService,
-    hashingService: HashingService[Password, UserSecret],
+    hashingService: HashingService,
     tokenStore: RefreshTokenStore
 ) extends AuthenticationService:
   override def signIn(
@@ -40,3 +40,10 @@ class AuthenticationServiceLive(
   ): IO[AuthException, Unit] = for {
     _ <- tokenStore.remove(refreshToken)
   } yield ()
+
+object AuthenticationServiceLive:
+  val live: URLayer[
+    UserService & AccessService & HashingService & RefreshTokenStore,
+    AuthenticationService
+  ] =
+    ZLayer.fromFunction(new AuthenticationServiceLive(_, _, _, _))

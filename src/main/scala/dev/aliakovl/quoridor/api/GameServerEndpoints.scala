@@ -1,8 +1,11 @@
 package dev.aliakovl.quoridor.api
 
+import dev.aliakovl.quoridor.api.ErrorMapping.defaultErrorsMapping
 import dev.aliakovl.quoridor.services.{GameCreator, GameService, UserService}
 import sttp.tapir.ztapir.*
 import zio.{URLayer, ZLayer}
+
+import scala.util.chaining.*
 
 class GameServerEndpoints(
     gameService: GameService,
@@ -10,70 +13,94 @@ class GameServerEndpoints(
     userService: UserService,
     gameEndpoint: GameEndpoints
 ):
-  val createGameServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val createGameServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.createGameEndpoint
       .serverLogic { claimData => _ =>
-        gameCreator.createGame(claimData.userId)
+        gameCreator
+          .createGame(claimData.userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val joinPlayerServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val joinPlayerServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.joinPlayerEndpoint
       .serverLogic { _ => (gameId, userId) =>
-        gameCreator.joinPlayer(gameId, userId)
+        gameCreator
+          .joinPlayer(gameId, userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val startGameServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val startGameServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.startGameEndpoint
       .serverLogic { claimData => gameId =>
-        gameCreator.startGame(gameId, claimData.userId)
+        gameCreator
+          .startGame(gameId, claimData.userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val gameHistoryServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val gameHistoryServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.gameHistoryEndpoint
       .serverLogic { claimData => gameId =>
-        gameService.gameHistory(gameId, claimData.userId)
+        gameService
+          .gameHistory(gameId, claimData.userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val historyServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val historyServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.historyEndpoint
       .serverLogic { claimData => _ =>
-        gameService.usersHistory(claimData.userId)
+        gameService
+          .usersHistory(claimData.userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val getGameServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val getGameServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.getGameEndpoint
       .serverLogic { _ => gameId =>
-        gameService.findGame(gameId)
+        gameService
+          .findGame(gameId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val getUserServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val getUserServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.getUserEndpoint
       .serverLogic { _ => username =>
-        userService.getUser(username)
+        userService
+          .getUser(username)
+          .pipe(defaultErrorsMapping)
       }
 
-  val pawnMoveServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val pawnMoveServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.pawnMoveEndpoint
       .serverLogic { claimData => (gameId, move) =>
-        gameService.makeMove(gameId, claimData.userId, move).unit
+        gameService
+          .makeMove(gameId, claimData.userId, move)
+          .unit
+          .pipe(defaultErrorsMapping)
       }
 
-  val placeWallServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val placeWallServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.placeWallEndpoint
       .serverLogic { claimData => (gameId, move) =>
-        gameService.makeMove(gameId, claimData.userId, move).unit
+        gameService
+          .makeMove(gameId, claimData.userId, move)
+          .unit
+          .pipe(defaultErrorsMapping)
       }
 
-  val possiblePawnMovesServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val possiblePawnMovesServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.possiblePawnMovesEndpoint
       .serverLogic { claimData => gameId =>
-        gameService.possiblePawnMoves(gameId, claimData.userId)
+        gameService
+          .possiblePawnMoves(gameId, claimData.userId)
+          .pipe(defaultErrorsMapping)
       }
 
-  val possibleWallMovesServerEndpoint: ZServerEndpoint[Any, Any] =
+  private val possibleWallMovesServerEndpoint: ZServerEndpoint[Any, Any] =
     gameEndpoint.possibleWallMovesEndpoint
       .serverLogic { _ => gameId =>
-        gameService.possibleWallMoves(gameId)
+        gameService
+          .possibleWallMoves(gameId)
+          .pipe(defaultErrorsMapping)
       }
 
   val endpoints: List[ZServerEndpoint[Any, Any]] = List(

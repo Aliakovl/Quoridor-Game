@@ -42,11 +42,7 @@ object Board {
     val wp2 = wp1.copy(column = wp1.column - 1)
     val wayIsBlocked = (walls contains wp1) || (walls contains wp2)
     val newPosition = direction.step(pawnPosition)
-    if (!wayIsBlocked && isPawnOnBoard(newPosition)) {
-      Some(newPosition)
-    } else {
-      None
-    }
+    Option.when(!wayIsBlocked && isPawnOnBoard(newPosition))(newPosition)
   }
 
   private def adjacentPositions(
@@ -103,27 +99,24 @@ object Board {
       }
   }
 
-  import scala.collection.mutable
-
   def existsPath(
       from: PawnPosition,
       target: Side,
       walls: Set[WallPosition]
   ): Boolean = {
+    import scala.collection.mutable
+
     val queue = mutable.Queue.empty[PawnPosition]
     val used = mutable.Set.empty[PawnPosition]
     queue.enqueue(from)
     used.add(from)
     while (queue.nonEmpty) {
       val position = queue.dequeue()
-      if (isPawnOnEdge(position, target)) {
-        return true
-      }
+      if isPawnOnEdge(position, target) then return true
       for (adjacentPosition <- adjacentPositions(position, walls)) {
-        if (!used.contains(adjacentPosition)) {
+        if !used.contains(adjacentPosition) then
           used.add(adjacentPosition)
           queue.enqueue(adjacentPosition)
-        }
       }
     }
     false

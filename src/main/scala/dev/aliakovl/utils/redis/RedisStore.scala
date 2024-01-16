@@ -1,8 +1,7 @@
-package dev.aliakovl.quoridor.auth.store.redis
+package dev.aliakovl.utils.redis
 
-import dev.aliakovl.quoridor.auth.store.KVStore
-import dev.aliakovl.quoridor.config.TokenStore
-import dev.aliakovl.utils.pool.redis.RedisPool
+import dev.aliakovl.utils.redis.config.RedisConfig
+import dev.aliakovl.utils.store.KVStore
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.support.*
@@ -69,7 +68,7 @@ final class RedisStore[K, V](
   }
 }
 
-object RedisStore {
+object RedisStore:
   def apply[K, V](
       redisURI: RedisURI,
       redisCodec: RedisCodec[K, V],
@@ -100,9 +99,9 @@ object RedisStore {
 
   def live[K: Tag, V: Tag](using
       redisCodec: RedisCodec[K, V]
-  ): RLayer[TokenStore, KVStore[K, V]] = ZLayer {
-    ZIO.serviceWithZIO[TokenStore] {
-      case TokenStore(host, port, database, password, ttl) =>
+  ): RLayer[RedisConfig, KVStore[K, V]] = ZLayer {
+    ZIO.serviceWithZIO[RedisConfig] {
+      case RedisConfig(host, port, database, password, Some(ttl)) =>
         val uri = RedisURI.Builder
           .redis(host)
           .withPort(port)
@@ -110,6 +109,6 @@ object RedisStore {
           .withAuthentication("default", password)
           .build()
         RedisStore(uri, redisCodec, ttl)
+      case _ => ZIO.fail(new Throwable("ttl was not provided"))
     }
   }
-}

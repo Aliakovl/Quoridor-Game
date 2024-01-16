@@ -2,12 +2,10 @@ package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.quoridor.model.game.{Game, Move}
-import dev.aliakovl.quoridor.dao.GameDao
 import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
-import dev.aliakovl.quoridor.pubsub.GamePubSub
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
-import zio.{Task, URLayer, ZLayer}
+import zio.Task
 
 trait GameService:
   def findGame(gameId: ID[Game]): Task[Game]
@@ -30,7 +28,3 @@ trait GameService:
   def possibleWallMoves(
       gameId: ID[Game]
   ): Task[Set[WallPosition]]
-
-object GameService:
-  val live: URLayer[GameDao & GamePubSub, GameService] =
-    ZLayer.fromFunction(new GameServiceLive(_, _))

@@ -14,7 +14,7 @@ import sttp.tapir.generic.auto.*
 import io.circe.generic.auto.*
 import sttp.model.StatusCode
 import sttp.tapir.CodecFormat
-import zio.ZLayer
+import zio.{URLayer, ZLayer}
 
 class GameEndpoints(base: BaseEndpoints):
   val createGameEndpoint: ZPartialServerEndpoint[
@@ -22,7 +22,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     Unit,
-    Throwable,
+    ErrorResponse,
     ProtoGame,
     Any
   ] =
@@ -39,7 +39,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     (ID[Game], ID[User]),
-    Throwable,
+    ErrorResponse,
     ProtoGame,
     Any
   ] =
@@ -57,7 +57,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     ID[Game],
-    Throwable,
+    ErrorResponse,
     Game,
     Any
   ] =
@@ -74,7 +74,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     ID[Game],
-    Throwable,
+    ErrorResponse,
     List[Game],
     Any
   ] =
@@ -91,7 +91,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     Unit,
-    Throwable,
+    ErrorResponse,
     List[GamePreView],
     Any
   ] =
@@ -108,7 +108,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     ID[Game],
-    Throwable,
+    ErrorResponse,
     Game,
     Any
   ] =
@@ -125,7 +125,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     Username,
-    Throwable,
+    ErrorResponse,
     User,
     Any
   ] =
@@ -142,7 +142,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     (ID[Game], game.Move.PawnMove),
-    Throwable,
+    ErrorResponse,
     Unit,
     Any
   ] =
@@ -159,7 +159,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     (ID[Game], model.game.Move.PlaceWall),
-    Throwable,
+    ErrorResponse,
     Unit,
     Any
   ] =
@@ -176,7 +176,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     ID[Game],
-    Throwable,
+    ErrorResponse,
     List[PawnPosition],
     Any
   ] =
@@ -193,7 +193,7 @@ class GameEndpoints(base: BaseEndpoints):
     AccessToken,
     ClaimData,
     ID[Game],
-    Throwable,
+    ErrorResponse,
     Set[WallPosition],
     Any
   ] =
@@ -206,5 +206,5 @@ class GameEndpoints(base: BaseEndpoints):
       .out(jsonBody[Set[WallPosition]])
 
 object GameEndpoints:
-  val live: ZLayer[BaseEndpoints, Nothing, GameEndpoints] =
+  val live: URLayer[BaseEndpoints, GameEndpoints] =
     ZLayer.fromFunction(new GameEndpoints(_))

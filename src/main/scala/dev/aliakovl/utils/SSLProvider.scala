@@ -1,6 +1,5 @@
 package dev.aliakovl.utils
 
-import dev.aliakovl.quoridor.config.SSLKeyStore
 import zio.*
 import zio.nio.file.Path
 
@@ -8,7 +7,7 @@ import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext}
 
-object SSLProvider:
+trait SSLProvider:
   def apply(path: Path, password: Array[Char]): Task[SSLContext] =
     ZIO.attemptBlocking {
       val keyStore = KeyStore.getInstance("PKCS12")
@@ -25,9 +24,3 @@ object SSLProvider:
       )
       sslContext
     }
-
-  val live: RLayer[SSLKeyStore, SSLContext] = ZLayer(
-    ZIO.serviceWithZIO[SSLKeyStore] { case SSLKeyStore(path, password) =>
-      SSLProvider(Path(path), password.toCharArray)
-    }
-  )

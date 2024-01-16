@@ -1,4 +1,4 @@
-package dev.aliakovl.utils.pool.redis
+package dev.aliakovl.utils.redis
 
 import dev.aliakovl.utils.pool.Pool
 import io.lettuce.core.api.StatefulRedisConnection
