@@ -7,10 +7,13 @@ import dev.aliakovl.quoridor.GameException.{
 }
 import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.quoridor.model.game.{Game, Player}
-import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.dao.GameDao
 import dev.aliakovl.quoridor.engine.game.Move
-import dev.aliakovl.quoridor.engine.game.geometry.Board
+import dev.aliakovl.quoridor.engine.game.geometry.{
+  Board,
+  PawnPosition,
+  WallPosition
+}
 import dev.aliakovl.quoridor.pubsub.GamePubSub
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID

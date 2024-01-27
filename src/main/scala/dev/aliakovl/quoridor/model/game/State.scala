@@ -1,8 +1,12 @@
 package dev.aliakovl.quoridor.model.game
 
-import dev.aliakovl.quoridor.engine.game.geometry.{Board, Direction}
+import dev.aliakovl.quoridor.engine.game.geometry.{
+  Board,
+  Direction,
+  PawnPosition,
+  WallPosition
+}
 import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
-import dev.aliakovl.quoridor.model.game.geometry.*
 import io.circe.*
 import io.circe.generic.semiauto.*
 import sttp.tapir.generic.auto.*
@@ -41,6 +45,8 @@ case class State(players: Players, walls: Set[WallPosition]) {
 }
 
 object State:
+  import dev.aliakovl.quoridor.codec.json.given
+
   given Encoder[State] = deriveEncoder
   given Decoder[State] = deriveDecoder
   given Schema[State] = Schema.derivedSchema[State]

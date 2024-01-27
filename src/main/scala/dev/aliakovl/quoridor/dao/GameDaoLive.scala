@@ -3,12 +3,12 @@ package dev.aliakovl.quoridor.dao
 import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.quoridor.GameException.GameNotFoundException
 import dev.aliakovl.quoridor.model.game.*
-import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
 import cats.data.NonEmptyList
 import dev.aliakovl.quoridor.engine.game.Move
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
 import io.getquill.*
 import org.postgresql.util.PSQLState
 import zio.{IO, RLayer, Task, ZIO, ZLayer}

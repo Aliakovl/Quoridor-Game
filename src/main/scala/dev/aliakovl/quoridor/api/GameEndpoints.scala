@@ -3,8 +3,8 @@ package dev.aliakovl.quoridor.api
 import dev.aliakovl.quoridor.auth.model.{AccessToken, ClaimData, Username}
 import dev.aliakovl.quoridor.codec.json.given
 import dev.aliakovl.quoridor.engine.game.Move
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model
-import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model.{GamePreView, ProtoGame, User, game}
 import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.utils.tagging.ID

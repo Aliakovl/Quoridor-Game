@@ -1,9 +1,8 @@
 package dev.aliakovl.quoridor.engine.game.geometry
 
-import Direction.*
-import Orientation.*
-import Side.*
-import dev.aliakovl.quoridor.model.game.geometry.*
+import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
+import dev.aliakovl.quoridor.engine.game.geometry.Orientation.*
+import dev.aliakovl.quoridor.engine.game.geometry.Side.*
 
 object Board {
   private val width: Int = 9

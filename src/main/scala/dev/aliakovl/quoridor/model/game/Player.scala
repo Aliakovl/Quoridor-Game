@@ -1,9 +1,8 @@
 package dev.aliakovl.quoridor.model.game
 
 import dev.aliakovl.quoridor.auth.model.Username
-import dev.aliakovl.quoridor.engine.game.geometry.Side
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, Side}
 import dev.aliakovl.quoridor.model.User
-import dev.aliakovl.quoridor.model.game.geometry.PawnPosition
 import dev.aliakovl.utils.tagging.ID
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
