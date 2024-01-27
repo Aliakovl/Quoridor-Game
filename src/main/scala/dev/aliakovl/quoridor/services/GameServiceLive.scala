@@ -5,10 +5,9 @@ import dev.aliakovl.quoridor.GameException.{
   GameInterloperException,
   WrongPlayersTurnException
 }
-import dev.aliakovl.quoridor.model.{GamePreView, User}
-import dev.aliakovl.quoridor.model.game.{Game, Player}
+import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
 import dev.aliakovl.quoridor.dao.GameDao
-import dev.aliakovl.quoridor.engine.game.Move
+import dev.aliakovl.quoridor.engine.game.{Move, Player}
 import dev.aliakovl.quoridor.engine.game.geometry.{
   Board,
   PawnPosition,

@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.auth.model.{AccessToken, ClaimData}
-import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.quoridor.model.Game
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.given
 import dev.aliakovl.utils.tapir.TapirExtensions

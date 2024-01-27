@@ -2,6 +2,7 @@ package dev.aliakovl.quoridor.codec
 
 import cats.Show
 import dev.aliakovl.quoridor.codec.string.given
+import dev.aliakovl.quoridor.engine.game.{Player, Players, State}
 import dev.aliakovl.quoridor.engine.game.geometry.*
 import dev.aliakovl.quoridor.engine.game.geometry.Side.*
 import dev.aliakovl.utils.StringParser
@@ -33,3 +34,15 @@ object json:
   given Encoder[WallPosition] = deriveEncoder
   given Decoder[WallPosition] = deriveDecoder
   given Schema[WallPosition] = Schema.derivedSchema[WallPosition]
+
+  given Encoder[Player] = deriveEncoder
+  given Decoder[Player] = deriveDecoder
+  given Schema[Player] = Schema.derivedSchema[Player]
+
+  given Encoder[Players] = deriveEncoder
+  given Decoder[Players] = deriveDecoder
+  given Schema[Players] = Schema.derivedSchema[Players]
+
+  given Encoder[State] = deriveEncoder
+  given Decoder[State] = deriveDecoder
+  given Schema[State] = Schema.derivedSchema[State]

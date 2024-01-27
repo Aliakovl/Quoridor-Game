@@ -7,7 +7,6 @@ import dev.aliakovl.quoridor.engine.game.geometry.{
   PawnPosition,
   WallPosition
 }
-import dev.aliakovl.quoridor.model.game.State
 
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =

@@ -5,8 +5,7 @@ import dev.aliakovl.quoridor.codec.json.given
 import dev.aliakovl.quoridor.engine.game.Move
 import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model
-import dev.aliakovl.quoridor.model.{GamePreView, ProtoGame, User, game}
-import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.quoridor.model.{Game, GamePreView, ProtoGame, User}
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.given
 import io.circe.{Decoder, Encoder}

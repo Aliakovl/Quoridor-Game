@@ -1,6 +1,5 @@
 package dev.aliakovl.quoridor.model
 
-import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.utils.tagging.ID
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema

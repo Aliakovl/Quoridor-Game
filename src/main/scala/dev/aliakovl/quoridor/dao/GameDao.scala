@@ -1,8 +1,7 @@
 package dev.aliakovl.quoridor.dao
 
-import dev.aliakovl.quoridor.engine.game.Move
-import dev.aliakovl.quoridor.model.{GamePreView, User}
-import dev.aliakovl.quoridor.model.game.{Game, State}
+import dev.aliakovl.quoridor.engine.game.{Move, State}
+import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
 import dev.aliakovl.utils.tagging.ID
 import zio.Task
 

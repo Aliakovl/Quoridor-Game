@@ -1,8 +1,7 @@
 package dev.aliakovl.quoridor
 
 import dev.aliakovl.quoridor.auth.model.Username
-import dev.aliakovl.quoridor.model.game.Game
-import dev.aliakovl.quoridor.model.User
+import dev.aliakovl.quoridor.model.{Game, User}
 import dev.aliakovl.utils.tagging.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)

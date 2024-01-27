@@ -4,9 +4,9 @@ import dev.aliakovl.quoridor.GameException.{
   NotEnoughPlayersException,
   PlayersNumberLimitException
 }
-import dev.aliakovl.quoridor.model.game.{Player, Players}
 import cats.data.NonEmptyList
 import dev.aliakovl.quoridor.GameException
+import dev.aliakovl.quoridor.engine.game.{Player, Players}
 import dev.aliakovl.quoridor.engine.game.geometry.Board
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema

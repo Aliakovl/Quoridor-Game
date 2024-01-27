@@ -1,7 +1,6 @@
 package dev.aliakovl.quoridor.services
 
-import dev.aliakovl.quoridor.model.game.Game
-import dev.aliakovl.quoridor.model.{ProtoGame, User}
+import dev.aliakovl.quoridor.model.{Game, ProtoGame, User}
 import dev.aliakovl.utils.tagging.ID
 import zio.Task
 

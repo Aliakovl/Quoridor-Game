@@ -1,16 +1,12 @@
-package dev.aliakovl.quoridor.model.game
+package dev.aliakovl.quoridor.engine.game
 
+import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
 import dev.aliakovl.quoridor.engine.game.geometry.{
   Board,
   Direction,
   PawnPosition,
   WallPosition
 }
-import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
-import io.circe.*
-import io.circe.generic.semiauto.*
-import sttp.tapir.generic.auto.*
-import sttp.tapir.Schema
 
 case class State(players: Players, walls: Set[WallPosition]) {
   lazy val possibleSteps: List[PawnPosition] = {
@@ -43,10 +39,3 @@ case class State(players: Players, walls: Set[WallPosition]) {
     }
   }
 }
-
-object State:
-  import dev.aliakovl.quoridor.codec.json.given
-
-  given Encoder[State] = deriveEncoder
-  given Decoder[State] = deriveDecoder
-  given Schema[State] = Schema.derivedSchema[State]

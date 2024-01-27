@@ -1,6 +1,6 @@
 package dev.aliakovl.quoridor.pubsub
 
-import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.quoridor.model.Game
 import dev.aliakovl.utils.tagging.ID
 import zio.{RIO, Scope, Task}
 import zio.stream.ZStream

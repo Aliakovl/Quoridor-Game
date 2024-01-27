@@ -6,8 +6,13 @@ import dev.aliakovl.quoridor.GameException.{
   SamePlayerException
 }
 import dev.aliakovl.quoridor.engine.game.geometry.Side
-import dev.aliakovl.quoridor.model.game.Game
-import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import dev.aliakovl.quoridor.model.{
+  Game,
+  ProtoGame,
+  ProtoPlayer,
+  ProtoPlayers,
+  User
+}
 import dev.aliakovl.utils.tagging.ID
 import io.getquill.*
 import org.postgresql.util.PSQLState
