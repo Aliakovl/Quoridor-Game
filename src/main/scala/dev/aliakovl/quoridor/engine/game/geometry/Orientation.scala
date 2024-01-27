@@ -1,11 +1,11 @@
 package dev.aliakovl.quoridor.engine.game.geometry
 
-enum Orientation extends Opposite[Orientation] { self =>
-  case Horizontal extends Orientation
-  case Vertical extends Orientation
+enum Orientation:
+  case Horizontal, Vertical
 
-  override def opposite: Orientation = self match {
-    case Horizontal => Vertical
-    case Vertical   => Horizontal
-  }
-}
+object Orientation:
+  given Opposite[Orientation] with
+    extension (value: Orientation)
+      override def opposite: Orientation = value match
+        case Horizontal => Vertical
+        case Vertical   => Horizontal

@@ -1,5 +1,4 @@
 package dev.aliakovl.quoridor.engine.game.geometry
 
-transparent trait Opposite[+T] {
-  def opposite: T
-}
+trait Opposite[T]:
+  extension (value: T) def opposite: T
