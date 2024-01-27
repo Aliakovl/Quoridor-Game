@@ -2,8 +2,7 @@ package dev.aliakovl.quoridor.dao.quill
 
 import cats.Show
 import dev.aliakovl.quoridor.codec.string.given
-import dev.aliakovl.quoridor.engine.game.geometry.Side
-import dev.aliakovl.quoridor.model.game.geometry.Orientation
+import dev.aliakovl.quoridor.engine.game.geometry.{Orientation, Side}
 import dev.aliakovl.utils.StringParser
 import dev.aliakovl.utils.tagging.Tagged
 import dev.aliakovl.utils.tagging.Tagged.*
@@ -37,14 +36,14 @@ trait PostgresExtensions:
       (index: Index, value: Orientation, row: PrepareRow) => {
         val pgObj = new PGobject()
         pgObj.setType("orientation")
-        pgObj.setValue(value.entryName)
+        pgObj.setValue(Show[Orientation].show(value))
         row.setObject(index, pgObj, Types.OTHER)
       }
     )
 
   given Decoder[Orientation] =
     decoder[Orientation] { row => index =>
-      Orientation.withName(row.getString(index))
+      StringParser[Orientation].parse(row.getString(index)).get
     }
 
   given [A, B](using Encoder[A]): Encoder[Tagged[A, B]] =

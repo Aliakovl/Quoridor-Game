@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.model.game.geometry
 
+import dev.aliakovl.quoridor.engine.game.geometry.Orientation
 import io.circe.*
 import io.circe.generic.semiauto.*
 import sttp.tapir.generic.auto.*
