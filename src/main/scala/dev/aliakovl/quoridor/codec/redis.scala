@@ -12,7 +12,7 @@ import io.circe.syntax.given
 import java.nio.ByteBuffer
 import java.util.UUID
 
-package object redis:
+object redis:
   given RedisCodec[RefreshToken, ID[User]] with
     override def decodeValue(bytes: ByteBuffer): ID[User] =
       UUID.fromString(stringCodec.decodeKey(bytes)).tag[User]

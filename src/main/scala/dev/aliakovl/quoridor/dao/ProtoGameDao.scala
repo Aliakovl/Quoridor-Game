@@ -1,8 +1,8 @@
 package dev.aliakovl.quoridor.dao
 
+import dev.aliakovl.quoridor.engine.game.geometry.Side
 import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.quoridor.model.{ProtoGame, User}
-import dev.aliakovl.quoridor.model.game.geometry.Side
 import dev.aliakovl.utils.tagging.ID
 import zio.Task
 

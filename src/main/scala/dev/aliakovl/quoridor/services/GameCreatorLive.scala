@@ -1,11 +1,11 @@
 package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
-import dev.aliakovl.quoridor.model.game.geometry.Side.*
+import dev.aliakovl.quoridor.engine.game.geometry.Side.*
 import dev.aliakovl.quoridor.model.game.{Game, State}
 import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
-import dev.aliakovl.quoridor.model.game.geometry.Side
+import dev.aliakovl.quoridor.engine.game.geometry.Side
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import zio.{Task, URLayer, ZIO, ZLayer}
