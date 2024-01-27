@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.model.game.geometry
 
+import dev.aliakovl.quoridor.engine.game.geometry.Opposite
 import dev.aliakovl.quoridor.model.game.geometry.Side.order
 import io.circe.{Decoder, Encoder}
 import sttp.tapir.generic.auto.*

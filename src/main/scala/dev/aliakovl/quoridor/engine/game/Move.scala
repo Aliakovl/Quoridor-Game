@@ -1,12 +1,10 @@
-package dev.aliakovl.quoridor.model.game
+package dev.aliakovl.quoridor.engine.game
 
-import dev.aliakovl.quoridor.model.GameMoveException.*
-import dev.aliakovl.quoridor.model.GameMoveException
-import dev.aliakovl.quoridor.model.game.geometry.{
-  Board,
-  PawnPosition,
-  WallPosition
-}
+import dev.aliakovl.quoridor.engine.GameMoveException
+import dev.aliakovl.quoridor.engine.game.geometry.Board
+import GameMoveException.*
+import dev.aliakovl.quoridor.model.game.State
+import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =

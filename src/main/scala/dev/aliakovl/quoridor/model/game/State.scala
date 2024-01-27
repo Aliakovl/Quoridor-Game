@@ -1,6 +1,7 @@
 package dev.aliakovl.quoridor.model.game
 
-import dev.aliakovl.quoridor.model.game.geometry.Direction.*
+import dev.aliakovl.quoridor.engine.game.geometry.{Board, Direction}
+import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
 import dev.aliakovl.quoridor.model.game.geometry.*
 import io.circe.*
 import io.circe.generic.semiauto.*

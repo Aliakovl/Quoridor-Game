@@ -1,7 +1,8 @@
 package dev.aliakovl.quoridor.services
 
+import dev.aliakovl.quoridor.engine.game.Move
 import dev.aliakovl.quoridor.model.{GamePreView, User}
-import dev.aliakovl.quoridor.model.game.{Game, Move}
+import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream

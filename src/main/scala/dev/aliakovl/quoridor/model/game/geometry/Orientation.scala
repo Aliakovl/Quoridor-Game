@@ -1,5 +1,6 @@
 package dev.aliakovl.quoridor.model.game.geometry
 
+import dev.aliakovl.quoridor.engine.game.geometry.Opposite
 import io.circe.{Decoder, Encoder}
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema
@@ -11,13 +12,13 @@ enum Orientation extends Opposite[Orientation] { self =>
   case Vertical extends Orientation
 
   override def opposite: Orientation = self match {
-    case Orientation.Horizontal => Vertical
-    case Orientation.Vertical   => Horizontal
+    case Horizontal => Vertical
+    case Vertical   => Horizontal
   }
 
   def entryName: String = self match
-    case Orientation.Horizontal => "horizontal"
-    case Orientation.Vertical   => "vertical"
+    case Horizontal => "horizontal"
+    case Vertical   => "vertical"
 }
 
 object Orientation:

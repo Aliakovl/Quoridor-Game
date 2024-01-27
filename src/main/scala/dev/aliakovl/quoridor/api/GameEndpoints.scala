@@ -1,10 +1,11 @@
 package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.auth.model.{AccessToken, ClaimData, Username}
+import dev.aliakovl.quoridor.engine.game.Move
 import dev.aliakovl.quoridor.model
 import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.model.{GamePreView, ProtoGame, User, game}
-import dev.aliakovl.quoridor.model.game.{Game, Move}
+import dev.aliakovl.quoridor.model.game.Game
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.given
 import io.circe.{Decoder, Encoder}
@@ -141,7 +142,7 @@ class GameEndpoints(base: BaseEndpoints):
     Any,
     AccessToken,
     ClaimData,
-    (ID[Game], game.Move.PawnMove),
+    (ID[Game], Move.PawnMove),
     ErrorResponse,
     Unit,
     Any
@@ -158,7 +159,7 @@ class GameEndpoints(base: BaseEndpoints):
     Any,
     AccessToken,
     ClaimData,
-    (ID[Game], model.game.Move.PlaceWall),
+    (ID[Game], Move.PlaceWall),
     ErrorResponse,
     Unit,
     Any

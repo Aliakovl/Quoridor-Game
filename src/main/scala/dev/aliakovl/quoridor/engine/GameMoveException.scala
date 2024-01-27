@@ -1,5 +1,6 @@
-package dev.aliakovl.quoridor.model
+package dev.aliakovl.quoridor.engine
 
+import dev.aliakovl.quoridor.model.User
 import dev.aliakovl.utils.tagging.ID
 
 sealed abstract class GameMoveException(message: String)

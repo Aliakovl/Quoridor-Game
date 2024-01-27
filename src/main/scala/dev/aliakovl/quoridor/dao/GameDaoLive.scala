@@ -8,6 +8,7 @@ import dev.aliakovl.quoridor.model.{GamePreView, User}
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
 import cats.data.NonEmptyList
+import dev.aliakovl.quoridor.engine.game.Move
 import io.getquill.*
 import org.postgresql.util.PSQLState
 import zio.{IO, RLayer, Task, ZIO, ZLayer}
