@@ -33,10 +33,9 @@ case class ProtoPlayers(creator: ProtoPlayer, guests: List[ProtoPlayer]) {
 
   private def toPlayer(playersNumber: Int)(protoPlayer: ProtoPlayer): Player =
     protoPlayer match {
-      case ProtoPlayer(id, username, target) =>
+      case ProtoPlayer(id, _, target) =>
         Player(
           id,
-          username,
           Board.initPosition(target.opposite),
           21 / playersNumber,
           target

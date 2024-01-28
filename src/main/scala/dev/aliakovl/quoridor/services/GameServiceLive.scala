@@ -6,7 +6,7 @@ import dev.aliakovl.quoridor.GameException.{
   WrongPlayersTurnException
 }
 import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
-import dev.aliakovl.quoridor.dao.GameDao
+import dev.aliakovl.quoridor.dao.{GameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.{Move, Player}
 import dev.aliakovl.quoridor.engine.game.geometry.{
   Board,
@@ -21,7 +21,8 @@ import zio.*
 
 class GameServiceLive(
     gameDao: GameDao,
-    gamePubSub: GamePubSub
+    gamePubSub: GamePubSub,
+    userDao: UserDao
 ) extends GameService:
   override def findGame(gameId: ID[Game]): Task[Game] = {
     gameDao.find(gameId)
@@ -54,13 +55,17 @@ class GameServiceLive(
       } yield newState
 
       newState <- ZIO.fromEither(either)
-      winner = Some(move).collect { case Move.PawnMove(pawnPosition) =>
+      winnerId = Some(move).collect { case Move.PawnMove(pawnPosition) =>
         Some(game.state.players.activePlayer).collect {
-          case Player(id, username, _, _, target)
+          case Player(id, _, _, target)
               if Board.isPawnOnEdge(pawnPosition, target) =>
-            User(id, username)
+            id
         }
       }.flatten
+      winner <- ZIO
+        .fromOption(winnerId)
+        .flatMap(id => userDao.findById(id).catchAll(_ => ZIO.fail(None)))
+        .unsome
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
       newGame = Game(
         gameId,
@@ -123,7 +128,7 @@ class GameServiceLive(
         Board.availableWalls(
           game.state.walls,
           game.state.players.toList.map {
-            case Player(_, _, pawnPosition, _, target) =>
+            case Player(_, pawnPosition, _, target) =>
               (pawnPosition, target)
           }
         )
@@ -140,5 +145,5 @@ class GameServiceLive(
   )
 
 object GameServiceLive:
-  val live: URLayer[GameDao & GamePubSub, GameService] =
-    ZLayer.fromFunction(new GameServiceLive(_, _))
+  val live: URLayer[GameDao & GamePubSub & UserDao, GameService] =
+    ZLayer.fromFunction(new GameServiceLive(_, _, _))

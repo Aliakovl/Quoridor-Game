@@ -11,7 +11,7 @@ import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.utils.tagging.ID
 import org.postgresql.util.PSQLState
 import io.getquill.*
-import zio.{RLayer, Task, ZIO, ZLayer}
+import zio.{IO, RLayer, Task, ZIO, ZLayer}
 
 import java.sql.SQLException
 
@@ -32,7 +32,7 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
       }
   }
 
-  override def findById(id: ID[User]): Task[User] = {
+  override def findById(id: ID[User]): IO[UserNotFoundException, User] = {
     val findUserById = run {
       query[dto.Userdata].filter(_.userId == lift(id))
     }
@@ -42,6 +42,7 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
       .map { case dto.Userdata(id, username, _) =>
         User(id, username)
       }
+      .orDie
   }
 
   override def insert(user: UserWithSecret): Task[Unit] = {

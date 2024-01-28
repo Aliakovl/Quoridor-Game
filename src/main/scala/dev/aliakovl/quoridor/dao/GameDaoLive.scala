@@ -127,7 +127,6 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -138,8 +137,7 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
           pawnPosition.step == lift(step) &&
           pawnPosition.userId != gameState.activePlayer
       } yield Player(
-        user.userId,
-        user.username,
+        player.userId,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -157,7 +155,6 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -166,10 +163,9 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
         }
         if pawnPosition.gameId == lift(gameId) &&
           pawnPosition.step == lift(step) &&
-          user.userId == gameState.activePlayer
+          player.userId == gameState.activePlayer
       } yield Player(
-        user.userId,
-        user.username,
+        player.userId,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -238,7 +234,7 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       liftQuery {
         players.map {
-          case Player(userId, _, PawnPosition(row, column), wallsAmount, _) =>
+          case Player(userId, PawnPosition(row, column), wallsAmount, _) =>
             dto.PawnPosition(gameId, step, userId, wallsAmount, row, column)
         }
       }.foreach { pawnPosition =>
