@@ -2,14 +2,7 @@ package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
 import dev.aliakovl.quoridor.engine.game.geometry.Side.*
-import dev.aliakovl.quoridor.model.Players
-import dev.aliakovl.quoridor.model.{
-  Game,
-  ProtoGame,
-  ProtoPlayer,
-  ProtoPlayers,
-  User
-}
+import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.State
 import dev.aliakovl.quoridor.engine.game.geometry.Side
@@ -82,15 +75,7 @@ class GameCreatorLive(
       state = State(players, Set.empty)
       game <- gameDao.create(gameId, state)
       users <- userDao.findUsers(players.toList.map(_.id))
-    } yield game match
-      case Game(id, step, State(players, walls), winner) =>
-        GameResponse(
-          id,
-          step,
-          dev.aliakovl.quoridor.model
-            .State(Players.withUsername(players)(users), walls),
-          winner
-        )
+    } yield GameResponse.fromGame(game, users)
   }
 
 object GameCreatorLive:

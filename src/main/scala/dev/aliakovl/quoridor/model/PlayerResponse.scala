@@ -2,14 +2,14 @@ package dev.aliakovl.quoridor.model
 
 import dev.aliakovl.quoridor.auth.model.Username
 import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, Side}
-import dev.aliakovl.quoridor.engine.game
+import dev.aliakovl.quoridor.engine.game.*
 import dev.aliakovl.utils.tagging.ID
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema
 
-case class Player(
+case class PlayerResponse(
     id: ID[User],
     username: Username,
     pawnPosition: PawnPosition,
@@ -17,14 +17,14 @@ case class Player(
     target: Side
 )
 
-object Player:
+object PlayerResponse:
   import dev.aliakovl.quoridor.codec.json.given
 
-  given Encoder[Player] = deriveEncoder
-  given Decoder[Player] = deriveDecoder
-  given Schema[Player] = Schema.derivedSchema[Player]
+  given Encoder[PlayerResponse] = deriveEncoder
+  given Decoder[PlayerResponse] = deriveDecoder
+  given Schema[PlayerResponse] = Schema.derivedSchema[PlayerResponse]
 
-  def withUsername(player: game.Player)(username: Username): Player =
+  def withUsername(player: Player)(username: Username): PlayerResponse =
     player match
-      case game.Player(id, pawnPosition, wallsAmount, target) =>
-        Player(id, username, pawnPosition, wallsAmount, target)
+      case Player(id, pawnPosition, wallsAmount, target) =>
+        PlayerResponse(id, username, pawnPosition, wallsAmount, target)

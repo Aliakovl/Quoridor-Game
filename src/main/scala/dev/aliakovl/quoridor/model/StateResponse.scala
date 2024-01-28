@@ -6,11 +6,11 @@ import io.circe.{Decoder, Encoder}
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema
 
-case class State(players: Players, walls: Set[WallPosition])
+case class StateResponse(players: PlayersResponse, walls: Set[WallPosition])
 
-object State:
+object StateResponse:
   import dev.aliakovl.quoridor.codec.json.given
 
-  given Encoder[State] = deriveEncoder
-  given Decoder[State] = deriveDecoder
-  given Schema[State] = Schema.derivedSchema[State]
+  given Encoder[StateResponse] = deriveEncoder
+  given Decoder[StateResponse] = deriveDecoder
+  given Schema[StateResponse] = Schema.derivedSchema[StateResponse]
