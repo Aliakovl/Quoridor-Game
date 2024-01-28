@@ -8,7 +8,7 @@ import dev.aliakovl.quoridor.engine.game.geometry.{
   WallPosition
 }
 
-case class State(players: Players, walls: Set[WallPosition]) {
+case class State(players: Players, walls: Set[WallPosition]):
   lazy val possibleSteps: List[PawnPosition] = {
     List(
       possibleStep(_, ToNorth),
@@ -21,9 +21,8 @@ case class State(players: Players, walls: Set[WallPosition]) {
   private def possibleStep(
       player: Player,
       direction: Direction
-  ): List[PawnPosition] = {
-    val pawnPosition = player.pawnPosition
-    Board.adjacentPosition(pawnPosition, walls, direction) match {
+  ): List[PawnPosition] =
+    Board.adjacentPosition(player.pawnPosition, walls, direction) match {
       case None => List.empty
       case Some(position) =>
         players.enemies.find(_.pawnPosition == position) match {
@@ -37,5 +36,3 @@ case class State(players: Players, walls: Set[WallPosition]) {
             }
         }
     }
-  }
-}
