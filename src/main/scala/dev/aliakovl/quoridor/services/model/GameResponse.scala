@@ -22,7 +22,7 @@ object GameResponse:
         GameResponse(
           id,
           step,
-          StateResponse(PlayersResponse.withUsername(players)(users), walls),
+          StateResponse(PlayersResponse.fromPlayers(users)(players), walls),
           winner
         )
 

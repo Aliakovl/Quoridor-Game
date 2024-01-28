@@ -5,7 +5,7 @@ import dev.aliakovl.quoridor.GameException.{
   GameInterloperException,
   WrongPlayersTurnException
 }
-import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
+import dev.aliakovl.quoridor.model.{Game, GamePreView, StateResponse, User}
 import dev.aliakovl.quoridor.dao.{GameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.{Move, Player}
 import dev.aliakovl.quoridor.engine.game.geometry.{
@@ -14,6 +14,7 @@ import dev.aliakovl.quoridor.engine.game.geometry.{
   WallPosition
 }
 import dev.aliakovl.quoridor.pubsub.GamePubSub
+import dev.aliakovl.quoridor.services.model.GameResponse
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
@@ -24,15 +25,18 @@ class GameServiceLive(
     gamePubSub: GamePubSub,
     userDao: UserDao
 ) extends GameService:
-  override def findGame(gameId: ID[Game]): Task[Game] = {
-    gameDao.find(gameId)
-  } // TODO: вернуть проверку на принадлежность игрока игре
+  override def findGame(gameId: ID[Game]): Task[GameResponse] = {
+    for {
+      game <- gameDao.find(gameId)
+      users <- userDao.findUsers(game.state.players.toList.map(_.id))
+    } yield GameResponse.fromGame(game, users)
+  }
 
   override def makeMove(
       gameId: ID[Game],
       userId: ID[User],
       move: Move
-  ): Task[Game] = {
+  ): Task[GameResponse] = {
     for {
       game <- gameDao.find(gameId)
       either = for {
@@ -67,10 +71,11 @@ class GameServiceLive(
         .flatMap(id => userDao.findById(id).catchAll(_ => ZIO.fail(None)))
         .unsome
       _ <- gameDao.insert(gameId, game.step + 1, newState, move, winner)
-      newGame = Game(
+      users <- userDao.findUsers(newState.players.toList.map(_.id))
+      newGame = GameResponse(
         gameId,
         step = game.step + 1,
-        state = newState,
+        state = StateResponse.fromState(users)(newState),
         winner = winner
       )
       _ <- gamePubSub.publish(newGame)
@@ -138,7 +143,7 @@ class GameServiceLive(
 
   override def subscribeOnGame(
       gameId: ID[Game]
-  ): Task[ZStream[Any, Throwable, Game]] = ZIO.succeed(
+  ): Task[ZStream[Any, Throwable, GameResponse]] = ZIO.succeed(
     ZStream.fromZIO(findGame(gameId)) ++ ZStream
       .unwrapScoped(gamePubSub.subscribe(gameId))
       .takeWhile(_.winner.isEmpty) ++ ZStream.fromZIO(findGame(gameId))

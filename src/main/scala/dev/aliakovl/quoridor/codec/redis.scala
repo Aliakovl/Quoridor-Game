@@ -2,6 +2,7 @@ package dev.aliakovl.quoridor.codec
 
 import dev.aliakovl.quoridor.auth.model.RefreshToken
 import dev.aliakovl.quoridor.model.{Game, User}
+import dev.aliakovl.quoridor.services.model.GameResponse
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import io.lettuce.core.codec.{RedisCodec, StringCodec}
@@ -27,16 +28,16 @@ object redis:
 
     private val stringCodec: StringCodec = StringCodec.UTF8
 
-  given RedisCodec[ID[Game], Game] with
-    override def decodeValue(bytes: ByteBuffer): Game =
-      parser.decode[Game](stringCodec.decodeKey(bytes)) match
+  given RedisCodec[ID[Game], GameResponse] with
+    override def decodeValue(bytes: ByteBuffer): GameResponse =
+      parser.decode[GameResponse](stringCodec.decodeKey(bytes)) match
         case Right(value) => value
         case Left(error)  => throw error.fillInStackTrace()
 
     override def decodeKey(bytes: ByteBuffer): ID[Game] =
       UUID.fromString(stringCodec.decodeKey(bytes)).tag[Game]
 
-    override def encodeValue(key: Game): ByteBuffer =
+    override def encodeValue(key: GameResponse): ByteBuffer =
       Printer.noSpaces.printToByteBuffer(key.asJson)
 
     override def encodeKey(key: ID[Game]): ByteBuffer =

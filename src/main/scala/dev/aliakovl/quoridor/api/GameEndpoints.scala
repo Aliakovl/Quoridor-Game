@@ -111,7 +111,7 @@ class GameEndpoints(base: BaseEndpoints):
     ClaimData,
     ID[Game],
     ErrorResponse,
-    Game,
+    GameResponse,
     Any
   ] =
     base.secureEndpoint.get
@@ -120,7 +120,7 @@ class GameEndpoints(base: BaseEndpoints):
       .summary("Current game state")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId"))
-      .out(jsonBody[Game])
+      .out(jsonBody[GameResponse])
 
   val getUserEndpoint: ZPartialServerEndpoint[
     Any,

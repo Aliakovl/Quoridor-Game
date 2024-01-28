@@ -21,14 +21,14 @@ object PlayersResponse:
   given Decoder[PlayersResponse] = deriveDecoder
   given Schema[PlayersResponse] = Schema.derivedSchema[PlayersResponse]
 
-  def withUsername(players: Players)(
-      users: Map[ID[User], User]
+  def fromPlayers(users: Map[ID[User], User])(
+      players: Players
   ): PlayersResponse =
     PlayersResponse(
-      activePlayer = PlayerResponse.withUsername(players.activePlayer)(
+      activePlayer = PlayerResponse.fromPlayer(
         users(players.activePlayer.id).username
-      ),
+      )(players.activePlayer),
       enemies = players.enemies.map(player =>
-        PlayerResponse.withUsername(player)(users(player.id).username)
+        PlayerResponse.fromPlayer(users(player.id).username)(player)
       )
     )

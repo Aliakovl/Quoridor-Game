@@ -24,7 +24,7 @@ object PlayerResponse:
   given Decoder[PlayerResponse] = deriveDecoder
   given Schema[PlayerResponse] = Schema.derivedSchema[PlayerResponse]
 
-  def withUsername(player: Player)(username: Username): PlayerResponse =
+  def fromPlayer(username: Username)(player: Player): PlayerResponse =
     player match
       case Player(id, pawnPosition, wallsAmount, target) =>
         PlayerResponse(id, username, pawnPosition, wallsAmount, target)
