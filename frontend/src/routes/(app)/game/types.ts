@@ -16,16 +16,7 @@ export function pawnColour(target: Side) {
 }
 
 export function rotationAngle(target: Side) {
-    switch (target) {
-        case "north":
-            return 0;
-        case "south":
-            return 180;
-        case "east":
-            return 270;
-        case "west":
-            return 90;
-    }
+    return -90 * sideOrder(target);
 }
 
 export function sideOrder(side: Side) {

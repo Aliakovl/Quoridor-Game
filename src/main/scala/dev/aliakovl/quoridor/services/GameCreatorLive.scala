@@ -25,7 +25,7 @@ class GameCreatorLive(
 ) extends GameCreator:
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
-    val target = North
+    val target = South
     userDao.findById(userId).flatMap { user =>
       protoGameDao
         .insert(gameId, userId, target)
@@ -50,7 +50,11 @@ class GameCreatorLive(
       _ <- ZIO.when(playersNumber >= 4)(
         ZIO.fail(PlayersNumberLimitException)
       )
-      target = Side.values(playersNumber)
+      target = playersNumber match
+        case 0 => South
+        case 1 => North
+        case 2 => West
+        case 3 => East
       user <- userDao.findById(userId)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       newPlayer = ProtoPlayer(user.id, user.username, target)
