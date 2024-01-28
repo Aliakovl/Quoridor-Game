@@ -13,6 +13,10 @@ object GameException:
   case class UsernameNotFoundException(username: Username) // dao
       extends GameException(s"User with username=$username not found")
 
+  case object UsersNotFoundException // dao
+      extends GameException(s"Users not found")
+  type UsersNotFoundException = UsersNotFoundException.type
+
   case class GameNotFoundException(gameId: ID[Game]) // dao
       extends GameException(s"Game with id=$gameId not found")
 

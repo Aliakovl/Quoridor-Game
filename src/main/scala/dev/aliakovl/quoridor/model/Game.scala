@@ -7,7 +7,12 @@ import io.circe.generic.semiauto.*
 import sttp.tapir.Schema
 import sttp.tapir.generic.auto.*
 
-case class Game(id: ID[Game], step: Int, state: State, winner: Option[User])
+case class Game(
+    id: ID[Game],
+    step: Int,
+    state: State,
+    winner: Option[User]
+)
 
 object Game:
   import dev.aliakovl.quoridor.codec.json.given

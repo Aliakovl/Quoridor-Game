@@ -5,7 +5,8 @@ import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.quoridor.GameException.{
   UserNotFoundException,
   UsernameNotFoundException,
-  UsernameOccupiedException
+  UsernameOccupiedException,
+  UsersNotFoundException
 }
 import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.utils.tagging.ID
@@ -64,6 +65,17 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
           ZIO.fail(UsernameOccupiedException(user.username))
       }
   }
+
+  override def findUsers(
+      ids: Seq[ID[User]]
+  ): IO[UsersNotFoundException, Map[ID[User], User]] = run {
+    query[dto.Userdata]
+      .filter(u => liftQuery(ids).contains(u.userId))
+      .map { u => (u.userId, u.username) }
+  }.map(_.map((id, username) => User(id, username)))
+    .filterOrFail(_.size == ids.size)(UsersNotFoundException)
+    .map(_.map(user => (user.id, user)).toMap)
+    .orDie
 
 object UserDaoLive:
   val live: RLayer[QuillContext, UserDao] =

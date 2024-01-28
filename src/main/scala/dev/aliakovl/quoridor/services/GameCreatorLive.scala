@@ -2,6 +2,7 @@ package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
 import dev.aliakovl.quoridor.engine.game.geometry.Side.*
+import dev.aliakovl.quoridor.model.Players
 import dev.aliakovl.quoridor.model.{
   Game,
   ProtoGame,
@@ -12,6 +13,7 @@ import dev.aliakovl.quoridor.model.{
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.State
 import dev.aliakovl.quoridor.engine.game.geometry.Side
+import dev.aliakovl.quoridor.services.model.GameResponse
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import zio.{Task, URLayer, ZIO, ZLayer}
@@ -63,7 +65,10 @@ class GameCreatorLive(
     )
   }
 
-  override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
+  override def startGame(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): Task[GameResponse] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
       _ <- ZIO.when(gameAlreadyStarted)(
@@ -76,7 +81,16 @@ class GameCreatorLive(
       players <- ZIO.fromEither(protoGame.players.toPlayers)
       state = State(players, Set.empty)
       game <- gameDao.create(gameId, state)
-    } yield game
+      users <- userDao.findUsers(players.toList.map(_.id))
+    } yield game match
+      case Game(id, step, State(players, walls), winner) =>
+        GameResponse(
+          id,
+          step,
+          dev.aliakovl.quoridor.model
+            .State(Players.withUsername(players)(users), walls),
+          winner
+        )
   }
 
 object GameCreatorLive:
