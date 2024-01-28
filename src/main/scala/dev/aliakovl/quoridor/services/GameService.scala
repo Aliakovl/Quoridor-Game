@@ -23,7 +23,7 @@ trait GameService:
 
   def usersHistory(userId: ID[User]): Task[List[GamePreView]]
 
-  def gameHistory(gameId: ID[Game], userId: ID[User]): Task[List[Game]]
+  def gameHistory(gameId: ID[Game], userId: ID[User]): Task[List[GameResponse]]
 
   def possiblePawnMoves(
       gameId: ID[Game],

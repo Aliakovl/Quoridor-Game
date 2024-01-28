@@ -16,7 +16,7 @@ case class GameResponse(
 )
 
 object GameResponse:
-  def fromGame(game: Game, users: Map[ID[User], User]): GameResponse =
+  def fromGame(users: Map[ID[User], User])(game: Game): GameResponse =
     game match
       case Game(id, step, State(players, walls), winner) =>
         GameResponse(

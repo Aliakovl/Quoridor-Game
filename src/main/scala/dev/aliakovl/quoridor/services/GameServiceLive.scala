@@ -29,7 +29,7 @@ class GameServiceLive(
     for {
       game <- gameDao.find(gameId)
       users <- userDao.findUsers(game.state.players.toList.map(_.id))
-    } yield GameResponse.fromGame(game, users)
+    } yield GameResponse.fromGame(users)(game)
   }
 
   override def makeMove(
@@ -92,16 +92,19 @@ class GameServiceLive(
   override def gameHistory(
       gameId: ID[Game],
       userId: ID[User]
-  ): Task[List[Game]] = {
+  ): Task[List[GameResponse]] = {
     for {
       game <- gameDao.find(gameId)
       _ <- ZIO.unless(game.state.players.toList.exists(_.id == userId))(
         ZIO.fail(GameInterloperException(userId, gameId))
       )
+      users <- userDao.findUsers(game.state.players.toList.map(_.id))
       lastStep <- gameDao.lastStep(gameId)
-      history <- ZIO.foreachPar((0 to lastStep).toList)(
-        gameDao.find(gameId, _)
-      )
+      history <- ZIO
+        .foreachPar((0 to lastStep).toList)(
+          gameDao.find(gameId, _)
+        )
+        .map(_.map(GameResponse.fromGame(users)))
     } yield history
   }
 

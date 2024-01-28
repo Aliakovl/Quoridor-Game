@@ -75,7 +75,7 @@ class GameCreatorLive(
       state = State(players, Set.empty)
       game <- gameDao.create(gameId, state)
       users <- userDao.findUsers(players.toList.map(_.id))
-    } yield GameResponse.fromGame(game, users)
+    } yield GameResponse.fromGame(users)(game)
   }
 
 object GameCreatorLive:
