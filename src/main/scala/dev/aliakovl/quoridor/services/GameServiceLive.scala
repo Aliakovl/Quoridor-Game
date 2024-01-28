@@ -5,7 +5,13 @@ import dev.aliakovl.quoridor.GameException.{
   GameInterloperException,
   WrongPlayersTurnException
 }
-import dev.aliakovl.quoridor.model.{Game, GamePreView, StateResponse, User}
+import dev.aliakovl.quoridor.model.{
+  Game,
+  GamePreView,
+  GameResponse,
+  StateResponse,
+  User
+}
 import dev.aliakovl.quoridor.dao.{GameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.{Move, Player}
 import dev.aliakovl.quoridor.engine.game.geometry.{
@@ -14,7 +20,6 @@ import dev.aliakovl.quoridor.engine.game.geometry.{
   WallPosition
 }
 import dev.aliakovl.quoridor.pubsub.GamePubSub
-import dev.aliakovl.quoridor.services.model.GameResponse
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream

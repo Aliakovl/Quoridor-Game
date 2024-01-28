@@ -2,8 +2,7 @@ package dev.aliakovl.quoridor.pubsub
 
 import dev.aliakovl.quoridor.codec.redis.given
 import dev.aliakovl.quoridor.config.Configuration
-import dev.aliakovl.quoridor.model.Game
-import dev.aliakovl.quoridor.services.model.GameResponse
+import dev.aliakovl.quoridor.model.{Game, GameResponse}
 import dev.aliakovl.utils.pubsub.{Publisher, Subscriber}
 import dev.aliakovl.utils.redis.{RedisPublisher, RedisSubscriber}
 import dev.aliakovl.utils.redis.config.RedisConfig

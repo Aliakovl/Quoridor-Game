@@ -6,7 +6,6 @@ import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.State
 import dev.aliakovl.quoridor.engine.game.geometry.Side
-import dev.aliakovl.quoridor.services.model.GameResponse
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import zio.{Task, URLayer, ZIO, ZLayer}

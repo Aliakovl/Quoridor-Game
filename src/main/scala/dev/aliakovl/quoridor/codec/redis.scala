@@ -1,8 +1,7 @@
 package dev.aliakovl.quoridor.codec
 
 import dev.aliakovl.quoridor.auth.model.RefreshToken
-import dev.aliakovl.quoridor.model.{Game, User}
-import dev.aliakovl.quoridor.services.model.GameResponse
+import dev.aliakovl.quoridor.model.{Game, GameResponse, User}
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import io.lettuce.core.codec.{RedisCodec, StringCodec}

@@ -2,8 +2,7 @@ package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.engine.game.Move
 import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
-import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
-import dev.aliakovl.quoridor.services.model.GameResponse
+import dev.aliakovl.quoridor.model.{Game, GamePreView, GameResponse, User}
 import dev.aliakovl.utils.tagging.ID
 import zio.stream.ZStream
 import zio.Task
