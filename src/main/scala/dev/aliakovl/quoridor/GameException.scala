@@ -30,12 +30,6 @@ object GameException:
         s"User with id=$userId does not belong to the game with id=$gameId"
       )
 
-  case object NotEnoughPlayersException
-      extends GameException("Not enough players to start game")
-
-  case object PlayersNumberLimitException
-      extends GameException("The number of players has reached the limit")
-
   case class UsernameOccupiedException(username: Username) // dao
       extends GameException(s"User with username $username already exists")
 

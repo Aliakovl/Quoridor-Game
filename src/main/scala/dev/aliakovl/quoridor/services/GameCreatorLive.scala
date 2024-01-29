@@ -2,9 +2,10 @@ package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
 import dev.aliakovl.quoridor.engine.game.geometry.Side.*
+import dev.aliakovl.quoridor.engine.GameInitializationException.*
 import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
-import dev.aliakovl.quoridor.engine.game.State
+import dev.aliakovl.quoridor.engine.game.{Players, State}
 import dev.aliakovl.quoridor.engine.game.geometry.Side
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
@@ -70,7 +71,13 @@ class GameCreatorLive(
       _ <- ZIO.when(userId != protoGame.players.creator.id)(
         ZIO.fail(NotGameCreatorException(userId, gameId))
       )
-      players <- ZIO.fromEither(protoGame.players.toPlayers)
+      players <- ZIO.fromEither(
+        {
+          val creator = protoGame.players.creator
+          val guests = protoGame.players.guests.map(g => (g.id, g.target))
+          Players.toPlayers(creator.id, creator.target)(guests)
+        }
+      )
       state = State(players, Set.empty)
       game <- gameDao.create(gameId, state)
       users <- userDao.findUsers(players.toList.map(_.id))
