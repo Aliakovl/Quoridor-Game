@@ -46,15 +46,18 @@ class GameServiceLive(
       game <- gameDao.find(gameId)
       either = for {
         _ <- Either.cond(
+          // TODO: move to a higher level
           game.state.players.toList.exists(_.id == userId),
           (),
           GameInterloperException(userId, gameId)
         )
+        // TODO: move to engine
         _ <- Either.cond(
           game.state.players.activePlayer.id == userId,
           (),
           WrongPlayersTurnException(gameId)
         )
+        // TODO: move to engine
         _ <- Either.cond(
           game.winner.isEmpty,
           (),
@@ -64,6 +67,7 @@ class GameServiceLive(
       } yield newState
 
       newState <- ZIO.fromEither(either)
+      // TODO: move to engine
       winnerId = Some(move).collect { case Move.PawnMove(pawnPosition) =>
         Some(game.state.players.activePlayer).collect {
           case Player(id, _, _, target)
@@ -100,6 +104,7 @@ class GameServiceLive(
   ): Task[List[GameResponse]] = {
     for {
       game <- gameDao.find(gameId)
+      // TODO: move to a higher level
       _ <- ZIO.unless(game.state.players.toList.exists(_.id == userId))(
         ZIO.fail(GameInterloperException(userId, gameId))
       )
@@ -119,6 +124,7 @@ class GameServiceLive(
   ): Task[List[PawnPosition]] = {
     for {
       game <- gameDao.find(gameId)
+      // TODO: move to a higher level
       _ <- ZIO
         .succeed(game.state.players.toList.exists(_.id == userId))
         .orFail(GameInterloperException(userId, gameId))
@@ -137,6 +143,7 @@ class GameServiceLive(
         .succeed(game.winner.isEmpty)
         .orFail(GameHasFinishedException(gameId))
     } yield {
+      // TODO: move to engine
       if game.state.players.activePlayer.wallsAmount > 0 then
         Board.availableWalls(
           game.state.walls,

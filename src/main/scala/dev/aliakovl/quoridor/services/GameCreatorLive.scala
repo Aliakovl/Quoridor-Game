@@ -20,6 +20,7 @@ class GameCreatorLive(
 ) extends GameCreator:
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
+    // TODO: move to engine
     val target = South
     userDao.findById(userId).flatMap { user =>
       protoGameDao
@@ -41,10 +42,12 @@ class GameCreatorLive(
         ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
+      // TODO: move to engine
       playersNumber = protoGame.players.guests.size + 1
       _ <- ZIO.when(playersNumber >= 4)(
         ZIO.fail(PlayersNumberLimitException)
       )
+      // TODO: move to engine
       target = playersNumber match
         case 0 => South
         case 1 => North
@@ -68,6 +71,7 @@ class GameCreatorLive(
         ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
+      // TODO: move to a higher level
       _ <- ZIO.when(userId != protoGame.players.creator.id)(
         ZIO.fail(NotGameCreatorException(userId, gameId))
       )
