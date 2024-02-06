@@ -1,5 +1,7 @@
 package dev.aliakovl.quoridor.engine.game.geometry
 
+import dev.aliakovl.quoridor.engine.GameInitializationException
+import dev.aliakovl.quoridor.engine.GameInitializationException.PlayersNumberLimitException
 import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
 import dev.aliakovl.quoridor.engine.game.geometry.Orientation.*
 import dev.aliakovl.quoridor.engine.game.geometry.Side.*
@@ -7,6 +9,21 @@ import dev.aliakovl.quoridor.engine.game.geometry.Side.*
 object Board {
   private val width: Int = 9
   private val halfWidth: Int = width / 2
+
+  val initTarget: Side = North
+
+  def playerTarget(number: Int): Either[GameInitializationException, Side] = {
+    Either.cond(
+      0 <= number && number < 4, {
+        number match
+          case 0 => North
+          case 1 => South
+          case 2 => East
+          case 3 => West
+      },
+      PlayersNumberLimitException
+    )
+  }
 
   def isPawnOnEdge(position: PawnPosition, side: Side): Boolean = {
     side match {

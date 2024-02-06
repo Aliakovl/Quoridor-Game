@@ -1,14 +1,9 @@
 package dev.aliakovl.quoridor.engine.game
 
 import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
-import dev.aliakovl.quoridor.engine.game.geometry.{
-  Board,
-  Direction,
-  PawnPosition,
-  WallPosition
-}
+import dev.aliakovl.quoridor.engine.game.geometry.*
 
-case class State(players: Players, walls: Set[WallPosition]):
+case class State(players: Players, walls: Set[WallPosition] = Set.empty):
   lazy val possibleSteps: List[PawnPosition] = {
     List(
       possibleStep(_, ToNorth),
@@ -16,6 +11,15 @@ case class State(players: Players, walls: Set[WallPosition]):
       possibleStep(_, ToWest),
       possibleStep(_, ToEast)
     ).flatMap(f => f(players.activePlayer))
+  }
+
+  lazy val availableWalls: Set[WallPosition] = {
+    if players.activePlayer.wallsAmount > 0 then
+      Board.availableWalls(
+        walls,
+        players.toList.map(player => (player.pawnPosition, player.target))
+      )
+    else Set.empty[WallPosition]
   }
 
   private def possibleStep(

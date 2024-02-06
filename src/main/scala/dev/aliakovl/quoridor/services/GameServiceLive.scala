@@ -1,24 +1,10 @@
 package dev.aliakovl.quoridor.services
 
-import dev.aliakovl.quoridor.GameException.{
-  GameHasFinishedException,
-  GameInterloperException,
-  WrongPlayersTurnException
-}
-import dev.aliakovl.quoridor.model.{
-  Game,
-  GamePreView,
-  GameResponse,
-  StateResponse,
-  User
-}
+import dev.aliakovl.quoridor.GameException.*
+import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, UserDao}
-import dev.aliakovl.quoridor.engine.game.{Move, Player}
-import dev.aliakovl.quoridor.engine.game.geometry.{
-  Board,
-  PawnPosition,
-  WallPosition
-}
+import dev.aliakovl.quoridor.engine.game.Move
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
 import dev.aliakovl.quoridor.pubsub.GamePubSub
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
@@ -44,37 +30,20 @@ class GameServiceLive(
   ): Task[GameResponse] = {
     for {
       game <- gameDao.find(gameId)
-      either = for {
-        _ <- Either.cond(
-          // TODO: move to a higher level
-          game.state.players.toList.exists(_.id == userId),
-          (),
-          GameInterloperException(userId, gameId)
-        )
-        // TODO: move to engine
-        _ <- Either.cond(
-          game.state.players.activePlayer.id == userId,
-          (),
-          WrongPlayersTurnException(gameId)
-        )
-        // TODO: move to engine
-        _ <- Either.cond(
-          game.winner.isEmpty,
-          (),
-          GameHasFinishedException(gameId)
-        )
-        newState <- move.makeAt(game.state)
-      } yield newState
-
-      newState <- ZIO.fromEither(either)
+      // TODO: move to a higher level
+      _ <- ZIO.when(game.state.players.toList.exists(_.id == userId))(
+        ZIO.fail(GameInterloperException(userId, gameId))
+      )
       // TODO: move to engine
-      winnerId = Some(move).collect { case Move.PawnMove(pawnPosition) =>
-        Some(game.state.players.activePlayer).collect {
-          case Player(id, _, _, target)
-              if Board.isPawnOnEdge(pawnPosition, target) =>
-            id
-        }
-      }.flatten
+      _ <- ZIO.when(game.state.players.activePlayer.id == userId)(
+        ZIO.fail(WrongPlayersTurnException(gameId))
+      )
+      // TODO: move to engine
+      _ <- ZIO.when(game.winner.isEmpty)(
+        ZIO.fail(GameHasFinishedException(gameId))
+      )
+      newState <- ZIO.fromEither(move.makeAt(game.state))
+      winnerId = move.getWinner(game.state)
       winner <- ZIO
         .fromOption(winnerId)
         .flatMap(id => userDao.findById(id).catchAll(_ => ZIO.fail(None)))
@@ -142,18 +111,7 @@ class GameServiceLive(
       _ <- ZIO
         .succeed(game.winner.isEmpty)
         .orFail(GameHasFinishedException(gameId))
-    } yield {
-      // TODO: move to engine
-      if game.state.players.activePlayer.wallsAmount > 0 then
-        Board.availableWalls(
-          game.state.walls,
-          game.state.players.toList.map {
-            case Player(_, pawnPosition, _, target) =>
-              (pawnPosition, target)
-          }
-        )
-      else Set.empty[WallPosition]
-    }
+    } yield game.state.availableWalls
   }
 
   override def subscribeOnGame(

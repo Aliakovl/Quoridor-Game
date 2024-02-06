@@ -1,12 +1,10 @@
 package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
-import dev.aliakovl.quoridor.engine.game.geometry.Side.*
-import dev.aliakovl.quoridor.engine.GameInitializationException.*
 import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
 import dev.aliakovl.quoridor.engine.game.{Players, State}
-import dev.aliakovl.quoridor.engine.game.geometry.Side
+import dev.aliakovl.quoridor.engine.game.geometry.Board
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import zio.{Task, URLayer, ZIO, ZLayer}
@@ -20,8 +18,7 @@ class GameCreatorLive(
 ) extends GameCreator:
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
-    // TODO: move to engine
-    val target = North
+    val target = Board.initTarget
     userDao.findById(userId).flatMap { user =>
       protoGameDao
         .insert(gameId, userId, target)
@@ -42,17 +39,9 @@ class GameCreatorLive(
         ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
-      // TODO: move to engine
-      playersNumber = protoGame.players.guests.size + 1
-      _ <- ZIO.when(playersNumber >= 4)(
-        ZIO.fail(PlayersNumberLimitException)
+      target <- ZIO.fromEither(
+        Board.playerTarget(protoGame.players.guests.size + 1)
       )
-      // TODO: move to engine
-      target = playersNumber match
-        case 0 => North
-        case 1 => South
-        case 2 => East
-        case 3 => West
       user <- userDao.findById(userId)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       newPlayer = ProtoPlayer(user.id, user.username, target)
@@ -82,7 +71,7 @@ class GameCreatorLive(
           Players.toPlayers(creator.id, creator.target)(guests)
         }
       )
-      state = State(players, Set.empty)
+      state = State(players)
       game <- gameDao.create(gameId, state)
       users <- userDao.findUsers(players.toList.map(_.id))
     } yield GameResponse.fromGame(users)(game)
