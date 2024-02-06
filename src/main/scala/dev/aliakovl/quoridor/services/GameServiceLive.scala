@@ -31,15 +31,15 @@ class GameServiceLive(
     for {
       game <- gameDao.find(gameId)
       // TODO: move to a higher level
-      _ <- ZIO.when(game.state.players.toList.exists(_.id == userId))(
+      _ <- ZIO.unless(game.state.players.toList.exists(_.id == userId))(
         ZIO.fail(GameInterloperException(userId, gameId))
       )
       // TODO: move to engine
-      _ <- ZIO.when(game.state.players.activePlayer.id == userId)(
+      _ <- ZIO.when(game.state.players.activePlayer.id != userId)(
         ZIO.fail(WrongPlayersTurnException(gameId))
       )
       // TODO: move to engine
-      _ <- ZIO.when(game.winner.isEmpty)(
+      _ <- ZIO.when(game.winner.isDefined)(
         ZIO.fail(GameHasFinishedException(gameId))
       )
       newState <- ZIO.fromEither(move.makeAt(game.state))
