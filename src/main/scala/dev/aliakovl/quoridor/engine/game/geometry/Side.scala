@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.engine.game.geometry
 
 enum Side:
-  case South, West, North, East
+  case North, East, South, West
 
 object Side:
   given Ordering[Side] = Ordering.by[Side, Int](_.ordinal)

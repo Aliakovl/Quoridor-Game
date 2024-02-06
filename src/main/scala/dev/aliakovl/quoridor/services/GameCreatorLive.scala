@@ -21,7 +21,7 @@ class GameCreatorLive(
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
     // TODO: move to engine
-    val target = South
+    val target = North
     userDao.findById(userId).flatMap { user =>
       protoGameDao
         .insert(gameId, userId, target)
@@ -49,10 +49,10 @@ class GameCreatorLive(
       )
       // TODO: move to engine
       target = playersNumber match
-        case 0 => South
-        case 1 => North
-        case 2 => West
-        case 3 => East
+        case 0 => North
+        case 1 => South
+        case 2 => East
+        case 3 => West
       user <- userDao.findById(userId)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       newPlayer = ProtoPlayer(user.id, user.username, target)
