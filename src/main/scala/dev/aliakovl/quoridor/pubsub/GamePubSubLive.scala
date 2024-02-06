@@ -2,7 +2,7 @@ package dev.aliakovl.quoridor.pubsub
 
 import dev.aliakovl.quoridor.codec.redis.given
 import dev.aliakovl.quoridor.config.Configuration
-import dev.aliakovl.quoridor.model.game.Game
+import dev.aliakovl.quoridor.model.{Game, GameResponse}
 import dev.aliakovl.utils.pubsub.{Publisher, Subscriber}
 import dev.aliakovl.utils.redis.{RedisPublisher, RedisSubscriber}
 import dev.aliakovl.utils.redis.config.RedisConfig
@@ -11,22 +11,22 @@ import zio.stream.ZStream
 import zio.{RIO, Scope, Task, TaskLayer, ZLayer}
 
 class GamePubSubLive(
-    publisher: Publisher[ID[Game], Game],
-    subscriber: Subscriber[ID[Game], Game]
+    publisher: Publisher[ID[Game], GameResponse],
+    subscriber: Subscriber[ID[Game], GameResponse]
 ) extends GamePubSub:
-  override def publish(game: Game): Task[Unit] =
+  override def publish(game: GameResponse): Task[Unit] =
     publisher.publish(game.id, game)
 
   override def subscribe(
       gameId: ID[Game]
-  ): RIO[Scope, ZStream[Any, Throwable, Game]] =
+  ): RIO[Scope, ZStream[Any, Throwable, GameResponse]] =
     subscriber.subscribe(gameId)
 
 object GamePubSubLive:
   val live: ZLayer[RedisConfig, Throwable, GamePubSub] =
     ZLayer.makeSome[RedisConfig, GamePubSub](
-      RedisPublisher.live[ID[Game], Game],
-      RedisSubscriber.live[ID[Game], Game],
+      RedisPublisher.live[ID[Game], GameResponse],
+      RedisSubscriber.live[ID[Game], GameResponse],
       ZLayer.fromFunction(new GamePubSubLive(_, _))
     )
 

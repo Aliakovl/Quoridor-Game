@@ -2,7 +2,7 @@ package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.GameException
 import dev.aliakovl.quoridor.GameException.*
-import dev.aliakovl.quoridor.model.GameMoveException
+import dev.aliakovl.quoridor.engine.GameMoveException
 import zio.ZIO
 
 object ErrorMapping:

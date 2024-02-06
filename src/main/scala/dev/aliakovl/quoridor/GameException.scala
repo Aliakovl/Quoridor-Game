@@ -1,8 +1,7 @@
 package dev.aliakovl.quoridor
 
 import dev.aliakovl.quoridor.auth.model.Username
-import dev.aliakovl.quoridor.model.game.Game
-import dev.aliakovl.quoridor.model.User
+import dev.aliakovl.quoridor.model.{Game, User}
 import dev.aliakovl.utils.tagging.ID
 
 sealed abstract class GameException(message: String) extends Exception(message)
@@ -13,6 +12,10 @@ object GameException:
 
   case class UsernameNotFoundException(username: Username) // dao
       extends GameException(s"User with username=$username not found")
+
+  case object UsersNotFoundException // dao
+      extends GameException(s"Users not found")
+  type UsersNotFoundException = UsersNotFoundException.type
 
   case class GameNotFoundException(gameId: ID[Game]) // dao
       extends GameException(s"Game with id=$gameId not found")
@@ -26,12 +29,6 @@ object GameException:
       extends GameException(
         s"User with id=$userId does not belong to the game with id=$gameId"
       )
-
-  case object NotEnoughPlayersException
-      extends GameException("Not enough players to start game")
-
-  case object PlayersNumberLimitException
-      extends GameException("The number of players has reached the limit")
 
   case class UsernameOccupiedException(username: Username) // dao
       extends GameException(s"User with username $username already exists")

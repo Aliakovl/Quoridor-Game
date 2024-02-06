@@ -1,7 +1,7 @@
 package dev.aliakovl.quoridor.model
 
 import dev.aliakovl.quoridor.auth.model.Username
-import dev.aliakovl.quoridor.model.game.geometry.Side
+import dev.aliakovl.quoridor.engine.game.geometry.Side
 import dev.aliakovl.utils.tagging.ID
 import sttp.tapir.generic.auto.*
 import sttp.tapir.Schema

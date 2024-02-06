@@ -2,12 +2,12 @@ package dev.aliakovl.quoridor.dao
 
 import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.quoridor.GameException.GameNotFoundException
-import dev.aliakovl.quoridor.model.game.*
-import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
-import dev.aliakovl.quoridor.model.{GamePreView, User}
+import dev.aliakovl.quoridor.model.{Game, GamePreView, User}
 import dev.aliakovl.utils.ZIOExtensions.*
 import dev.aliakovl.utils.tagging.ID
 import cats.data.NonEmptyList
+import dev.aliakovl.quoridor.engine.game.{Move, Player, Players, State}
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
 import io.getquill.*
 import org.postgresql.util.PSQLState
 import zio.{IO, RLayer, Task, ZIO, ZLayer}
@@ -127,7 +127,6 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -138,8 +137,7 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
           pawnPosition.step == lift(step) &&
           pawnPosition.userId != gameState.activePlayer
       } yield Player(
-        user.userId,
-        user.username,
+        player.userId,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -157,7 +155,6 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       for {
         player <- query[dto.Player]
-        user <- query[dto.Userdata].join(_.userId == player.userId)
         gameState <- query[dto.GameState].join(_.gameId == player.gameId)
         pawnPosition <- query[dto.PawnPosition].join { pawnPosition =>
           pawnPosition.gameId == gameState.gameId &&
@@ -166,10 +163,9 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
         }
         if pawnPosition.gameId == lift(gameId) &&
           pawnPosition.step == lift(step) &&
-          user.userId == gameState.activePlayer
+          player.userId == gameState.activePlayer
       } yield Player(
-        user.userId,
-        user.username,
+        player.userId,
         PawnPosition(pawnPosition.row, pawnPosition.column),
         pawnPosition.wallsAmount,
         player.target
@@ -238,7 +234,7 @@ class GameDaoLive(quillContext: QuillContext) extends GameDao:
     run(quote {
       liftQuery {
         players.map {
-          case Player(userId, _, PawnPosition(row, column), wallsAmount, _) =>
+          case Player(userId, PawnPosition(row, column), wallsAmount, _) =>
             dto.PawnPosition(gameId, step, userId, wallsAmount, row, column)
         }
       }.foreach { pawnPosition =>

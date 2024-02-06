@@ -1,13 +1,9 @@
-package dev.aliakovl.quoridor.model.game
+package dev.aliakovl.quoridor.engine.game
 
-import dev.aliakovl.quoridor.model.game.geometry.Direction.*
-import dev.aliakovl.quoridor.model.game.geometry.*
-import io.circe.*
-import io.circe.generic.semiauto.*
-import sttp.tapir.generic.auto.*
-import sttp.tapir.Schema
+import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
+import dev.aliakovl.quoridor.engine.game.geometry.*
 
-case class State(players: Players, walls: Set[WallPosition]) {
+case class State(players: Players, walls: Set[WallPosition] = Set.empty):
   lazy val possibleSteps: List[PawnPosition] = {
     List(
       possibleStep(_, ToNorth),
@@ -17,12 +13,20 @@ case class State(players: Players, walls: Set[WallPosition]) {
     ).flatMap(f => f(players.activePlayer))
   }
 
+  lazy val availableWalls: Set[WallPosition] = {
+    if players.activePlayer.wallsAmount > 0 then
+      Board.availableWalls(
+        walls,
+        players.toList.map(player => (player.pawnPosition, player.target))
+      )
+    else Set.empty[WallPosition]
+  }
+
   private def possibleStep(
       player: Player,
       direction: Direction
-  ): List[PawnPosition] = {
-    val pawnPosition = player.pawnPosition
-    Board.adjacentPosition(pawnPosition, walls, direction) match {
+  ): List[PawnPosition] =
+    Board.adjacentPosition(player.pawnPosition, walls, direction) match {
       case None => List.empty
       case Some(position) =>
         players.enemies.find(_.pawnPosition == position) match {
@@ -36,10 +40,3 @@ case class State(players: Players, walls: Set[WallPosition]) {
             }
         }
     }
-  }
-}
-
-object State:
-  given Encoder[State] = deriveEncoder
-  given Decoder[State] = deriveDecoder
-  given Schema[State] = Schema.derivedSchema[State]

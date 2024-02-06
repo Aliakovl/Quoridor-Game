@@ -1,11 +1,10 @@
 package dev.aliakovl.quoridor.services
 
 import dev.aliakovl.quoridor.GameException.*
-import dev.aliakovl.quoridor.model.game.geometry.Side.*
-import dev.aliakovl.quoridor.model.game.{Game, State}
-import dev.aliakovl.quoridor.model.{ProtoGame, ProtoPlayer, ProtoPlayers, User}
+import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.quoridor.dao.{GameDao, ProtoGameDao, UserDao}
-import dev.aliakovl.quoridor.model.game.geometry.Side
+import dev.aliakovl.quoridor.engine.game.{Players, State}
+import dev.aliakovl.quoridor.engine.game.geometry.Board
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.*
 import zio.{Task, URLayer, ZIO, ZLayer}
@@ -19,7 +18,7 @@ class GameCreatorLive(
 ) extends GameCreator:
   override def createGame(userId: ID[User]): Task[ProtoGame] = {
     lazy val gameId = UUID.randomUUID().tag[Game]
-    val target = North
+    val target = Board.initTarget
     userDao.findById(userId).flatMap { user =>
       protoGameDao
         .insert(gameId, userId, target)
@@ -40,11 +39,9 @@ class GameCreatorLive(
         ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
-      playersNumber = protoGame.players.guests.size + 1
-      _ <- ZIO.when(playersNumber >= 4)(
-        ZIO.fail(PlayersNumberLimitException)
+      target <- ZIO.fromEither(
+        Board.playerTarget(protoGame.players.guests.size + 1)
       )
-      target = Side.values(playersNumber)
       user <- userDao.findById(userId)
       _ <- protoGameDao.addPlayer(gameId, userId, target)
       newPlayer = ProtoPlayer(user.id, user.username, target)
@@ -53,20 +50,31 @@ class GameCreatorLive(
     )
   }
 
-  override def startGame(gameId: ID[Game], userId: ID[User]): Task[Game] = {
+  override def startGame(
+      gameId: ID[Game],
+      userId: ID[User]
+  ): Task[GameResponse] = {
     for {
       gameAlreadyStarted <- gameDao.hasStarted(gameId)
       _ <- ZIO.when(gameAlreadyStarted)(
         ZIO.fail(GameAlreadyStartedException(gameId))
       )
       protoGame <- protoGameDao.find(gameId)
+      // TODO: move to a higher level
       _ <- ZIO.when(userId != protoGame.players.creator.id)(
         ZIO.fail(NotGameCreatorException(userId, gameId))
       )
-      players <- ZIO.fromEither(protoGame.players.toPlayers)
-      state = State(players, Set.empty)
+      players <- ZIO.fromEither(
+        {
+          val creator = protoGame.players.creator
+          val guests = protoGame.players.guests.map(g => (g.id, g.target))
+          Players.toPlayers(creator.id, creator.target)(guests)
+        }
+      )
+      state = State(players)
       game <- gameDao.create(gameId, state)
-    } yield game
+      users <- userDao.findUsers(players.toList.map(_.id))
+    } yield GameResponse.fromGame(users)(game)
   }
 
 object GameCreatorLive:

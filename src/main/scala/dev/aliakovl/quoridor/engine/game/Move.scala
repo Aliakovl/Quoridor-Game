@@ -1,12 +1,10 @@
-package dev.aliakovl.quoridor.model.game
+package dev.aliakovl.quoridor.engine.game
 
-import dev.aliakovl.quoridor.model.GameMoveException.*
-import dev.aliakovl.quoridor.model.GameMoveException
-import dev.aliakovl.quoridor.model.game.geometry.{
-  Board,
-  PawnPosition,
-  WallPosition
-}
+import dev.aliakovl.quoridor.engine.GameMoveException
+import dev.aliakovl.quoridor.engine.GameMoveException.*
+import dev.aliakovl.quoridor.engine.game.geometry.*
+import dev.aliakovl.quoridor.model.User
+import dev.aliakovl.utils.tagging.ID
 
 trait MoveValidator { self: Move =>
   protected def validate(state: State): Either[GameMoveException, Unit] =
@@ -70,6 +68,16 @@ enum Move extends MoveValidator { self =>
 
   def makeAt(state: State): Either[GameMoveException, State] =
     validate(state).map(_ => legalMove(state))
+
+  def getWinner(state: State): Option[ID[User]] = {
+    Some(self).collect { case Move.PawnMove(pawnPosition) =>
+      Some(state.players.activePlayer).collect {
+        case Player(id, _, _, target)
+            if Board.isPawnOnEdge(pawnPosition, target) =>
+          id
+      }
+    }.flatten
+  }
 
   private def legalMove(state: State): State = self match
     case PawnMove(pawnPosition: PawnPosition) =>

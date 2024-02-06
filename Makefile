@@ -60,10 +60,13 @@ local:
 	docker-compose -f docker-compose.local.yml --env-file .env.dev up -d
 
 down:
-	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
+	@export VERSION=$(VERSION) && \
+	docker-compose -f "docker-compose.dev.yml" down
+	docker-compose -f "docker-compose.local.yml" down
 	docker stop $$(docker ps -q) | true
 	docker rm $$(docker ps -aq) | true
-	docker-compose -f "docker-compose.dev.yml" -f "docker-compose.local.yml" -f "docker-compose.prod.yml" down
+	docker-compose -f "docker-compose.dev.yml" down
+	docker-compose -f "docker-compose.local.yml" down
 
 remove:
 	$(eval TMP = $(shell docker images -q 'quoridor/*' && docker images -q '*/quoridor/*'))

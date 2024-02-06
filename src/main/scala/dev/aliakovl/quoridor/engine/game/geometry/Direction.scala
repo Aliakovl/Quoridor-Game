@@ -1,16 +1,15 @@
-package dev.aliakovl.quoridor.model.game.geometry
+package dev.aliakovl.quoridor.engine.game.geometry
 
-import dev.aliakovl.quoridor.model.game.geometry.Direction.*
-import dev.aliakovl.quoridor.model.game.geometry.Orientation.*
+import dev.aliakovl.quoridor.engine.game.geometry.Direction.*
+import dev.aliakovl.quoridor.engine.game.geometry.Orientation.*
 
 sealed trait Direction extends Cross with StepForward with WallConverter
 
-object Direction {
+object Direction:
   object ToNorth extends Direction
   object ToSouth extends Direction
   object ToWest extends Direction
   object ToEast extends Direction
-}
 
 trait Cross { this: Direction =>
   val crossed: (Direction, Direction) = {

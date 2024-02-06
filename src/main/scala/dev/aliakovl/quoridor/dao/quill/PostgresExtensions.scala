@@ -1,6 +1,9 @@
 package dev.aliakovl.quoridor.dao.quill
 
-import dev.aliakovl.quoridor.model.game.geometry.{Orientation, Side}
+import cats.Show
+import dev.aliakovl.quoridor.codec.string.given
+import dev.aliakovl.quoridor.engine.game.geometry.{Orientation, Side}
+import dev.aliakovl.utils.StringParser
 import dev.aliakovl.utils.tagging.Tagged
 import dev.aliakovl.utils.tagging.Tagged.*
 import io.getquill.MappedEncoding
@@ -17,14 +20,14 @@ trait PostgresExtensions:
       (index: Index, value: Side, row: PrepareRow) => {
         val pgObj = new PGobject()
         pgObj.setType("side")
-        pgObj.setValue(value.entryName)
+        pgObj.setValue(Show[Side].show(value))
         row.setObject(index, pgObj, Types.OTHER)
       }
     )
 
   given Decoder[Side] =
     decoder[Side] { row => index =>
-      Side.withName(row.getObject(index, classOf[String]))
+      StringParser[Side].parse(row.getString(index)).get
     }
 
   given Encoder[Orientation] =
@@ -33,14 +36,14 @@ trait PostgresExtensions:
       (index: Index, value: Orientation, row: PrepareRow) => {
         val pgObj = new PGobject()
         pgObj.setType("orientation")
-        pgObj.setValue(value.entryName)
+        pgObj.setValue(Show[Orientation].show(value))
         row.setObject(index, pgObj, Types.OTHER)
       }
     )
 
   given Decoder[Orientation] =
     decoder[Orientation] { row => index =>
-      Orientation.withName(row.getObject(index, classOf[String]))
+      StringParser[Orientation].parse(row.getString(index)).get
     }
 
   given [A, B](using Encoder[A]): Encoder[Tagged[A, B]] =

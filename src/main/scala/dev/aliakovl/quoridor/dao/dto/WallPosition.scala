@@ -1,6 +1,6 @@
 package dev.aliakovl.quoridor.dao.dto
 
-import dev.aliakovl.quoridor.model.game.geometry.Orientation
+import dev.aliakovl.quoridor.engine.game.geometry.Orientation
 
 case class WallPosition(
     gameId: GameId,

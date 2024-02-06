@@ -5,13 +5,14 @@ import dev.aliakovl.quoridor.dao.quill.QuillContext
 import dev.aliakovl.quoridor.GameException.{
   UserNotFoundException,
   UsernameNotFoundException,
-  UsernameOccupiedException
+  UsernameOccupiedException,
+  UsersNotFoundException
 }
 import dev.aliakovl.quoridor.model.{User, UserWithSecret}
 import dev.aliakovl.utils.tagging.ID
 import org.postgresql.util.PSQLState
 import io.getquill.*
-import zio.{RLayer, Task, ZIO, ZLayer}
+import zio.{IO, RLayer, Task, ZIO, ZLayer}
 
 import java.sql.SQLException
 
@@ -32,7 +33,7 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
       }
   }
 
-  override def findById(id: ID[User]): Task[User] = {
+  override def findById(id: ID[User]): IO[UserNotFoundException, User] = {
     val findUserById = run {
       query[dto.Userdata].filter(_.userId == lift(id))
     }
@@ -42,6 +43,7 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
       .map { case dto.Userdata(id, username, _) =>
         User(id, username)
       }
+      .orDie
   }
 
   override def insert(user: UserWithSecret): Task[Unit] = {
@@ -63,6 +65,17 @@ class UserDaoLive(quillContext: QuillContext) extends UserDao:
           ZIO.fail(UsernameOccupiedException(user.username))
       }
   }
+
+  override def findUsers(
+      ids: Seq[ID[User]]
+  ): IO[UsersNotFoundException, Map[ID[User], User]] = run {
+    query[dto.Userdata]
+      .filter(u => liftQuery(ids).contains(u.userId))
+      .map { u => (u.userId, u.username) }
+  }.map(_.map((id, username) => User(id, username)))
+    .filterOrFail(_.size == ids.size)(UsersNotFoundException)
+    .map(_.map(user => (user.id, user)).toMap)
+    .orDie
 
 object UserDaoLive:
   val live: RLayer[QuillContext, UserDao] =

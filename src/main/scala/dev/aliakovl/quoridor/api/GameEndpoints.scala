@@ -1,10 +1,10 @@
 package dev.aliakovl.quoridor.api
 
 import dev.aliakovl.quoridor.auth.model.{AccessToken, ClaimData, Username}
-import dev.aliakovl.quoridor.model
-import dev.aliakovl.quoridor.model.game.geometry.{PawnPosition, WallPosition}
-import dev.aliakovl.quoridor.model.{GamePreView, ProtoGame, User, game}
-import dev.aliakovl.quoridor.model.game.{Game, Move}
+import dev.aliakovl.quoridor.codec.json.given
+import dev.aliakovl.quoridor.engine.game.Move
+import dev.aliakovl.quoridor.engine.game.geometry.{PawnPosition, WallPosition}
+import dev.aliakovl.quoridor.model.*
 import dev.aliakovl.utils.tagging.ID
 import dev.aliakovl.utils.tagging.Tagged.given
 import io.circe.{Decoder, Encoder}
@@ -58,7 +58,7 @@ class GameEndpoints(base: BaseEndpoints):
     ClaimData,
     ID[Game],
     ErrorResponse,
-    Game,
+    GameResponse,
     Any
   ] =
     base.secureEndpoint.post
@@ -67,7 +67,7 @@ class GameEndpoints(base: BaseEndpoints):
       .summary("Start the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "start")
-      .out(jsonBody[Game] and statusCode(StatusCode.Created))
+      .out(jsonBody[GameResponse] and statusCode(StatusCode.Created))
 
   val gameHistoryEndpoint: ZPartialServerEndpoint[
     Any,
@@ -75,7 +75,7 @@ class GameEndpoints(base: BaseEndpoints):
     ClaimData,
     ID[Game],
     ErrorResponse,
-    List[Game],
+    List[GameResponse],
     Any
   ] =
     base.secureEndpoint.get
@@ -84,7 +84,7 @@ class GameEndpoints(base: BaseEndpoints):
       .summary("Step-by-step history of the game")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId") / "history")
-      .out(jsonBody[List[Game]])
+      .out(jsonBody[List[GameResponse]])
 
   val historyEndpoint: ZPartialServerEndpoint[
     Any,
@@ -109,7 +109,7 @@ class GameEndpoints(base: BaseEndpoints):
     ClaimData,
     ID[Game],
     ErrorResponse,
-    Game,
+    GameResponse,
     Any
   ] =
     base.secureEndpoint.get
@@ -118,7 +118,7 @@ class GameEndpoints(base: BaseEndpoints):
       .summary("Current game state")
       .in("api" / "v1")
       .in("game" / path[ID[Game]]("gameId"))
-      .out(jsonBody[Game])
+      .out(jsonBody[GameResponse])
 
   val getUserEndpoint: ZPartialServerEndpoint[
     Any,
@@ -141,7 +141,7 @@ class GameEndpoints(base: BaseEndpoints):
     Any,
     AccessToken,
     ClaimData,
-    (ID[Game], game.Move.PawnMove),
+    (ID[Game], Move.PawnMove),
     ErrorResponse,
     Unit,
     Any
@@ -158,7 +158,7 @@ class GameEndpoints(base: BaseEndpoints):
     Any,
     AccessToken,
     ClaimData,
-    (ID[Game], model.game.Move.PlaceWall),
+    (ID[Game], Move.PlaceWall),
     ErrorResponse,
     Unit,
     Any
