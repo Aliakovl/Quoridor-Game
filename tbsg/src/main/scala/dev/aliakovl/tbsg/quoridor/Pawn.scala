@@ -18,8 +18,3 @@ enum Pawn(val edge: Side, val position: Cell, val walls: Int):
       override val position: Cell,
       override val walls: Int
   ) extends Pawn(edge, position, walls)
-
-object Pawn:
-  given Conversion[(Side, Cell, Int), ActivePawn] = ActivePawn.apply
-  given Conversion[(Side, Cell, Int), WaitingPawn] = WaitingPawn.apply
-  given Conversion[(Side, Cell, Int), NonActivePawn] = NonActivePawn.apply

@@ -1,5 +1,7 @@
 package dev.aliakovl.tbsg.quoridor
 
+import scala.compiletime.erasedValue
+
 class Board(size: Int):
   val minCell: Int = 0
   val midCell: Int = size / 2
@@ -17,15 +19,17 @@ class Board(size: Int):
   inline private def wallsPerPawn(playersCount: PlayersCount): Int =
     totalWalls / playersCount.toInt
 
-  inline private def initialPawn[T <: Pawn](
+  private transparent inline def initialPawn[T <: Pawn](
       side: Side,
       walls: Int
-  )(using Conversion[(Side, Cell, Int), T]): T =
-    summon[Conversion[(Side, Cell, Int), T]](
-      side,
-      initialCell(side),
-      walls
-    )
+  ): Pawn = {
+    inline erasedValue[T] match
+      case _: Pawn.ActivePawn => Pawn.ActivePawn(side, initialCell(side), walls)
+      case _: Pawn.WaitingPawn =>
+        Pawn.WaitingPawn(side, initialCell(side), walls)
+      case _: Pawn.NonActivePawn =>
+        Pawn.NonActivePawn(side, initialCell(side), walls)
+  }
 
   def initialPawns(playersCount: PlayersCount): Pawns = {
     val initialWallCount = wallsPerPawn(playersCount)
