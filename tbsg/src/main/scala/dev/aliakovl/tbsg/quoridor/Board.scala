@@ -10,46 +10,64 @@ class Board(size: Int):
   val maxGroove: Int = maxCell - 1
   val totalWalls: Int = 2 * (size + 1)
 
-  inline private def initialCell(side: Side): Cell = inline side match
+  inline private def initializeCell(inline side: Side): Cell = inline side match
     case Side.Bottom => Cell(maxCell, midCell)
     case Side.Top    => Cell(minCell, midCell)
     case Side.Left   => Cell(midCell, minCell)
     case Side.Right  => Cell(midCell, maxCell)
 
-  inline private def wallsPerPawn(playersCount: PlayersCount): Int =
-    totalWalls / playersCount.toInt
+  inline private def wallsPerPawn(inline playersCount: PlayersCount): Int =
+    inline playersCount match
+      case PlayersCount.TwoPlayers  => totalWalls / 2
+      case PlayersCount.FourPlayers => totalWalls / 4
 
   private transparent inline def initialPawn[T <: Pawn](
-      side: Side,
-      walls: Int
+      inline side: Side,
+      inline walls: Int
   ): Pawn = {
     inline erasedValue[T] match
-      case _: Pawn.ActivePawn => Pawn.ActivePawn(side, initialCell(side), walls)
+      case _: Pawn.ActivePawn =>
+        Pawn.ActivePawn(side, initializeCell(side), walls)
       case _: Pawn.WaitingPawn =>
-        Pawn.WaitingPawn(side, initialCell(side), walls)
+        Pawn.WaitingPawn(side, initializeCell(side), walls)
       case _: Pawn.NonActivePawn =>
-        Pawn.NonActivePawn(side, initialCell(side), walls)
+        Pawn.NonActivePawn(side, initializeCell(side), walls)
   }
 
   def initialPawns(playersCount: PlayersCount): Pawns = {
-    val initialWallCount = wallsPerPawn(playersCount)
     playersCount match
       case PlayersCount.TwoPlayers =>
         Pawns(
-          activePawn =
-            initialPawn[Pawn.ActivePawn](Side.Bottom, initialWallCount),
+          activePawn = initialPawn[Pawn.ActivePawn](
+            Side.Bottom,
+            wallsPerPawn(PlayersCount.TwoPlayers)
+          ),
           waitingPawns = Set(
-            initialPawn[Pawn.WaitingPawn](Side.Top, initialWallCount)
+            initialPawn[Pawn.WaitingPawn](
+              Side.Top,
+              wallsPerPawn(PlayersCount.TwoPlayers)
+            )
           )
         )
       case PlayersCount.FourPlayers =>
         Pawns(
-          activePawn =
-            initialPawn[Pawn.ActivePawn](Side.Bottom, initialWallCount),
+          activePawn = initialPawn[Pawn.ActivePawn](
+            Side.Bottom,
+            wallsPerPawn(PlayersCount.FourPlayers)
+          ),
           waitingPawns = Set(
-            initialPawn[Pawn.WaitingPawn](Side.Top, initialWallCount),
-            initialPawn[Pawn.WaitingPawn](Side.Left, initialWallCount),
-            initialPawn[Pawn.WaitingPawn](Side.Right, initialWallCount)
+            initialPawn[Pawn.WaitingPawn](
+              Side.Top,
+              wallsPerPawn(PlayersCount.FourPlayers)
+            ),
+            initialPawn[Pawn.WaitingPawn](
+              Side.Left,
+              wallsPerPawn(PlayersCount.FourPlayers)
+            ),
+            initialPawn[Pawn.WaitingPawn](
+              Side.Right,
+              wallsPerPawn(PlayersCount.FourPlayers)
+            )
           )
         )
   }
