@@ -33,5 +33,8 @@ lazy val tbsg = (project in file("tbsg"))
     name := "tbsg",
     description := "Turn-based strategy games",
     version := "0.0.1",
-    scalaVersion := "3.3.1"
+    scalaVersion := "3.3.1",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "2.10.0"
+    )
   )

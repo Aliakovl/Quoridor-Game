@@ -10,3 +10,4 @@ enum GameState:
       winnersTable: List[NonActivePawn]
   )
   case EndedGame(walls: Set[Groove], winnersTable: List[NonActivePawn])
+end GameState

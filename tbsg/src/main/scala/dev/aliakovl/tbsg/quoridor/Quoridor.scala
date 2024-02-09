@@ -10,14 +10,14 @@ class Quoridor(private val size: Int)
       PlayersCount,
       GameState,
       GameEvent
-    ] {
+    ]:
   private val board = Board(size)
 
   override def initialize(
       playersCount: PlayersCount
   ): Either[Error, GameState] = Right(
     ActiveGame(
-      pawns = board.initializePawns(playersCount),
+      pawns = Pawns.initialize(playersCount, board),
       walls = Set.empty
     )
   )
@@ -28,4 +28,5 @@ class Quoridor(private val size: Int)
   ): Either[Error, GameState] = ???
 
   override def permittedActions(state: GameState): Set[GameEvent] = ???
-}
+
+end Quoridor
