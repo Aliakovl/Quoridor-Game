@@ -17,7 +17,7 @@ class Quoridor(private val size: Int)
       playersCount: PlayersCount
   ): Either[Error, GameState] = Right(
     ActiveGame(
-      pawns = board.initialPawns(playersCount),
+      pawns = board.initializePawns(playersCount),
       walls = Set.empty
     )
   )

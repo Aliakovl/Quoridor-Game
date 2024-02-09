@@ -3,71 +3,72 @@ package dev.aliakovl.tbsg.quoridor
 import scala.compiletime.erasedValue
 
 class Board(size: Int):
-  val minCell: Int = 0
-  val midCell: Int = size / 2
-  val maxCell: Int = size - 1
-  val minGroove: Int = minCell
-  val maxGroove: Int = maxCell - 1
-  val totalWalls: Int = 2 * (size + 1)
+  private val minCell: Int = 0
+  private val midCell: Int = size / 2
+  private val maxCell: Int = size - 1
+  private val minGroove: Int = minCell
+  private val maxGroove: Int = maxCell - 1
+  private val totalWalls: Int = 2 * (size + 1)
 
-  inline private def initializeCell(inline side: Side): Cell = inline side match
+  private inline def initializeCell(inline side: Side): Cell = inline side match
     case Side.Bottom => Cell(maxCell, midCell)
     case Side.Top    => Cell(minCell, midCell)
     case Side.Left   => Cell(midCell, minCell)
     case Side.Right  => Cell(midCell, maxCell)
 
-  inline private def wallsPerPawn(inline playersCount: PlayersCount): Int =
-    inline playersCount match
+  private inline def wallsPerPawn(playersCount: PlayersCount): Int =
+    playersCount match
       case PlayersCount.TwoPlayers  => totalWalls / 2
       case PlayersCount.FourPlayers => totalWalls / 4
 
-  private transparent inline def initialPawn[T <: Pawn](
+  private transparent inline def initializePawn[T <: Pawn](
       inline side: Side,
-      inline walls: Int
+      playersCount: PlayersCount
   ): Pawn = {
     inline erasedValue[T] match
       case _: Pawn.ActivePawn =>
-        Pawn.ActivePawn(side, initializeCell(side), walls)
+        Pawn.ActivePawn(side, initializeCell(side), wallsPerPawn(playersCount))
       case _: Pawn.WaitingPawn =>
-        Pawn.WaitingPawn(side, initializeCell(side), walls)
+        Pawn.WaitingPawn(side, initializeCell(side), wallsPerPawn(playersCount))
       case _: Pawn.NonActivePawn =>
-        Pawn.NonActivePawn(side, initializeCell(side), walls)
+        Pawn.NonActivePawn(side, initializeCell(side), wallsPerPawn(playersCount))
   }
 
-  def initialPawns(playersCount: PlayersCount): Pawns = {
+  def initializePawns(playersCount: PlayersCount): Pawns = {
     playersCount match
       case PlayersCount.TwoPlayers =>
         Pawns(
-          activePawn = initialPawn[Pawn.ActivePawn](
+          activePawn = initializePawn[Pawn.ActivePawn](
             Side.Bottom,
-            wallsPerPawn(PlayersCount.TwoPlayers)
+            playersCount
           ),
           waitingPawns = Set(
-            initialPawn[Pawn.WaitingPawn](
+            initializePawn[Pawn.WaitingPawn](
               Side.Top,
-              wallsPerPawn(PlayersCount.TwoPlayers)
+              playersCount
             )
           )
         )
       case PlayersCount.FourPlayers =>
         Pawns(
-          activePawn = initialPawn[Pawn.ActivePawn](
+          activePawn = initializePawn[Pawn.ActivePawn](
             Side.Bottom,
-            wallsPerPawn(PlayersCount.FourPlayers)
+            playersCount
           ),
           waitingPawns = Set(
-            initialPawn[Pawn.WaitingPawn](
+            initializePawn[Pawn.WaitingPawn](
               Side.Top,
-              wallsPerPawn(PlayersCount.FourPlayers)
+              playersCount
             ),
-            initialPawn[Pawn.WaitingPawn](
+            initializePawn[Pawn.WaitingPawn](
               Side.Left,
-              wallsPerPawn(PlayersCount.FourPlayers)
+              playersCount
             ),
-            initialPawn[Pawn.WaitingPawn](
+            initializePawn[Pawn.WaitingPawn](
               Side.Right,
-              wallsPerPawn(PlayersCount.FourPlayers)
+              playersCount
             )
           )
         )
   }
+end Board
