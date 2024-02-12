@@ -8,7 +8,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     val game = new Quoridor(9)
     val state = game.initialize(PlayersCount.FourPlayers)
-    println(state)
+
+    println(state.map(game.permittedActions))
 
     println(state.map(game.handleEvent(PawnMove(Bottom, Cell(7, 4)), _)))
 

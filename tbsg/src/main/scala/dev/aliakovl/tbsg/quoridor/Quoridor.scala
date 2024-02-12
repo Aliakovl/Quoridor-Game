@@ -29,10 +29,18 @@ class Quoridor(private val size: Int)
       event: GameEvent,
       state: GameState
   ): ValidatedNec[GameError, GameState] = state match {
-    case as @ ActiveGame(_, _, _) => board.move(event, as)
-    case EndedGame(_, _)          => IllegalMoveInEndedGameError.invalidNec
+    case activeGame @ ActiveGame(_, _, _) => board.move(event, activeGame)
+    case _ => IllegalMoveInEndedGameError.invalidNec
   }
 
-  override def permittedActions(state: GameState): Set[GameEvent] = ???
+  override def permittedActions(state: GameState): Set[GameEvent] = state match
+    case activeGame @ ActiveGame(pawns, walls, _) =>
+      activeGame
+        .accessibleSteps(board)
+        .map(PawnMove(pawns.activePawn.edge, _)) ++
+        board
+          .accessibleGrooves(pawns, walls)
+          .map(PlaceWall(pawns.activePawn.edge, _))
+    case _ => Set.empty
 
 end Quoridor

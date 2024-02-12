@@ -46,25 +46,25 @@ object GameState:
         }
     }
 
-    def accessibleSteps(board: Board): Seq[Cell] = {
-      Direction.values.toIndexedSeq.flatMap {
+    def accessibleSteps(board: Board): Set[Cell] = {
+      Direction.values.toSet.flatMap {
         accessibleStep(_, board)
       }
     }
 
-    private def accessibleStep(direction: Direction, board: Board): Seq[Cell] =
+    private def accessibleStep(direction: Direction, board: Board): Set[Cell] =
       _accessibleStep(pawns.activePawn, direction, board)
 
     private def _accessibleStep(
         pawn: Pawn,
         direction: Direction,
         board: Board
-    ): Seq[Cell] = {
+    ): Set[Cell] = {
       board.reachableCell(pawn.position, walls, direction) match
-        case None => Seq.empty
+        case None => Set.empty
         case Some(position) =>
           pawns.waitingPawns.find(_.position == position) match
-            case None => Seq(position)
+            case None => Set(position)
             case Some(waitingPawn) =>
               board.reachableCell(waitingPawn.position, walls, direction) match
                 case Some(_) => _accessibleStep(waitingPawn, direction, board)
