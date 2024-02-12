@@ -1,19 +1,16 @@
 package dev.aliakovl.tbsg
 
-import dev.aliakovl.tbsg.quoridor.{PlayersCount, Quoridor}
+import dev.aliakovl.tbsg.quoridor.GameEvent.PawnMove
+import dev.aliakovl.tbsg.quoridor.Side.Bottom
+import dev.aliakovl.tbsg.quoridor.{Cell, PlayersCount, Quoridor}
 
 object Main {
   def main(args: Array[String]): Unit = {
     val game = new Quoridor(9)
+    val state = game.initialize(PlayersCount.FourPlayers)
+    println(state)
 
-    val start = System.currentTimeMillis()
-    val b = for {
-      _ <- 0 until 10000000
-      a = game.initialize(PlayersCount.FourPlayers)
-    } yield a
-    val end = System.currentTimeMillis()
-    println(s"elapsed: ${(end - start) / 1000d}")
+    println(state.map(game.handleEvent(PawnMove(Bottom, Cell(7, 4)), _)))
 
-    println(b.lastOption)
   }
 }

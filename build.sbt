@@ -34,7 +34,11 @@ lazy val tbsg = (project in file("tbsg"))
     description := "Turn-based strategy games",
     version := "0.0.1",
     scalaVersion := "3.3.1",
+    scalacOptions ++= Seq(
+      "-deprecation"
+    ),
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "2.10.0"
+      "org.typelevel" %% "cats-core" % "2.10.0",
+      "com.softwaremill.quicklens" %% "quicklens" % "1.9.7"
     )
   )
