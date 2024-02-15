@@ -1,6 +1,6 @@
 package dev.aliakovl.tbsg.quoridor
 
-import cats.data.{NonEmptySet, Validated, ValidatedNec}
+import cats.data.{NonEmptySet, Validated}
 import cats.syntax.all.*
 import dev.aliakovl.tbsg.CyclicOrdered.given
 import dev.aliakovl.tbsg.quoridor.GameError.WrongWaitingPawnsError
@@ -22,14 +22,19 @@ object GameState:
         )
         .map { newActivePawn =>
           if board.isWinner(pawns.activePawn) then {
-            NonEmptySet.fromSet(pawns.waitingPawns - newActivePawn) match
+            NonEmptySet.fromSet(pawns.waitingPawns - newActivePawn) match {
               case Some(newWaitingPawns) =>
                 ActiveGame(
                   Pawns(newActivePawn, newWaitingPawns),
                   walls,
                   winnersTable :+ pawns.activePawn
                 )
-              case None => EndedGame(walls, winnersTable :+ pawns.activePawn)
+              case None =>
+                EndedGame(
+                  walls,
+                  winnersTable :+ pawns.activePawn :+ newActivePawn
+                )
+            }
           } else {
             ActiveGame(
               Pawns(
@@ -63,7 +68,8 @@ object GameState:
       board.reachableCell(pawn.position, walls, direction) match
         case None => Set.empty
         case Some(position) =>
-          pawns.waitingPawns.find(_.position == position) match
+          (pawns.waitingPawns.toIterable ++ winnersTable)
+            .find(_.position == position) match
             case None => Set(position)
             case Some(waitingPawn) =>
               board.reachableCell(waitingPawn.position, walls, direction) match

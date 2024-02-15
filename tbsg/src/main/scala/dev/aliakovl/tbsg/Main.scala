@@ -1,17 +1,24 @@
 package dev.aliakovl.tbsg
 
-import dev.aliakovl.tbsg.quoridor.GameEvent.PawnMove
-import dev.aliakovl.tbsg.quoridor.Side.Bottom
-import dev.aliakovl.tbsg.quoridor.{Cell, PlayersCount, Quoridor}
+import cats.syntax.all.*
+import cats.FlatMap
+import cats.data.{NonEmptyChain, Validated, ValidatedNec}
+import dev.aliakovl.tbsg.quoridor.*
+import dev.aliakovl.tbsg.quoridor.SimpleQuoridorPrinter.stateStr
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val game = new Quoridor(9)
-    val state = game.initialize(PlayersCount.FourPlayers)
+    val quoridor = new Quoridor(9)
+    val bot = new QuoridorBotGame(quoridor)
 
-    println(state.map(game.permittedActions))
+    val state = bot.start(PlayersCount.FourPlayers)(st => {
+      System.out.println(stateStr(st))
+      System.out.flush()
+      Thread.sleep(100)
+      System.out.print("\u001b[1\u001b[11A")
+    })
 
-    println(state.map(game.handleEvent(PawnMove(Bottom, Cell(7, 4)), _)))
+    println(state)
 
   }
 }

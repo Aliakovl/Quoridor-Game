@@ -13,6 +13,7 @@ import dev.aliakovl.tbsg.quoridor.GameState.*
 import dev.aliakovl.tbsg.quoridor.Orientation.*
 
 import scala.math.Ordering.Implicits.given
+import scala.language.implicitConversions
 
 class Board(size: Int):
   private val minCell: Int = 0
@@ -46,6 +47,15 @@ class Board(size: Int):
   }
 
   def isWinner(pawn: Pawn): Boolean = {
+    pawn.edge match {
+      case Side.Top    => pawn.position.row == maxCell
+      case Side.Bottom => pawn.position.row == minCell
+      case Side.Left   => pawn.position.column == maxCell
+      case Side.Right  => pawn.position.column == minCell
+    }
+  }
+
+  def onEdge(pawn: Pawn): Boolean = {
     pawn.edge match {
       case Side.Top    => pawn.position.row == minCell
       case Side.Bottom => pawn.position.row == maxCell
@@ -104,7 +114,7 @@ class Board(size: Int):
     used.add(pawn.position)
     while (queue.nonEmpty) {
       val position = queue.dequeue()
-      if isWinner(pawn) then return true
+      if onEdge(pawn) then return true
       for (adjacentPosition <- allReachableCells(position, walls)) {
         if !used.contains(adjacentPosition) then
           used.add(adjacentPosition)

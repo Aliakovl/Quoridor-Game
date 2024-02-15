@@ -35,7 +35,8 @@ lazy val tbsg = (project in file("tbsg"))
     version := "0.0.1",
     scalaVersion := "3.3.1",
     scalacOptions ++= Seq(
-      "-deprecation"
+      "-deprecation",
+      "-feature"
     ),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.10.0",
