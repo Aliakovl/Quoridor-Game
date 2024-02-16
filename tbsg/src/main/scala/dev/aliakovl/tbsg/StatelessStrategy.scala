@@ -8,3 +8,4 @@ trait StatelessStrategy[T[_], -State, Event](using
     summon[Chooser[T, Event]].choose(
       summon[Actions[T, State, Event]].actions(state)
     )
+end StatelessStrategy

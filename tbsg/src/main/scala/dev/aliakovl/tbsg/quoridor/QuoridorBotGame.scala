@@ -6,13 +6,7 @@ import dev.aliakovl.tbsg.BotGame
 
 final class QuoridorBotGame(
     quoridor: Quoridor
-) extends BotGame[
-      [A] =>> ValidatedNec[GameError, A],
-      Set,
-      PlayersCount,
-      GameEvent,
-      GameState
-    ](quoridor.rules, QuoridorRandomBot(quoridor.actions)) {}
+) extends BotGame(quoridor.rules, QuoridorRandomBot(quoridor.actions))
 
 given [E]: FlatMap[[A] =>> Validated[NonEmptyChain[E], A]] =
   new FlatMap[[A] =>> Validated[NonEmptyChain[E], A]]:

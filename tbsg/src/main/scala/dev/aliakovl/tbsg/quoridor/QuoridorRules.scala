@@ -3,7 +3,7 @@ package dev.aliakovl.tbsg.quoridor
 import cats.syntax.all.*
 import cats.data.ValidatedNec
 import dev.aliakovl.tbsg.{Rules, quoridor}
-import dev.aliakovl.tbsg.quoridor.GameState.*
+import dev.aliakovl.tbsg.quoridor.*
 import dev.aliakovl.tbsg.quoridor.GameError.*
 
 final class QuoridorRules private[quoridor] (board: Board)

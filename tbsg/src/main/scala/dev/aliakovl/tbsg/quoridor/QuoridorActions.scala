@@ -2,7 +2,6 @@ package dev.aliakovl.tbsg.quoridor
 
 import dev.aliakovl.tbsg.Actions
 import dev.aliakovl.tbsg.quoridor.GameEvent.{PawnMove, PlaceWall}
-import dev.aliakovl.tbsg.quoridor.GameState.ActiveGame
 
 final class QuoridorActions private[quoridor] (board: Board)
     extends Actions[Set, GameState, GameEvent]:

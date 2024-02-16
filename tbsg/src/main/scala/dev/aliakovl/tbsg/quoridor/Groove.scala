@@ -3,7 +3,7 @@ package dev.aliakovl.tbsg.quoridor
 import dev.aliakovl.tbsg.quoridor
 import dev.aliakovl.tbsg.quoridor.Orientation.*
 
-case class Groove(row: Int, column: Int, orientation: Orientation) {
+case class Groove(row: Int, column: Int, orientation: Orientation):
   def intersects(other: Groove): Boolean = other match {
     case Groove(`row`, `column`, _) => true
     case Groove(`row`, otherColumn, `orientation`)
@@ -13,4 +13,4 @@ case class Groove(row: Int, column: Int, orientation: Orientation) {
       (row - otherRow).abs <= 1
     case _ => false
   }
-}
+end Groove

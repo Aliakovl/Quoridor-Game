@@ -5,7 +5,7 @@ import dev.aliakovl.tbsg.quoridor.Pawn.*
 
 case class Pawn(edge: Side, position: Cell, walls: Int)
 
-object Pawn {
+object Pawn:
   given Ordering[Pawn] = Ordering.by(_.edge)
   given Order[Pawn] = Order.fromOrdering
-}
+end Pawn

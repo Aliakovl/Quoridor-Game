@@ -9,7 +9,7 @@ import dev.aliakovl.tbsg.quoridor
 import dev.aliakovl.tbsg.quoridor.Board.*
 import dev.aliakovl.tbsg.quoridor.GameError.*
 import dev.aliakovl.tbsg.quoridor.GameEvent.*
-import dev.aliakovl.tbsg.quoridor.GameState.*
+import dev.aliakovl.tbsg.quoridor.*
 import dev.aliakovl.tbsg.quoridor.Orientation.*
 
 import scala.math.Ordering.Implicits.given
@@ -197,7 +197,6 @@ class Board(size: Int):
       .modify(_.pawns.activePawn.walls)(_ - 1)
       .nextTurn(this)
   }
-
 end Board
 
 object Board:

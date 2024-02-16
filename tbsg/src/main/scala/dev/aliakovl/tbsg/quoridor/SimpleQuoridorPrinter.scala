@@ -80,9 +80,9 @@ object SimpleQuoridorPrinter {
 
   def stateStr(state: GameState): String = {
     state match
-      case GameState.ActiveGame(pawns, walls, winnersTable) =>
+      case ActiveGame(pawns, walls, winnersTable) =>
         stateStr(pawns.toSet ++ winnersTable.toSet, walls)
-      case GameState.EndedGame(walls, winnersTable) =>
+      case EndedGame(walls, winnersTable) =>
         stateStr(winnersTable.toSet, walls)
   }
 }

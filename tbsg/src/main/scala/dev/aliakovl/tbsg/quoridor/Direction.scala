@@ -7,5 +7,4 @@ enum Direction:
     case Direction.Up | Direction.Down    => (Direction.Left, Direction.Right)
     case Direction.Left | Direction.Right => (Direction.Up, Direction.Down)
   }
-
 end Direction

@@ -1,8 +1,5 @@
 package dev.aliakovl.tbsg
 
-import cats.syntax.all.*
-import cats.FlatMap
-import cats.data.{NonEmptyChain, Validated, ValidatedNec}
 import dev.aliakovl.tbsg.quoridor.*
 import dev.aliakovl.tbsg.quoridor.SimpleQuoridorPrinter.stateStr
 
@@ -14,7 +11,7 @@ object Main {
     val state = bot.start(PlayersCount.FourPlayers)(st => {
       System.out.println(stateStr(st))
       System.out.flush()
-      Thread.sleep(100)
+      Thread.sleep(300)
       System.out.print("\u001b[1\u001b[11A")
     })
 
