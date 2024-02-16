@@ -27,3 +27,19 @@ lazy val `quoridor-game` = (project in file("."))
     Compile / doc / sources := Nil
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging, AshScriptPlugin)
+
+lazy val tbsg = (project in file("tbsg"))
+  .settings(
+    name := "tbsg",
+    description := "Turn-based strategy games",
+    version := "0.0.1",
+    scalaVersion := "3.3.1",
+    scalacOptions ++= Seq(
+      "-deprecation",
+      "-feature"
+    ),
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "2.10.0",
+      "com.softwaremill.quicklens" %% "quicklens" % "1.9.7"
+    )
+  )
