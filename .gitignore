@@ -15,5 +15,6 @@ frontend/package-lock.json
 .env
 .build/
 .var/
-registry/certs/
-nginx/certs
+registry/certs*
+nginx/certs*
+*.pem
