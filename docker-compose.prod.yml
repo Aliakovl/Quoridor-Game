@@ -11,9 +11,11 @@ services:
     image: ${DOCKER_REGISTRY}/quoridor/game-api:latest
     pull_policy: always
     restart: on-failure:3
-    deploy:
-      replicas: 2
-      endpoint_mode: vip
+    ports:
+      - "8080:8080"
+#    deploy:
+#      replicas: 2
+#      endpoint_mode: vip
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -57,24 +59,25 @@ services:
     volumes:
       - rdata:/data
 
-  nginx:
-    image: ${DOCKER_REGISTRY}/quoridor/nginx:latest
-    pull_policy: always
-    restart: on-failure:3
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - public-certs:/etc/nginx/certs
-      - ssl-dhparam:/etc/nginx/ssl
-      - game-api-tls:/etc/nginx/game-api-tls
-      - www-certbot:/var/www/certbot
-    depends_on:
-      - game-api
-      - frontend
+#  nginx:
+#    image: ${DOCKER_REGISTRY}/quoridor/nginx:latest
+#    pull_policy: always
+#    restart: on-failure:3
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - public-certs:/etc/nginx/certs
+#      - ssl-dhparam:/etc/nginx/ssl
+#      - www-certbot:/var/www/certbot
+#    depends_on:
+#      - game-api
+#      - frontend
 
   frontend:
     image: ${DOCKER_REGISTRY}/quoridor/frontend:latest
+    ports:
+      - "3000:3000"
     pull_policy: always
     restart: on-failure:3
 
@@ -83,21 +86,15 @@ volumes:
   rdata:
   game-api-config:
     name: game-api-config-${VERSION}
-  public-certs:
-    name: public-certs
-    external: true
+#  public-certs:
+#    name: public-certs
+#    external: true
   jwt-keys:
     name: jwt-keys
     external: true
-  ssl-dhparam:
-    name: ssl-dhparam
-    external: true
+#  ssl-dhparam:
+#    name: ssl-dhparam
+#    external: true
   game-api-jks:
     name: game-api-jks
-    external: true
-  game-api-tls:
-    name: game-api-tls
-    external: true
-  www-certbot:
-    name: www-certbot
     external: true

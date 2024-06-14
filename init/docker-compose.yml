@@ -12,7 +12,6 @@ services:
       - public-certs:/etc/nginx/certs
       - www-certbot:/var/www/certbot
       - ssl-dhparam:/etc/nginx/ssl
-      - game-api-tls:/etc/nginx/game-api-tls
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:80" ]
       interval: 2s
@@ -58,7 +57,6 @@ services:
         SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-jks:/var/tmp/ks
-      - game-api-tls:/var/tmp/cert
 
 volumes:
   public-certs:
@@ -71,5 +69,3 @@ volumes:
     name: ssl-dhparam
   game-api-jks:
     name: game-api-jks
-  game-api-tls:
-    name: game-api-tls

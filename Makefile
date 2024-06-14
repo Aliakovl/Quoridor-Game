@@ -167,3 +167,11 @@ renew-cert:
 
 version:
 	@echo $(VERSION)
+
+deploy-game-api-tls:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+    docker-compose -f init/game-api.docker-compose.yml --env-file .env up -d --build
+
+deploy-game-api-jwt:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+    docker-compose -f init/docker-compose.yml --env-file .env up -d --build init-keys

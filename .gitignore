@@ -18,3 +18,5 @@ frontend/package-lock.json
 registry/certs*
 nginx/certs*
 *.pem
+*.p12
+*.jks
