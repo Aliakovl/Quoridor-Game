@@ -1,0 +1,15 @@
+version: "2.4"
+
+services:
+  init-game-api-tls:
+    image: ${DOCKER_REGISTRY}/quoridor/init-game-api-tls:latest
+    build:
+      dockerfile: game-api-tls.Dockerfile
+      args:
+        SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
+    volumes:
+      - game-api-jks:/var/tmp/ks
+
+volumes:
+  game-api-jks:
+    name: game-api-jks

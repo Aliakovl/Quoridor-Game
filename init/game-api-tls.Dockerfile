@@ -1,19 +1,18 @@
 FROM openjdk:17-alpine
 ARG SSL_KS_PASSWORD
 WORKDIR /var/tmp/ks
-RUN keytool -genkeypair \
-    -keyalg RSA \
-    -keysize 2048 \
-    -alias game-api \
-    -keystore game-api.jks \
-    -storetype pkcs12 \
-    -validity 365 \
-    -storepass $SSL_KS_PASSWORD \
-    -dname "CN=ll, OU=ll, O=ll, L=ll, S=ll, C=ll"
-WORKDIR /var/tmp/cert
-RUN keytool -export \
-    -alias game-api \
-    -keystore /var/tmp/ks/game-api.jks \
-    -storepass $SSL_KS_PASSWORD \
-    -file game-api-cert.pem \
-    -rfc
+COPY certs/game-api.jks .
+
+# RUN openssl pkcs12 -export \
+#     -in fullchain.pem \
+#     -inkey privkey.pem \
+#     -name game-api \
+#     -password pass:$SSL_KS_PASSWORD > game-api.p12
+#
+# RUN keytool -importkeystore \
+#     -srckeystore game-api.p12 \
+#     -destkeystore game-api.jks \
+#     -srcstoretype pkcs12 \
+#     -alias game-api \
+#     -deststorepass $SSL_KS_PASSWORD \
+#     -srcstorepass $SSL_KS_PASSWORD

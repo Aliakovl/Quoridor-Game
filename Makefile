@@ -1,6 +1,7 @@
 VERSION = $(shell TZ=UTC-3 date +'%Y.%m.%d')-$(shell git log -1 --pretty=tformat:"%h")
 DOCKER_REGISTRY = $(shell awk -F= '{ if ($$1 == "DOCKER_REGISTRY") { print $$2 } }' .env)
 DOCKER_CONTEXT = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT") { print $$2 } }' .env)
+DOCKER_CONTEXT_GATEWAY = $(shell awk -F= '{ if ($$1 == "DOCKER_CONTEXT_GATEWAY") { print $$2 } }' .env)
 DOCKER_USERNAME = $(shell awk -F= '{ if ($$1 == "DOCKER_USERNAME") { print $$2 } }' .env)
 
 init-dev: init-keys init-frontend init-game-api-tls
@@ -91,8 +92,8 @@ publish-init:
 	docker image push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/init-game-api-tls:latest
 
 deploy-init:
-	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
-	docker-compose -f init/docker-compose.yml --env-file .env up -d
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT_GATEWAY) && \
+	docker-compose -f init/docker-compose.yml --env-file .env up -d --build init-nginx
 
 build-game-api:
 	rm -r ./.build | true
@@ -132,7 +133,6 @@ publish-migrations:
 	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/migrations
 
 publish-game:
-	docker image tag $(DOCKER_USERNAME)/game-api:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api:$(VERSION)
 	docker image tag $(DOCKER_USERNAME)/game-api:latest $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api:latest
 	docker image push --all-tags $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/game-api
 
@@ -167,3 +167,11 @@ renew-cert:
 
 version:
 	@echo $(VERSION)
+
+deploy-game-api-tls:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+    docker-compose -f init/game-api.docker-compose.yml --env-file .env up -d --build
+
+deploy-game-api-jwt:
+	@export DOCKER_CONTEXT=$(DOCKER_CONTEXT) && \
+    docker-compose -f init/docker-compose.yml --env-file .env up -d --build init-keys

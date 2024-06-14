@@ -11,6 +11,7 @@ services:
     volumes:
       - public-certs:/etc/nginx/certs
       - www-certbot:/var/www/certbot
+      - ssl-dhparam:/etc/nginx/ssl
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:80" ]
       interval: 2s
@@ -19,10 +20,12 @@ services:
 
   certbot:
     image: certbot/certbot:latest
+    stdin_open: true
+    tty: true
     command: >-
-      certonly --webroot --webroot-path=/var/www/certbot
+      certonly --manual --preferred-challenges=dns
       --email ${EMAIL} --agree-tos --no-eff-email
-      -d quoridor.online,www.quoridor.online
+      -d quoridor.ru,*.quoridor.ru
     volumes:
       - public-certs:/etc/letsencrypt
       - www-certbot:/var/www/certbot
@@ -54,7 +57,6 @@ services:
         SSL_KS_PASSWORD: ${SSL_KS_PASSWORD}
     volumes:
       - game-api-jks:/var/tmp/ks
-      - game-api-tls:/var/tmp/cert
 
 volumes:
   public-certs:
@@ -67,5 +69,3 @@ volumes:
     name: ssl-dhparam
   game-api-jks:
     name: game-api-jks
-  game-api-tls:
-    name: game-api-tls

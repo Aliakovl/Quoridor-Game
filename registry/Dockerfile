@@ -1,4 +1,4 @@
 FROM alpine/openssl
 WORKDIR /var/certs
-COPY certs/registry.crt .
-COPY certs/registry.key .
+COPY certs/fullchain.pem ./registry.crt
+COPY certs/privkey.pem ./registry.key
